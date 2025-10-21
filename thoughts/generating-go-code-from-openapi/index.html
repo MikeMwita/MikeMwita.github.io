@@ -1,85 +1,85 @@
 <!doctype html><html lang=en><head><title>Generating Go code from OpenAPI Specification Document :: Mwita (~$)</title><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="A quick and practical walkthrough for developers who want to generate type-safe Go code directly from OpenAPI specs.
 "><meta name=keywords content="blog,developer,personal"><meta name=robots content="noodp"><link rel=canonical href=https://MikeMwita.github.io/thoughts/generating-go-code-from-openapi/><link rel=stylesheet href=https://MikeMwita.github.io/css/custom.min.bf1abe82ab5689e52ba3a1ce7d609228a391cd774593dfffe0bb25757c7ff5dc.css><link rel=stylesheet href=https://MikeMwita.github.io/css/buttons.min.86f6b4c106b6c6eb690ae5203d36b442c1f66f718ff4e8164fa86cf6c61ad641.css><link rel=stylesheet href=https://MikeMwita.github.io/css/code.min.d529ea4b2fb8d34328d7d31afc5466d5f7bc2f0bc9abdd98b69385335d7baee4.css><link rel=stylesheet href=https://MikeMwita.github.io/css/fonts.min.5bb7ed13e1d00d8ff39ea84af26737007eb5051b157b86fc24487c94f3dc8bbe.css><link rel=stylesheet href=https://MikeMwita.github.io/css/footer.min.eb8dfc2c6a7eafa36cd3ba92d63e69e849e2200e0002a228d137f236b09ecd75.css><link rel=stylesheet href=https://MikeMwita.github.io/css/gist.min.a751e8b0abe1ba8bc53ced52a38b19d8950fe78ca29454ea8c2595cf26aad5c0.css><link rel=stylesheet href=https://MikeMwita.github.io/css/header.min.75c7eb0e2872d95ff48109c6647d0223a38db52e2561dd87966eb5fc7c6bdac6.css><link rel=stylesheet href=https://MikeMwita.github.io/css/main.min.36833afd348409fc6c3d09d0897c5833d9d5bf1ff31f5e60ea3ee42ce2b1268c.css><link rel=stylesheet href=https://MikeMwita.github.io/css/menu.min.3c17467ebeb3d38663dce68f71f519901124fa5cbb4519b2fb0667a21e9aca39.css><link rel=stylesheet href=https://MikeMwita.github.io/css/pagination.min.bbb986dbce00a5ce5aca0504b7925fc1c581992a4bf57f163e5d69cc1db7d836.css><link rel=stylesheet href=https://MikeMwita.github.io/css/post.min.e6dddd258e64c83e05cec0cd49c05216742d42fc8ecbfbe6b67083412b609bd3.css><link rel=stylesheet href=https://MikeMwita.github.io/css/syntax.min.a0773cce9310cb6d8ed23e50f005448facf29a53001b57e038828daa466b25c0.css><link rel=stylesheet href=https://MikeMwita.github.io/css/terminal.min.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css><link rel=stylesheet href=https://MikeMwita.github.io/css/terms.min.b81791663c3790e738e571cdbf802312390d30e4b1d8dc9d814a5b5454d0ac11.css><link rel="shortcut icon" href=https://MikeMwita.github.io/favicon.png><link rel=apple-touch-icon href=https://MikeMwita.github.io/apple-touch-icon.png><meta name=twitter:card content="summary"><meta property="og:locale" content="en"><meta property="og:type" content="article"><meta property="og:title" content="Generating Go code from OpenAPI Specification Document"><meta property="og:description" content="A quick and practical walkthrough for developers who want to generate type-safe Go code directly from OpenAPI specs.
-"><meta property="og:url" content="https://MikeMwita.github.io/thoughts/generating-go-code-from-openapi/"><meta property="og:site_name" content="Mwita (~$)"><meta property="og:image" content="https://MikeMwita.github.io/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="627"><meta property="article:published_time" content="2025-10-12 00:00:00 +0000 UTC"></head><body><div class=container><header class=header><div class=header__inner><div class=header__logo><a href=https://MikeMwita.github.io/><div class=logo>Terminal</div></a></div><ul class="menu menu--mobile"><li class=menu__trigger>Menu&nbsp;▾</li><li><ul class=menu__dropdown><li><a href=/cv/>CV</a></li><li><a href=/projects/>Projects</a></li><li><a href=/thoughts/>Thoughts</a></li><li><a href=/contact/>Contact</a></li></ul></li></ul></div><nav class=navigation-menu><ul class="navigation-menu__inner menu--desktop"><li><a href=/cv/>CV</a></li><li><a href=/projects/>Projects</a></li><li><a href=/thoughts/>Thoughts</a></li><li><a href=/contact/>Contact</a></li></ul></nav></header><div class=content><article class=post><h1 class=post-title><a href=https://MikeMwita.github.io/thoughts/generating-go-code-from-openapi/>Generating Go code from OpenAPI Specification Document</a></h1><div class=post-meta><time class=post-date>October 12, 2025</time><span class=post-author>Mike Mwita</span><span class=post-reading-time>3 min read (531 words)</span></div><div class=post-content><div><p>A quick and practical walkthrough for developers who want to generate type-safe Go code directly from OpenAPI specs.</p><h2 id=a-step-by-step-look-at-generating-go-code-from-openapi-specification>A step-by-step look at generating Go code from OpenAPI specification<a href=#a-step-by-step-look-at-generating-go-code-from-openapi-specification class=hanchor arialabel=Anchor>#</a></h2><hr><h3 id=introduction>Introduction<a href=#introduction class=hanchor arialabel=Anchor>#</a></h3><p><img src=/images/go-openapi.png alt="OpenAPI to Go code generation flow"></p><p>As a back-end developer working on a rapidly evolving project, I wanted to explore a faster approach to API development.
+"><meta property="og:url" content="https://MikeMwita.github.io/thoughts/generating-go-code-from-openapi/"><meta property="og:site_name" content="Mwita (~$)"><meta property="og:image" content="https://MikeMwita.github.io/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="627"><meta property="article:published_time" content="2025-10-12 00:00:00 +0000 UTC"></head><body><div class=container><header class=header><div class=header__inner><div class=header__logo><a href=https://MikeMwita.github.io/><div class=logo>Terminal</div></a></div><ul class="menu menu--mobile"><li class=menu__trigger>Menu&nbsp;▾</li><li><ul class=menu__dropdown><li><a href=/cv/>CV</a></li><li><a href=/projects/>Projects</a></li><li><a href=/thoughts/>Thoughts</a></li><li><a href=/contact/>Contact</a></li></ul></li></ul></div><nav class=navigation-menu><ul class="navigation-menu__inner menu--desktop"><li><a href=/cv/>CV</a></li><li><a href=/projects/>Projects</a></li><li><a href=/thoughts/>Thoughts</a></li><li><a href=/contact/>Contact</a></li></ul></nav></header><div class=content><article class=post><h1 class=post-title><a href=https://MikeMwita.github.io/thoughts/generating-go-code-from-openapi/>Generating Go code from OpenAPI Specification Document</a></h1><div class=post-meta><time class=post-date>October 12, 2025</time><span class=post-author>Mike Mwita</span><span class=post-reading-time>3 min read (530 words)</span></div><div class=post-content><div><p>A quick and practical walkthrough for developers who want to generate type-safe Go code directly from OpenAPI specs.</p><h2 id=a-step-by-step-look-at-generating-go-code-from-openapi-specification>A step-by-step look at generating Go code from OpenAPI specification<a href=#a-step-by-step-look-at-generating-go-code-from-openapi-specification class=hanchor arialabel=Anchor>#</a></h2><hr><h3 id=introduction>Introduction<a href=#introduction class=hanchor arialabel=Anchor>#</a></h3><p><img src=/images/go-openapi.png alt="OpenAPI to Go code generation flow"></p><p>As a back-end developer working on a rapidly evolving project, I wanted to explore a faster approach to API development.
 That’s when I discovered <strong>oapi-codegen</strong>, a Go tool that automatically generates API code from an <strong>OpenAPI Specification (OAS)</strong> file.</p><p>After experimenting with it and seeing how cleanly it integrates into real-world projects, I decided to write this post to walk through the <strong>end-to-end process</strong> of generating Go code with <code>oapi-codegen</code>.</p><p>By the end of this guide, you’ll know how to:</p><ul><li>Install and use <code>oapi-codegen</code></li><li>Understand OpenAPI’s structure</li><li>Generate clean, type-safe Go code</li><li>Integrate it into your own API workflow</li></ul><hr><h3 id=prerequisites>Prerequisites<a href=#prerequisites class=hanchor arialabel=Anchor>#</a></h3><p>To follow along, you’ll need:</p><ul><li>Go <strong>1.16+</strong></li><li>A basic understanding of Go syntax and modules</li><li>Familiarity with REST APIs</li><li>Some prior exposure to <strong>OpenAPI</strong> concepts (helpful but not mandatory)</li></ul><hr><h3 id=what-is-openapi-specification>What is OpenAPI Specification?<a href=#what-is-openapi-specification class=hanchor arialabel=Anchor>#</a></h3><p>According to the official <a href=https://swagger.io/specification/>OpenAPI documentation</a>:</p><blockquote><p>“The OpenAPI Specification (OAS) defines a standard, language-agnostic interface to HTTP APIs which allows both humans and computers to discover and understand the capabilities of the service without access to source code, documentation, or through network traffic inspection.”</p></blockquote><p>In simpler terms, <strong>OpenAPI</strong> is a <strong>blueprint for APIs</strong> —
 it describes endpoints, request/response formats, authentication, and data models — all in a structured YAML or JSON file.</p><p>That means both humans <em>and</em> machines can interpret your API consistently.</p><hr><h3 id=why-opt-for-openapi>Why Opt for OpenAPI?<a href=#why-opt-for-openapi class=hanchor arialabel=Anchor>#</a></h3><ul><li><strong>Design-first approach:</strong> Define the API contract before writing code, ensuring clarity and shared understanding.</li><li><strong>Team independence:</strong> Backend and frontend teams can work in parallel using mock servers.</li><li><strong>Auto-generated documentation:</strong> Tools like Swagger UI can instantly visualize the spec.</li><li><strong>Code generation:</strong> You can generate both server and client code in multiple languages.</li></ul><h3 id=creating-the-project>Creating the Project<a href=#creating-the-project class=hanchor arialabel=Anchor>#</a></h3><ol><li><p>Navigate to the folder where you want to create a sample project.</p></li><li><p>Start the project’s module using the <code>go mod init</code> command in the terminal:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>go mod init github.com/MikeMwita/article
-</span></span></code></pre></div></li></ol><h3 id=writing-openapi-document>Writing OpenAPI document<a href=#writing-openapi-document class=hanchor arialabel=Anchor>#</a></h3><p>This is a sample of the OpenAPI specification file we will use to generate the documentation.
-``yaml
-openapi: 3.0.3
-info:
-title: FinanceAPP
-description: FinanceAPP
-version: 2022-04-01
-servers:</p><ul><li>url: &lsquo;http://localhost:9090/v1&rsquo;
-description: &lsquo;Local&rsquo;
-paths:
-/signup:
-summary: Signup for users to get account
-description: User account signup
-post:
-summary: A POST request to sign up for an account
-security: []
-operationId: signUp
-tags:
-- Signup
-description: sign up post
-requestBody:
-description: signup request object
-required: true
-content:
-application/json:
-schema:
-type: object
-properties:
-name:
-description: full user name
-type: string
-example: john doe
-email:
-type: string
-description: valid email
-example: <a href=mailto:john.doe@example.com>john.doe@example.com</a>
-password:
-type: string
-description: strong password
-example: secureP@ssword
-minLength: 6
-maxLength: 16
-confirm_password:
-type: string
-example: secureP@ssword
-minLength: 6
-maxLength: 16
-required:
-- name
-- password
-- email
-- confirm_password
-responses:
-&lsquo;200&rsquo;:
-description: succesfully signed up
-content:
-application/json:
-schema:
-properties:
-name:
-type: string
-example: Joe doe
-email:
-type: string
-example: <a href=mailto:john.doe@example.com>john.doe@example.com</a>
-default:
-description: error
-content:
-application/json:
-schema:
-properties:
-message:
-type: string
-error:
-type: string
-tags:</li><li>name: Signup
-description: signup description</li></ul><pre tabindex=0><code>&gt; You can install the **Gherkin** extension for YAML files in your preferred IDE’s marketplace.
-&gt; This will allow you to write better and structure your OpenAPI document effectively.
-</code></pre></div></div></article></div><footer class=footer><div class=footer__inner><div class=copyright><span>© 2025 Powered by <a href=https://gohugo.io>Hugo</a></span>
+</span></span></code></pre></div></li></ol><h3 id=writing-openapi-document>Writing OpenAPI document<a href=#writing-openapi-document class=hanchor arialabel=Anchor>#</a></h3><p>This is a sample of the OpenAPI specification file we will use to generate the documentation.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>openapi</span><span class=p>:</span><span class=w> </span><span class=m>3.0.3</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>info</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>title</span><span class=p>:</span><span class=w> </span><span class=l>FinanceAPP</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>description</span><span class=p>:</span><span class=w> </span><span class=l>FinanceAPP</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>version</span><span class=p>:</span><span class=w> </span><span class=ld>2022-04-01</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>servers</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>url</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;http://localhost:9090/v1&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>description</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;Local&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>paths</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>/signup</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>summary</span><span class=p>:</span><span class=w> </span><span class=l>Signup for users to get account</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>description</span><span class=p>:</span><span class=w>  </span><span class=l>User account signup</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>post</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>summary</span><span class=p>:</span><span class=w> </span><span class=l>A POST request to sign up for an account</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>security</span><span class=p>:</span><span class=w> </span><span class=p>[]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>operationId</span><span class=p>:</span><span class=w> </span><span class=l>signUp</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>tags</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=l>Signup</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>description</span><span class=p>:</span><span class=w> </span><span class=l>sign up post</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>requestBody</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>description</span><span class=p>:</span><span class=w> </span><span class=l>signup request object</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>required</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>content</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>application/json</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nt>schema</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>              </span><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>object</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>              </span><span class=nt>properties</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=nt>name</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                  </span><span class=nt>description</span><span class=p>:</span><span class=w> </span><span class=l>full user name</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                  </span><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                  </span><span class=nt>example</span><span class=p>:</span><span class=w> </span><span class=l>john doe</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=nt>email</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                  </span><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                  </span><span class=nt>description</span><span class=p>:</span><span class=w> </span><span class=l>valid email</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                  </span><span class=nt>example</span><span class=p>:</span><span class=w> </span><span class=l>john.doe@example.com</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=nt>password</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                  </span><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                  </span><span class=nt>description</span><span class=p>:</span><span class=w> </span><span class=l>strong password</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                  </span><span class=nt>example</span><span class=p>:</span><span class=w> </span><span class=l>secureP@ssword</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                  </span><span class=nt>minLength</span><span class=p>:</span><span class=w> </span><span class=m>6</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                  </span><span class=nt>maxLength</span><span class=p>:</span><span class=w> </span><span class=m>16</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=nt>confirm_password</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                  </span><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                  </span><span class=nt>example</span><span class=p>:</span><span class=w> </span><span class=l>secureP@ssword</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                  </span><span class=nt>minLength</span><span class=p>:</span><span class=w> </span><span class=m>6</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                  </span><span class=nt>maxLength</span><span class=p>:</span><span class=w> </span><span class=m>16</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>              </span><span class=nt>required</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span>- <span class=l>name</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span>- <span class=l>password</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span>- <span class=l>email</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span>- <span class=l>confirm_password</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>responses</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>&#39;200&#39;</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>description</span><span class=p>:</span><span class=w> </span><span class=l>succesfully signed up</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>content</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nt>application/json</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>              </span><span class=nt>schema</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=nt>properties</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                  </span><span class=nt>name</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                    </span><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                    </span><span class=nt>example</span><span class=p>:</span><span class=w> </span><span class=l>Joe doe</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                  </span><span class=nt>email</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                    </span><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                    </span><span class=nt>example</span><span class=p>:</span><span class=w> </span><span class=l>john.doe@example.com</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>default</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>description</span><span class=p>:</span><span class=w> </span><span class=l>error</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>content</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nt>application/json</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>              </span><span class=nt>schema</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                </span><span class=nt>properties</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                  </span><span class=nt>message</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                    </span><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                  </span><span class=nt>error</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>                    </span><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>tags</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>Signup</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>description</span><span class=p>:</span><span class=w> </span><span class=l>signup description</span><span class=w>
+</span></span></span></code></pre></div><blockquote><p>You can install the <strong>Gherkin</strong> extension for YAML files in your preferred IDE’s marketplace.
+This will allow you to write better and structure your OpenAPI document effectively.</p></blockquote></div></div></article></div><footer class=footer><div class=footer__inner><div class=copyright><span>© 2025 Powered by <a href=https://gohugo.io>Hugo</a></span>
 <span>:: <a href=https://github.com/panr/hugo-theme-terminal target=_blank>Theme</a> made by <a href=https://github.com/panr target=_blank>panr</a></span></div></div></footer><script type=text/javascript src=/bundle.min.js></script></div></body></html>
