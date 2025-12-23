@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>JavaScript on Mike Mwita</title>
+    <link>http://localhost:1313/tags/javascript/</link>
+    <description>Recent content in JavaScript on Mike Mwita</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>© 2025 Mike Mwita</copyright>
+    <atom:link href="http://localhost:1313/tags/javascript/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Mike Mwita’s Resume / CV</title>
+      <link>http://localhost:1313/cv/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/cv/</guid>
+      <description>Mike Mwita Ambitious Software Developer 📍 Nairobi, Kenya&#xA;Passionate about building reliable software systems, scalable backends, and clean developer experiences across web, cloud, and distributed environments.&#xA;⬇ Download full CV (PDF)&#xA;Summary I am a driven and enthusiastic software developer with a strong interest in backend systems, cloud infrastructure, and developer tooling. I enjoy designing and building software that is maintainable, scalable, and easy to reason about.&#xA;I have hands-on experience collaborating in cross-functional teams, contributing to open-source projects, and delivering production-ready systems using modern tools and practices.</description>
+    </item>
+  </channel>
+</rss>
