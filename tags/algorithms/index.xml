@@ -1,5 +1,20 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Algorithms on Mike Mwita</title><link>https://MikeMwita.github.io/tags/algorithms/</link><description>Recent content in Algorithms on Mike Mwita</description><generator>Hugo</generator><language>en</language><copyright>© 2025 Mike Mwita</copyright><lastBuildDate>Thu, 02 Nov 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://MikeMwita.github.io/tags/algorithms/index.xml" rel="self" type="application/rss+xml"/><item><title>go-bloomfilter</title><link>https://MikeMwita.github.io/projects/go-bloomfilter/</link><pubDate>Thu, 02 Nov 2023 00:00:00 +0000</pubDate><guid>https://MikeMwita.github.io/projects/go-bloomfilter/</guid><description>&lt;h2 id="motivation">Motivation&lt;/h2>
-&lt;p>Many backend systems need to answer one question extremely fast: &lt;em>have I seen this before?&lt;/em> Traditional data structures often trade memory for speed, which becomes expensive at scale.&lt;/p>
-&lt;p>This project was created to explore probabilistic data structures in Go while gaining hands-on experience with bitwise operations, hashing strategies, and memory-efficient design.&lt;/p>
-&lt;h2 id="results">Results&lt;/h2>
-&lt;p>The implementation uses a compact &lt;code>[]uint64&lt;/code> bit array with auto-tuned parameters to balance false positives and memory usage. Hashing is inspired by MurmurHash to ensure even distribution and consistent performance.&lt;/p></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Algorithms on Mike Mwita</title>
+    <link>https://MikeMwita.github.io/tags/algorithms/</link>
+    <description>Recent content in Algorithms on Mike Mwita</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <copyright>© 2025 Mike Mwita</copyright>
+    <lastBuildDate>Thu, 02 Nov 2023 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://MikeMwita.github.io/tags/algorithms/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>go-bloomfilter</title>
+      <link>https://MikeMwita.github.io/projects/go-bloomfilter/</link>
+      <pubDate>Thu, 02 Nov 2023 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/projects/go-bloomfilter/</guid>
+      <description>&lt;h2 id=&#34;motivation&#34;&gt;Motivation&lt;/h2&gt;&#xA;&lt;p&gt;Many backend systems need to answer one question extremely fast: &lt;em&gt;have I seen this before?&lt;/em&gt; Traditional data structures often trade memory for speed, which becomes expensive at scale.&lt;/p&gt;&#xA;&lt;p&gt;This project was created to explore probabilistic data structures in Go while gaining hands-on experience with bitwise operations, hashing strategies, and memory-efficient design.&lt;/p&gt;&#xA;&lt;h2 id=&#34;results&#34;&gt;Results&lt;/h2&gt;&#xA;&lt;p&gt;The implementation uses a compact &lt;code&gt;[]uint64&lt;/code&gt; bit array with auto-tuned parameters to balance false positives and memory usage. Hashing is inspired by MurmurHash to ensure even distribution and consistent performance.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

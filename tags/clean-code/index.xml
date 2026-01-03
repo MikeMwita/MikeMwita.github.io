@@ -1,7 +1,27 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Clean Code on Mike Mwita</title><link>https://MikeMwita.github.io/tags/clean-code/</link><description>Recent content in Clean Code on Mike Mwita</description><generator>Hugo</generator><language>en</language><copyright>© 2025 Mike Mwita</copyright><lastBuildDate>Tue, 21 Oct 2025 07:00:00 +0300</lastBuildDate><atom:link href="https://MikeMwita.github.io/tags/clean-code/index.xml" rel="self" type="application/rss+xml"/><item><title>Write Once, Test Everywhere: Sharing Common Tests in Python’s unittest</title><link>https://MikeMwita.github.io/thoughts/unit-test/</link><pubDate>Tue, 21 Oct 2025 07:00:00 +0300</pubDate><guid>https://MikeMwita.github.io/thoughts/unit-test/</guid><description>&lt;p>A while back, I was writing tests for a project using Python’s unittest.
-Nothing dramatic — just the usual rhythm: write a class, test it, move to the next one.
-After a few classes, though, the déjà vu hit.&lt;/p></description></item><item><title>go-strict</title><link>https://MikeMwita.github.io/projects/go-strict/</link><pubDate>Mon, 18 Mar 2024 00:00:00 +0000</pubDate><guid>https://MikeMwita.github.io/projects/go-strict/</guid><description>&lt;h2 id="motivation">Motivation&lt;/h2>
-&lt;p>As Go codebases grow, complexity often hides in deeply nested logic rather than raw line count. Traditional linters catch syntax and style issues but rarely highlight &lt;em>mental load&lt;/em>.&lt;/p>
-&lt;p>go-strict was built to quantify cognitive complexity so teams can reason about readability early—before code becomes difficult to maintain or review.&lt;/p>
-&lt;h2 id="results">Results&lt;/h2>
-&lt;p>The linter analyzes function control flow, nesting, and branching to produce a clear complexity score with file and line references. Output formats are configurable, making it easy to integrate into CI pipelines.&lt;/p></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Clean Code on Mike Mwita</title>
+    <link>https://MikeMwita.github.io/tags/clean-code/</link>
+    <description>Recent content in Clean Code on Mike Mwita</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <copyright>© 2025 Mike Mwita</copyright>
+    <lastBuildDate>Tue, 21 Oct 2025 07:00:00 +0300</lastBuildDate>
+    <atom:link href="https://MikeMwita.github.io/tags/clean-code/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Write Once, Test Everywhere: Sharing Common Tests in Python’s unittest</title>
+      <link>https://MikeMwita.github.io/thoughts/unit-test/</link>
+      <pubDate>Tue, 21 Oct 2025 07:00:00 +0300</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/unit-test/</guid>
+      <description>&lt;p&gt;A while back, I was writing tests for a  project using Python’s unittest.&#xA;Nothing dramatic — just the usual rhythm: write a class, test it, move to the next one.&#xA;After a few classes, though, the déjà vu hit.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>go-strict</title>
+      <link>https://MikeMwita.github.io/projects/go-strict/</link>
+      <pubDate>Mon, 18 Mar 2024 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/projects/go-strict/</guid>
+      <description>&lt;h2 id=&#34;motivation&#34;&gt;Motivation&lt;/h2&gt;&#xA;&lt;p&gt;As Go codebases grow, complexity often hides in deeply nested logic rather than raw line count. Traditional linters catch syntax and style issues but rarely highlight &lt;em&gt;mental load&lt;/em&gt;.&lt;/p&gt;&#xA;&lt;p&gt;go-strict was built to quantify cognitive complexity so teams can reason about readability early—before code becomes difficult to maintain or review.&lt;/p&gt;&#xA;&lt;h2 id=&#34;results&#34;&gt;Results&lt;/h2&gt;&#xA;&lt;p&gt;The linter analyzes function control flow, nesting, and branching to produce a clear complexity score with file and line references. Output formats are configurable, making it easy to integrate into CI pipelines.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

@@ -1,8 +1,26 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Books on Mike Mwita</title><link>https://MikeMwita.github.io/tags/books/</link><description>Recent content in Books on Mike Mwita</description><generator>Hugo</generator><language>en</language><copyright>© 2025 Mike Mwita</copyright><atom:link href="https://MikeMwita.github.io/tags/books/index.xml" rel="self" type="application/rss+xml"/><item><title>Just Use Postgres</title><link>https://MikeMwita.github.io/books/just_use_postgres/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://MikeMwita.github.io/books/just_use_postgres/</guid><description>&lt;ul>
-&lt;li>PostgreSQL’s source code is overwhelmingly written in C .(Over 85%)&lt;/li>
-&lt;/ul></description></item><item><title>The Pragmatic Programmer</title><link>https://MikeMwita.github.io/books/the-pragmatic-programmer/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://MikeMwita.github.io/books/the-pragmatic-programmer/</guid><description>&lt;h2 id="highlights">Highlights&lt;/h2>
-&lt;ul>
-&lt;li>Don’t live with broken windows&lt;/li>
-&lt;li>Make it easy to change&lt;/li>
-&lt;li>Build software that can explain itself&lt;/li>
-&lt;/ul></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Books on Mike Mwita</title>
+    <link>https://MikeMwita.github.io/tags/books/</link>
+    <description>Recent content in Books on Mike Mwita</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <copyright>© 2025 Mike Mwita</copyright>
+    <atom:link href="https://MikeMwita.github.io/tags/books/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Just Use Postgres</title>
+      <link>https://MikeMwita.github.io/books/just_use_postgres/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/books/just_use_postgres/</guid>
+      <description>&lt;ul&gt;&#xA;&lt;li&gt;PostgreSQL’s source code is overwhelmingly written in C .(Over 85%)&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
+    </item>
+    <item>
+      <title>The Pragmatic Programmer</title>
+      <link>https://MikeMwita.github.io/books/the-pragmatic-programmer/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/books/the-pragmatic-programmer/</guid>
+      <description>&lt;h2 id=&#34;highlights&#34;&gt;Highlights&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Don’t live with broken windows&lt;/li&gt;&#xA;&lt;li&gt;Make it easy to change&lt;/li&gt;&#xA;&lt;li&gt;Build software that can explain itself&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
+    </item>
+  </channel>
+</rss>

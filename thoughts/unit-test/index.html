@@ -1,99 +1,379 @@
-<!doctype html><html lang=en><head><title>Write Once, Test Everywhere: Sharing Common Tests in Python’s unittest :: Mike Mwita</title><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="How to reduce duplication in Python unittest suites by sharing common test logic across multiple test classes."><meta name=keywords content="Web Development,Software Developer Engineer,Programming,Data Structures and Algorithms,Kubernetes,Go,Cloud Engineering"><meta name=robots content="noodp"><link rel=canonical href=https://MikeMwita.github.io/thoughts/unit-test/><link rel=stylesheet href=https://MikeMwita.github.io/css/green.min.047df377c3311913755de676cbec82d1cbf82276d81429ef9d6b9f9e7a480855.css><link rel=stylesheet href=https://MikeMwita.github.io/css/buttons.min.86f6b4c106b6c6eb690ae5203d36b442c1f66f718ff4e8164fa86cf6c61ad641.css><link rel=stylesheet href=https://MikeMwita.github.io/css/code.min.d529ea4b2fb8d34328d7d31afc5466d5f7bc2f0bc9abdd98b69385335d7baee4.css><link rel=stylesheet href=https://MikeMwita.github.io/css/fonts.min.5bb7ed13e1d00d8ff39ea84af26737007eb5051b157b86fc24487c94f3dc8bbe.css><link rel=stylesheet href=https://MikeMwita.github.io/css/footer.min.eb8dfc2c6a7eafa36cd3ba92d63e69e849e2200e0002a228d137f236b09ecd75.css><link rel=stylesheet href=https://MikeMwita.github.io/css/gist.min.a751e8b0abe1ba8bc53ced52a38b19d8950fe78ca29454ea8c2595cf26aad5c0.css><link rel=stylesheet href=https://MikeMwita.github.io/css/header.min.75c7eb0e2872d95ff48109c6647d0223a38db52e2561dd87966eb5fc7c6bdac6.css><link rel=stylesheet href=https://MikeMwita.github.io/css/main.min.36833afd348409fc6c3d09d0897c5833d9d5bf1ff31f5e60ea3ee42ce2b1268c.css><link rel=stylesheet href=https://MikeMwita.github.io/css/menu.min.3c17467ebeb3d38663dce68f71f519901124fa5cbb4519b2fb0667a21e9aca39.css><link rel=stylesheet href=https://MikeMwita.github.io/css/pagination.min.bbb986dbce00a5ce5aca0504b7925fc1c581992a4bf57f163e5d69cc1db7d836.css><link rel=stylesheet href=https://MikeMwita.github.io/css/post.min.e6dddd258e64c83e05cec0cd49c05216742d42fc8ecbfbe6b67083412b609bd3.css><link rel=stylesheet href=https://MikeMwita.github.io/css/syntax.min.a0773cce9310cb6d8ed23e50f005448facf29a53001b57e038828daa466b25c0.css><link rel=stylesheet href=https://MikeMwita.github.io/css/terminal.min.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css><link rel=stylesheet href=https://MikeMwita.github.io/css/terms.min.b81791663c3790e738e571cdbf802312390d30e4b1d8dc9d814a5b5454d0ac11.css><link rel="shortcut icon" href=https://MikeMwita.github.io/favicon.png><link rel=apple-touch-icon href=https://MikeMwita.github.io/apple-touch-icon.png><meta name=twitter:card content="summary"><meta name=twitter:site content="https://MikeMwita.github.io/"><meta name=twitter:creator content><meta property="og:locale" content="en"><meta property="og:type" content="article"><meta property="og:title" content="Write Once, Test Everywhere: Sharing Common Tests in Python’s unittest"><meta property="og:description" content="How to reduce duplication in Python unittest suites by sharing common test logic across multiple test classes."><meta property="og:url" content="https://MikeMwita.github.io/thoughts/unit-test/"><meta property="og:site_name" content="Mike Mwita"><meta property="og:image" content="https://MikeMwita.github.io/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="627"><meta property="article:published_time" content="2025-10-21 07:00:00 +0300 +0300"></head><body><div class="container center"><header class=header><div class=header__inner><div class=header__logo><a href=/><div class=logo>Mike Mwita (⌐▨_▨)</div></a></div><ul class="menu menu--mobile"><li class=menu__trigger>Menu&nbsp;▾</li><li><ul class=menu__dropdown><li><a href=/cv>CV</a></li><li><a href=/projects>Projects</a></li><li><a href=/thoughts>Thoughts?</a></li><li><a href=/books>Books</a></li><li><a href=/contacts>Contacts</a></li></ul></li></ul></div><nav class=navigation-menu><ul class="navigation-menu__inner menu--desktop"><li><a href=/cv>CV</a></li><li><a href=/projects>Projects</a></li><li><a href=/thoughts>Thoughts?</a></li><li><a href=/books>Books</a></li><li><a href=/contacts>Contacts</a></li></ul></nav></header><div class=content><article class=post><h1 class=post-title><a href=https://MikeMwita.github.io/thoughts/unit-test/>Write Once, Test Everywhere: Sharing Common Tests in Python’s unittest</a></h1><div class=post-meta><time class=post-date>2025-10-21&nbsp;[Updated On 2025-10-21]</time><span class=post-reading-time>3 min read (565 words)</span></div><span class=post-tags>#<a href=https://MikeMwita.github.io/tags/python/>python</a>&nbsp;
-#<a href=https://MikeMwita.github.io/tags/testing/>testing</a>&nbsp;
-#<a href=https://MikeMwita.github.io/tags/unittest/>unittest</a>&nbsp;
-#<a href=https://MikeMwita.github.io/tags/clean-code/>clean code</a>&nbsp;</span><div class=post-content><div><p>A while back, I was writing tests for a project using Python’s unittest.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Write Once, Test Everywhere: Sharing Common Tests in Python’s unittest :: Mike Mwita</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="How to reduce duplication in Python unittest suites by sharing common test logic across multiple test classes." />
+<meta name="keywords" content="Web Development, Software Developer Engineer, Programming, Data Structures and Algorithms, Kubernetes, Go, Cloud Engineering" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://MikeMwita.github.io/thoughts/unit-test/" />
+
+
+
+
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/green.min.047df377c3311913755de676cbec82d1cbf82276d81429ef9d6b9f9e7a480855.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/buttons.min.86f6b4c106b6c6eb690ae5203d36b442c1f66f718ff4e8164fa86cf6c61ad641.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/code.min.d529ea4b2fb8d34328d7d31afc5466d5f7bc2f0bc9abdd98b69385335d7baee4.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/fonts.min.5bb7ed13e1d00d8ff39ea84af26737007eb5051b157b86fc24487c94f3dc8bbe.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/footer.min.eb8dfc2c6a7eafa36cd3ba92d63e69e849e2200e0002a228d137f236b09ecd75.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/gist.min.a751e8b0abe1ba8bc53ced52a38b19d8950fe78ca29454ea8c2595cf26aad5c0.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/header.min.75c7eb0e2872d95ff48109c6647d0223a38db52e2561dd87966eb5fc7c6bdac6.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/main.min.36833afd348409fc6c3d09d0897c5833d9d5bf1ff31f5e60ea3ee42ce2b1268c.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/menu.min.3c17467ebeb3d38663dce68f71f519901124fa5cbb4519b2fb0667a21e9aca39.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/pagination.min.bbb986dbce00a5ce5aca0504b7925fc1c581992a4bf57f163e5d69cc1db7d836.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/post.min.e6dddd258e64c83e05cec0cd49c05216742d42fc8ecbfbe6b67083412b609bd3.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/syntax.min.a0773cce9310cb6d8ed23e50f005448facf29a53001b57e038828daa466b25c0.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/terminal.min.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/terms.min.b81791663c3790e738e571cdbf802312390d30e4b1d8dc9d814a5b5454d0ac11.css">
+
+
+
+
+
+
+
+<link rel="shortcut icon" href="https://MikeMwita.github.io/favicon.png">
+<link rel="apple-touch-icon" href="https://MikeMwita.github.io/apple-touch-icon.png">
+
+
+<meta name="twitter:card" content="summary" />
+
+  
+    <meta name="twitter:site" content="https://MikeMwita.github.io/" />
+  
+    <meta name="twitter:creator" content="" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Write Once, Test Everywhere: Sharing Common Tests in Python’s unittest">
+<meta property="og:description" content="How to reduce duplication in Python unittest suites by sharing common test logic across multiple test classes." />
+<meta property="og:url" content="https://MikeMwita.github.io/thoughts/unit-test/" />
+<meta property="og:site_name" content="Mike Mwita" />
+
+  <meta property="og:image" content="https://MikeMwita.github.io/og-image.png">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2025-10-21 07:00:00 &#43;0300 &#43;0300" />
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+
+
+<div class="container center">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    Mike  Mwita (⌐▨_▨)
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/cv">CV</a></li>
+        
+      
+        
+          <li><a href="/projects">Projects</a></li>
+        
+      
+        
+          <li><a href="/thoughts">Thoughts?</a></li>
+        
+      
+        
+          <li><a href="/books">Books</a></li>
+        
+      
+        
+          <li><a href="/contacts">Contacts</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/cv" >CV</a></li>
+        
+      
+        
+          <li><a href="/projects" >Projects</a></li>
+        
+      
+        
+          <li><a href="/thoughts" >Thoughts?</a></li>
+        
+      
+        
+          <li><a href="/books" >Books</a></li>
+        
+      
+        
+          <li><a href="/contacts" >Contacts</a></li>
+        
+      
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://MikeMwita.github.io/thoughts/unit-test/">Write Once, Test Everywhere: Sharing Common Tests in Python’s unittest</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2025-10-21&nbsp;[Updated On 2025-10-21]</time><span class="post-reading-time">3 min read (565 words)</span></div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://MikeMwita.github.io/tags/python/">python</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/testing/">testing</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/unittest/">unittest</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/clean-code/">clean code</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+  
+
+  <div class="post-content"><div>
+        <p>A while back, I was writing tests for a  project using Python’s unittest.
 Nothing dramatic — just the usual rhythm: write a class, test it, move to the next one.
-After a few classes, though, the déjà vu hit.</p><p>Every test looked almost identical — the same setup, the same assertions, just different class names.</p><p>That’s when I paused and thought:</p><p><em>If all these classes share the same behavior, why am I writing the same tests over and over</em></p><p>So I started experimenting.
+After a few classes, though, the déjà vu hit.</p>
+<p>Every test looked almost identical — the same setup, the same assertions, just different class names.</p>
+<p>That’s when I paused and thought:</p>
+<p><em>If all these classes share the same behavior, why am I writing the same tests over and over</em></p>
+<p>So I started experimenting.
 What if I could write the tests once, and then somehow have them apply to multiple classes automatically?
 It sounded like something unittest should make easy — but it doesn’t.
 There’s no built-in way to define a test base class that only runs when subclassed.
 Still, there are elegant, Pythonic patterns that make it possible.
 In this article, I’ll walk you through how I turned that “boring moment” into a neat discovery —
-by creating shared test structures that reduce boilerplate, increase coverage, and make testing a bit more satisfying.</p><h3 id=setting-the-stage>Setting the Stage<a href=#setting-the-stage class=hanchor arialabel=Anchor>#</a></h3><ul><li>Let’s start with a simple, familiar scenario:testing some geometric shape classes that all share a common interface — each one implements an area() method.</li><li>We’ll use it to explore several techniques for writing shared tests in Python’s unittest, from the classic base-class trick to more creative, scalable patterns.</li></ul><p>Example:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> math
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Circle</span>:
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> __init__(self, radius: float):
-</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>radius <span style=color:#f92672>=</span> radius
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>area</span>(self) <span style=color:#f92672>-&gt;</span> float:
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> math<span style=color:#f92672>.</span>pi <span style=color:#f92672>*</span> self<span style=color:#f92672>.</span>radius<span style=color:#f92672>**</span><span style=color:#ae81ff>2</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Square</span>:
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> __init__(self, side: float):
-</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>side <span style=color:#f92672>=</span> side
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>area</span>(self) <span style=color:#f92672>-&gt;</span> float:
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> self<span style=color:#f92672>.</span>side <span style=color:#f92672>*</span> self<span style=color:#f92672>.</span>side
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Triangle</span>:
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> __init__(self, base: float, height: float):
-</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>base <span style=color:#f92672>=</span> base
-</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>height <span style=color:#f92672>=</span> height
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>area</span>(self) <span style=color:#f92672>-&gt;</span> float:
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0.5</span> <span style=color:#f92672>*</span> self<span style=color:#f92672>.</span>base <span style=color:#f92672>*</span> self<span style=color:#f92672>.</span>height
-</span></span></code></pre></div><p>These are simple, but they share one clear contract:</p><blockquote><p>Each class must implement .area() that returns a positive float.</p></blockquote><p>Let’s see a few approaches to test this elegantly.</p><h3 id=the-base-class-and-del-trick>The base class and del trick<a href=#the-base-class-and-del-trick class=hanchor arialabel=Anchor>#</a></h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> unittest
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>BaseShapeTests</span>(unittest<span style=color:#f92672>.</span>TestCase):
-</span></span><span style=display:flex><span>    shape_class <span style=color:#f92672>=</span> <span style=color:#66d9ef>None</span>
-</span></span><span style=display:flex><span>    init_args <span style=color:#f92672>=</span> ()
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>test_area_returns_float</span>(self):
-</span></span><span style=display:flex><span>        shape <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>shape_class(<span style=color:#f92672>*</span>self<span style=color:#f92672>.</span>init_args)
-</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>assertIsInstance(shape<span style=color:#f92672>.</span>area(), float)
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>test_area_is_positive</span>(self):
-</span></span><span style=display:flex><span>        shape <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>shape_class(<span style=color:#f92672>*</span>self<span style=color:#f92672>.</span>init_args)
-</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>assertGreater(shape<span style=color:#f92672>.</span>area(), <span style=color:#ae81ff>0</span>)
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>CircleTests</span>(BaseShapeTests):
-</span></span><span style=display:flex><span>    shape_class <span style=color:#f92672>=</span> Circle
-</span></span><span style=display:flex><span>    init_args <span style=color:#f92672>=</span> (<span style=color:#ae81ff>2</span>,)
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>SquareTests</span>(BaseShapeTests):
-</span></span><span style=display:flex><span>    shape_class <span style=color:#f92672>=</span> Square
-</span></span><span style=display:flex><span>    init_args <span style=color:#f92672>=</span> (<span style=color:#ae81ff>3</span>,)
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>TriangleTests</span>(BaseShapeTests):
-</span></span><span style=display:flex><span>    shape_class <span style=color:#f92672>=</span> Triangle
-</span></span><span style=display:flex><span>    init_args <span style=color:#f92672>=</span> (<span style=color:#ae81ff>4</span>, <span style=color:#ae81ff>5</span>)
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>del</span> BaseShapeTests
-</span></span></code></pre></div><p>del ensures the base class itself isn’t mistakenly collected by unittest.</p><h3 id=a-mixin-approach>A mixin approach<a href=#a-mixin-approach class=hanchor arialabel=Anchor>#</a></h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ShapeBehaviorMixin</span>:
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>test_area_positive</span>(self):
-</span></span><span style=display:flex><span>        shape <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>shape_class(<span style=color:#f92672>*</span>self<span style=color:#f92672>.</span>init_args)
-</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>assertGreater(shape<span style=color:#f92672>.</span>area(), <span style=color:#ae81ff>0</span>)
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>test_area_numeric</span>(self):
-</span></span><span style=display:flex><span>        shape <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>shape_class(<span style=color:#f92672>*</span>self<span style=color:#f92672>.</span>init_args)
-</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>assertIsInstance(shape<span style=color:#f92672>.</span>area(), (int, float))
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>CircleTests</span>(ShapeBehaviorMixin, unittest<span style=color:#f92672>.</span>TestCase):
-</span></span><span style=display:flex><span>    shape_class <span style=color:#f92672>=</span> Circle
-</span></span><span style=display:flex><span>    init_args <span style=color:#f92672>=</span> (<span style=color:#ae81ff>2</span>,)
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>SquareTests</span>(ShapeBehaviorMixin, unittest<span style=color:#f92672>.</span>TestCase):
-</span></span><span style=display:flex><span>    shape_class <span style=color:#f92672>=</span> Square
-</span></span><span style=display:flex><span>    init_args <span style=color:#f92672>=</span> (<span style=color:#ae81ff>3</span>,)
-</span></span></code></pre></div><p>The tradeoff with this is you will have to to fight with type checkers like mypy about missing assert* methods in the mixin.</p><h3 id=hybrid-pytest-using-__test__--false>Hybrid pytest using <strong>test</strong> = False<a href=#hybrid-pytest-using-__test__--false class=hanchor arialabel=Anchor>#</a></h3><p>If you use pytest to run unittest suites, you can hide the base class gracefully:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ShapeBaseTests</span>(unittest<span style=color:#f92672>.</span>TestCase):
-</span></span><span style=display:flex><span>    __test__ <span style=color:#f92672>=</span> <span style=color:#66d9ef>False</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__init_subclass__</span>(cls, <span style=color:#f92672>**</span>kwargs):
-</span></span><span style=display:flex><span>        super()<span style=color:#f92672>.</span>__init_subclass__(<span style=color:#f92672>**</span>kwargs)
-</span></span><span style=display:flex><span>        cls<span style=color:#f92672>.</span>__test__ <span style=color:#f92672>=</span> <span style=color:#66d9ef>True</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>test_area_contract</span>(self):
-</span></span><span style=display:flex><span>        shape <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>shape_class(<span style=color:#f92672>*</span>self<span style=color:#f92672>.</span>init_args)
-</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>assertGreater(shape<span style=color:#f92672>.</span>area(), <span style=color:#ae81ff>0</span>)
-</span></span></code></pre></div><h2 id=conclusion>Conclusion<a href=#conclusion class=hanchor arialabel=Anchor>#</a></h2><p>In conclusion ,that moment when you catch yourself repeating a test is the perfect time to step back and design for reuse.
+by creating shared test structures that reduce boilerplate, increase coverage, and make testing a bit more satisfying.</p>
+<h3 id="setting-the-stage">Setting the Stage<a href="#setting-the-stage" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<ul>
+<li>Let’s start with a simple, familiar scenario:testing some geometric shape classes that all share a common interface — each one implements an area() method.</li>
+<li>We’ll use it to explore several techniques for writing shared tests in Python’s unittest, from the classic base-class trick to more creative, scalable patterns.</li>
+</ul>
+<p>Example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">import</span> <span style="color:#447fcf;text-decoration:underline">math</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">class</span> <span style="color:#447fcf;text-decoration:underline">Circle</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">def</span> __init__(self, radius: <span style="color:#24909d">float</span>):
+</span></span><span style="display:flex;"><span>        self.radius = radius
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">def</span> <span style="color:#447fcf">area</span>(self) -&gt; <span style="color:#24909d">float</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> math.pi * self.radius**<span style="color:#3677a9">2</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">class</span> <span style="color:#447fcf;text-decoration:underline">Square</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">def</span> __init__(self, side: <span style="color:#24909d">float</span>):
+</span></span><span style="display:flex;"><span>        self.side = side
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">def</span> <span style="color:#447fcf">area</span>(self) -&gt; <span style="color:#24909d">float</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> self.side * self.side
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">class</span> <span style="color:#447fcf;text-decoration:underline">Triangle</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">def</span> __init__(self, base: <span style="color:#24909d">float</span>, height: <span style="color:#24909d">float</span>):
+</span></span><span style="display:flex;"><span>        self.base = base
+</span></span><span style="display:flex;"><span>        self.height = height
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">def</span> <span style="color:#447fcf">area</span>(self) -&gt; <span style="color:#24909d">float</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#3677a9">0.5</span> * self.base * self.height
+</span></span></code></pre></div><p>These are simple, but they share one clear contract:</p>
+<blockquote>
+<p>Each class must implement .area() that returns a positive float.</p>
+</blockquote>
+<p>Let’s see a few approaches to test this elegantly.</p>
+<h3 id="the-base-class-and-del-trick">The base class and del trick<a href="#the-base-class-and-del-trick" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">import</span> <span style="color:#447fcf;text-decoration:underline">unittest</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">class</span> <span style="color:#447fcf;text-decoration:underline">BaseShapeTests</span>(unittest.TestCase):
+</span></span><span style="display:flex;"><span>    shape_class = <span style="color:#6ab825;font-weight:bold">None</span>
+</span></span><span style="display:flex;"><span>    init_args = ()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">def</span> <span style="color:#447fcf">test_area_returns_float</span>(self):
+</span></span><span style="display:flex;"><span>        shape = self.shape_class(*self.init_args)
+</span></span><span style="display:flex;"><span>        self.assertIsInstance(shape.area(), <span style="color:#24909d">float</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">def</span> <span style="color:#447fcf">test_area_is_positive</span>(self):
+</span></span><span style="display:flex;"><span>        shape = self.shape_class(*self.init_args)
+</span></span><span style="display:flex;"><span>        self.assertGreater(shape.area(), <span style="color:#3677a9">0</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">class</span> <span style="color:#447fcf;text-decoration:underline">CircleTests</span>(BaseShapeTests):
+</span></span><span style="display:flex;"><span>    shape_class = Circle
+</span></span><span style="display:flex;"><span>    init_args = (<span style="color:#3677a9">2</span>,)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">class</span> <span style="color:#447fcf;text-decoration:underline">SquareTests</span>(BaseShapeTests):
+</span></span><span style="display:flex;"><span>    shape_class = Square
+</span></span><span style="display:flex;"><span>    init_args = (<span style="color:#3677a9">3</span>,)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">class</span> <span style="color:#447fcf;text-decoration:underline">TriangleTests</span>(BaseShapeTests):
+</span></span><span style="display:flex;"><span>    shape_class = Triangle
+</span></span><span style="display:flex;"><span>    init_args = (<span style="color:#3677a9">4</span>, <span style="color:#3677a9">5</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">del</span> BaseShapeTests
+</span></span></code></pre></div><p>del ensures the base class itself isn’t mistakenly collected by unittest.</p>
+<h3 id="a-mixin-approach">A mixin approach<a href="#a-mixin-approach" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">class</span> <span style="color:#447fcf;text-decoration:underline">ShapeBehaviorMixin</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">def</span> <span style="color:#447fcf">test_area_positive</span>(self):
+</span></span><span style="display:flex;"><span>        shape = self.shape_class(*self.init_args)
+</span></span><span style="display:flex;"><span>        self.assertGreater(shape.area(), <span style="color:#3677a9">0</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">def</span> <span style="color:#447fcf">test_area_numeric</span>(self):
+</span></span><span style="display:flex;"><span>        shape = self.shape_class(*self.init_args)
+</span></span><span style="display:flex;"><span>        self.assertIsInstance(shape.area(), (<span style="color:#24909d">int</span>, <span style="color:#24909d">float</span>))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">class</span> <span style="color:#447fcf;text-decoration:underline">CircleTests</span>(ShapeBehaviorMixin, unittest.TestCase):
+</span></span><span style="display:flex;"><span>    shape_class = Circle
+</span></span><span style="display:flex;"><span>    init_args = (<span style="color:#3677a9">2</span>,)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">class</span> <span style="color:#447fcf;text-decoration:underline">SquareTests</span>(ShapeBehaviorMixin, unittest.TestCase):
+</span></span><span style="display:flex;"><span>    shape_class = Square
+</span></span><span style="display:flex;"><span>    init_args = (<span style="color:#3677a9">3</span>,)
+</span></span></code></pre></div><p>The tradeoff with this is you will have to to fight with type checkers like mypy about missing assert* methods in the mixin.</p>
+<h3 id="hybrid-pytest-using-__test__--false">Hybrid pytest using <strong>test</strong> = False<a href="#hybrid-pytest-using-__test__--false" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>If you use pytest to run unittest suites, you can hide the base class gracefully:</p>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">class</span> <span style="color:#447fcf;text-decoration:underline">ShapeBaseTests</span>(unittest.TestCase):
+</span></span><span style="display:flex;"><span>    __test__ = <span style="color:#6ab825;font-weight:bold">False</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">def</span> <span style="color:#447fcf">__init_subclass__</span>(cls, **kwargs):
+</span></span><span style="display:flex;"><span>        <span style="color:#24909d">super</span>().__init_subclass__(**kwargs)
+</span></span><span style="display:flex;"><span>        cls.__test__ = <span style="color:#6ab825;font-weight:bold">True</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">def</span> <span style="color:#447fcf">test_area_contract</span>(self):
+</span></span><span style="display:flex;"><span>        shape = self.shape_class(*self.init_args)
+</span></span><span style="display:flex;"><span>        self.assertGreater(shape.area(), <span style="color:#3677a9">0</span>)
+</span></span></code></pre></div><h2 id="conclusion">Conclusion<a href="#conclusion" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>In conclusion ,that moment when you catch yourself repeating a test is the perfect time to step back and design for reuse.
 Sharing tests isn’t just about saving keystrokes — it’s about expressing intent.
-It makes your test suite more declarative: <em>Every class that behaves like this must pass these checks</em>.</p><p>When your code shares behavior, your tests should too.
-Write them once, share them widely, and let unittest do the heavy lifting.</p><blockquote><p>Don’t repeat yourself — not even in your tests.</p></blockquote></div></div></article></div><footer class=footer><div class=footer__inner><div class="copyright copyright--user"><span>© 2025 Mike Mwita</span>
-<span>:: <a href=https://github.com/panr/hugo-theme-terminal target=_blank>Theme</a> made by <a href=https://github.com/panr target=_blank>panr</a></span></div></div></footer><script type=text/javascript src=/bundle.min.js></script></div></body></html>
+It makes your test suite more declarative: <em>Every class that behaves like this must pass these checks</em>.</p>
+<p>When your code shares behavior, your tests should too.
+Write them once, share them widely, and let unittest do the heavy lifting.</p>
+<blockquote>
+<p>Don’t repeat yourself — not even in your tests.</p>
+</blockquote>
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright copyright--user">
+        <span>© 2025 Mike Mwita</span>
+    
+      <span>:: <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

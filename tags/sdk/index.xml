@@ -1,5 +1,20 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Sdk on Mike Mwita</title><link>https://MikeMwita.github.io/tags/sdk/</link><description>Recent content in Sdk on Mike Mwita</description><generator>Hugo</generator><language>en</language><copyright>© 2025 Mike Mwita</copyright><lastBuildDate>Wed, 05 Jul 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://MikeMwita.github.io/tags/sdk/index.xml" rel="self" type="application/rss+xml"/><item><title>Africa's Talking Go SDK</title><link>https://MikeMwita.github.io/projects/africas-talking-go-sdk/</link><pubDate>Wed, 05 Jul 2023 00:00:00 +0000</pubDate><guid>https://MikeMwita.github.io/projects/africas-talking-go-sdk/</guid><description>&lt;h2 id="motivation">Motivation&lt;/h2>
-&lt;p>Africa’s Talking provides powerful communication and payment APIs, but Go developers lacked a cohesive, idiomatic SDK that reduced boilerplate and simplified integrations.&lt;/p>
-&lt;p>This project aimed to make building telecom-driven applications in Go as seamless as possible, from quick prototypes to production systems.&lt;/p>
-&lt;h2 id="results">Results&lt;/h2>
-&lt;p>The SDK offers clean abstractions for SMS, Voice, USSD, Airtime, and Payments with minimal setup. It follows Go conventions closely, enabling predictable usage and easy extensibility.&lt;/p></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Sdk on Mike Mwita</title>
+    <link>https://MikeMwita.github.io/tags/sdk/</link>
+    <description>Recent content in Sdk on Mike Mwita</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <copyright>© 2025 Mike Mwita</copyright>
+    <lastBuildDate>Wed, 05 Jul 2023 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://MikeMwita.github.io/tags/sdk/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Africa&#39;s Talking Go SDK</title>
+      <link>https://MikeMwita.github.io/projects/africas-talking-go-sdk/</link>
+      <pubDate>Wed, 05 Jul 2023 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/projects/africas-talking-go-sdk/</guid>
+      <description>&lt;h2 id=&#34;motivation&#34;&gt;Motivation&lt;/h2&gt;&#xA;&lt;p&gt;Africa’s Talking provides powerful communication and payment APIs, but Go developers lacked a cohesive, idiomatic SDK that reduced boilerplate and simplified integrations.&lt;/p&gt;&#xA;&lt;p&gt;This project aimed to make building telecom-driven applications in Go as seamless as possible, from quick prototypes to production systems.&lt;/p&gt;&#xA;&lt;h2 id=&#34;results&#34;&gt;Results&lt;/h2&gt;&#xA;&lt;p&gt;The SDK offers clean abstractions for SMS, Voice, USSD, Airtime, and Payments with minimal setup. It follows Go conventions closely, enabling predictable usage and easy extensibility.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

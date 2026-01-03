@@ -1,1 +1,20 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Openapi on Mike Mwita</title><link>https://MikeMwita.github.io/tags/openapi/</link><description>Recent content in Openapi on Mike Mwita</description><generator>Hugo</generator><language>en</language><copyright>© 2025 Mike Mwita</copyright><lastBuildDate>Sun, 12 Oct 2025 07:00:00 +0300</lastBuildDate><atom:link href="https://MikeMwita.github.io/tags/openapi/index.xml" rel="self" type="application/rss+xml"/><item><title>Generating Go Code from OpenAPI Specification</title><link>https://MikeMwita.github.io/thoughts/generating-go-code-from-openapi/</link><pubDate>Sun, 12 Oct 2025 07:00:00 +0300</pubDate><guid>https://MikeMwita.github.io/thoughts/generating-go-code-from-openapi/</guid><description>&lt;p>A quick and practical walkthrough for developers who want to generate type-safe Go code directly from OpenAPI specs.&lt;/p></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Openapi on Mike Mwita</title>
+    <link>https://MikeMwita.github.io/tags/openapi/</link>
+    <description>Recent content in Openapi on Mike Mwita</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <copyright>© 2025 Mike Mwita</copyright>
+    <lastBuildDate>Sun, 12 Oct 2025 07:00:00 +0300</lastBuildDate>
+    <atom:link href="https://MikeMwita.github.io/tags/openapi/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Generating Go Code from OpenAPI Specification</title>
+      <link>https://MikeMwita.github.io/thoughts/generating-go-code-from-openapi/</link>
+      <pubDate>Sun, 12 Oct 2025 07:00:00 +0300</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/generating-go-code-from-openapi/</guid>
+      <description>&lt;p&gt;A quick and practical walkthrough for developers who want to generate type-safe Go code directly from OpenAPI specs.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
