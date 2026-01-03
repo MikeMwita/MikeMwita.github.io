@@ -1,0 +1,28 @@
+:root {
+  /* Accent colors */
+  --accent: #00ff99;
+  --accent-secondary: #00cc7a;
+
+  /* Backgrounds */
+  --background: #0d1b1e;            /* deep green-black */
+  --background-secondary: #112426;  /* slightly lighter for containers */
+
+  /* Text */
+  --color: #d1f7d6;                 /* minty green text */
+
+  /* Borders */
+  --border-color: rgba(0, 255, 153, 0.25);
+}
+
+/* Force background and text color */
+body {
+  background-color: var(--background) !important;
+  color: var(--color) !important;
+}
+
+/* Optional: apply secondary background to containers */
+.container,
+.main,
+.content {
+  background-color: var(--background-secondary) !important;
+}
