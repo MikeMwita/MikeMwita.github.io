@@ -30,5 +30,12 @@
       <guid>https://MikeMwita.github.io/cv/</guid>
       <description>&lt;h2 id=&#34;mike-mwita&#34;&gt;Mike Mwita&lt;/h2&gt;&#xA;&lt;p&gt;&lt;strong&gt;Ambitious Software Developer&lt;/strong&gt;&lt;/p&gt;&#xA;&lt;p&gt;Passionate about building reliable software systems, scalable backends, and clean developer experiences across web, cloud, and distributed environments.&lt;/p&gt;&#xA;&lt;p&gt;&lt;a href=&#34;https://MikeMwita.github.io/cv/mike-mwita.pdf&#34;&gt;Download full CV (PDF)&lt;/a&gt;&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;&#xA;&lt;p&gt;I am a driven and enthusiastic software developer with a strong interest in backend systems, cloud infrastructure, and developer tooling. I enjoy designing and building software that is maintainable, scalable, and easy to reason about.&lt;/p&gt;&#xA;&lt;p&gt;I have hands-on experience collaborating in cross-functional teams, contributing to open-source projects, and delivering production-ready systems using modern tools and practices.&lt;/p&gt;</description>
     </item>
+    <item>
+      <title>What It Takes to Be a Real Go Engineer</title>
+      <link>https://MikeMwita.github.io/thoughts/what-it-takes-to-be-a-real-go-engineer/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/what-it-takes-to-be-a-real-go-engineer/</guid>
+      <description>&lt;h1 id=&#34;syntax-is-easy-judgment-is-rare&#34;&gt;Syntax Is Easy. Judgment Is Rare.&lt;/h1&gt;&#xA;&lt;p&gt;Most developers can learn Go’s syntax quickly.&#xA;But writing production-grade Go? That takes something deeper: judgment, restraint, and clarity.&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;the-easy-part-features&#34;&gt;The Easy Part: Features&lt;/h2&gt;&#xA;&lt;p&gt;I can teach someone &lt;strong&gt;goroutines&lt;/strong&gt; and &lt;strong&gt;channels&lt;/strong&gt; in an afternoon.&#xA;I can walk them through slices, maps, and interfaces.&#xA;These are tools — powerful, elegant, and deceptively simple.&lt;/p&gt;&#xA;&lt;p&gt;But tools alone don’t make an engineer.&#xA;They make a technician.&lt;/p&gt;&#xA;&lt;hr&gt;</description>
+    </item>
   </channel>
 </rss>

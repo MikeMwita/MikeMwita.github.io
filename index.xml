@@ -100,5 +100,12 @@
       <guid>https://MikeMwita.github.io/books/the-pragmatic-programmer/</guid>
       <description>&lt;h2 id=&#34;highlights&#34;&gt;Highlights&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Don’t live with broken windows&lt;/li&gt;&#xA;&lt;li&gt;Make it easy to change&lt;/li&gt;&#xA;&lt;li&gt;Build software that can explain itself&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
     </item>
+    <item>
+      <title>What It Takes to Be a Real Go Engineer</title>
+      <link>https://MikeMwita.github.io/thoughts/what-it-takes-to-be-a-real-go-engineer/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/what-it-takes-to-be-a-real-go-engineer/</guid>
+      <description>&lt;h1 id=&#34;syntax-is-easy-judgment-is-rare&#34;&gt;Syntax Is Easy. Judgment Is Rare.&lt;/h1&gt;&#xA;&lt;p&gt;Most developers can learn Go’s syntax quickly.&#xA;But writing production-grade Go? That takes something deeper: judgment, restraint, and clarity.&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;the-easy-part-features&#34;&gt;The Easy Part: Features&lt;/h2&gt;&#xA;&lt;p&gt;I can teach someone &lt;strong&gt;goroutines&lt;/strong&gt; and &lt;strong&gt;channels&lt;/strong&gt; in an afternoon.&#xA;I can walk them through slices, maps, and interfaces.&#xA;These are tools — powerful, elegant, and deceptively simple.&lt;/p&gt;&#xA;&lt;p&gt;But tools alone don’t make an engineer.&#xA;They make a technician.&lt;/p&gt;&#xA;&lt;hr&gt;</description>
+    </item>
   </channel>
 </rss>

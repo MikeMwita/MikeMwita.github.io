@@ -150,7 +150,11 @@
   </url><url>
     <loc>https://MikeMwita.github.io/tags/distributed-systems/</loc>
   </url><url>
+    <loc>https://MikeMwita.github.io/tags/engineering/</loc>
+  </url><url>
     <loc>https://MikeMwita.github.io/contacts/</loc>
+  </url><url>
+    <loc>https://MikeMwita.github.io/tags/judgment/</loc>
   </url><url>
     <loc>https://MikeMwita.github.io/books/just_use_postgres/</loc>
   </url><url>
@@ -162,6 +166,10 @@
   </url><url>
     <loc>https://MikeMwita.github.io/tags/software-engineer/</loc>
   </url><url>
+    <loc>https://MikeMwita.github.io/tags/software-craft/</loc>
+  </url><url>
     <loc>https://MikeMwita.github.io/books/the-pragmatic-programmer/</loc>
+  </url><url>
+    <loc>https://MikeMwita.github.io/thoughts/what-it-takes-to-be-a-real-go-engineer/</loc>
   </url>
 </urlset>
