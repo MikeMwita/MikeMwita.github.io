@@ -16,5 +16,12 @@
       <guid>https://MikeMwita.github.io/projects/go-bloomfilter/</guid>
       <description>&lt;h2 id=&#34;motivation&#34;&gt;Motivation&lt;/h2&gt;&#xA;&lt;p&gt;Many backend systems need to answer one question extremely fast: &lt;em&gt;have I seen this before?&lt;/em&gt; Traditional data structures often trade memory for speed, which becomes expensive at scale.&lt;/p&gt;&#xA;&lt;p&gt;This project was created to explore probabilistic data structures in Go while gaining hands-on experience with bitwise operations, hashing strategies, and memory-efficient design.&lt;/p&gt;&#xA;&lt;h2 id=&#34;results&#34;&gt;Results&lt;/h2&gt;&#xA;&lt;p&gt;The implementation uses a compact &lt;code&gt;[]uint64&lt;/code&gt; bit array with auto-tuned parameters to balance false positives and memory usage. Hashing is inspired by MurmurHash to ensure even distribution and consistent performance.&lt;/p&gt;</description>
     </item>
+    <item>
+      <title>Escape Analysis in Go</title>
+      <link>https://MikeMwita.github.io/thoughts/escape-analysis-in-go/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/escape-analysis-in-go/</guid>
+      <description></description>
+    </item>
   </channel>
 </rss>

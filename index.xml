@@ -87,6 +87,13 @@
       <description>&lt;p&gt;Testing is often seen as a technical safeguard — a way to ensure code correctness.&#xA;But what if tests could do more than that?&#xA;What if they could express intent, document behavior, and communicate meaning across developers, testers, and product owners alike?&lt;/p&gt;</description>
     </item>
     <item>
+      <title>Escape Analysis in Go</title>
+      <link>https://MikeMwita.github.io/thoughts/escape-analysis-in-go/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/escape-analysis-in-go/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>Just Use Postgres</title>
       <link>https://MikeMwita.github.io/books/just_use_postgres/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
