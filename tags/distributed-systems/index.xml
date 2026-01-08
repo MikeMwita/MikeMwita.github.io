@@ -1,13 +1,28 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Distributed Systems on Mike Mwita</title>
+    <title>Distributed-Systems on Mike Mwita</title>
     <link>https://MikeMwita.github.io/tags/distributed-systems/</link>
-    <description>Recent content in Distributed Systems on Mike Mwita</description>
+    <description>Recent content in Distributed-Systems on Mike Mwita</description>
     <generator>Hugo</generator>
     <language>en</language>
     <copyright>© 2025 Mike Mwita</copyright>
+    <lastBuildDate>Wed, 07 Jan 2026 13:10:00 +0300</lastBuildDate>
     <atom:link href="https://MikeMwita.github.io/tags/distributed-systems/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Beyond Backend Basics</title>
+      <link>https://MikeMwita.github.io/thoughts/beyond-the-backend-basics/</link>
+      <pubDate>Wed, 07 Jan 2026 13:10:00 +0300</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/beyond-the-backend-basics/</guid>
+      <description>&lt;h1 id=&#34;beyond-backend-basics&#34;&gt;Beyond Backend Basics&lt;/h1&gt;&#xA;&lt;p&gt;Most backend developers can build APIs, wire up databases, and scale services.&#xA;That’s good. But “good” is not enough if your ambition is to become the kind of engineer who can design &lt;strong&gt;distributed systems that survive chaos&lt;/strong&gt; and influence organizations at scale.&lt;/p&gt;&#xA;&lt;p&gt;It’s a checklist of some of  the skills you need to learn now if you want to operate at the highest levels of engineering.&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;from-backend-comfort--distributed-systems-reality&#34;&gt;From Backend Comfort → Distributed Systems Reality&lt;/h2&gt;&#xA;&lt;p&gt;The leap from backend to distributed systems is not about syntax or frameworks.&#xA;It’s about learning to think in terms of &lt;strong&gt;tradeoffs, failures, and coordination across unreliable networks&lt;/strong&gt;.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Flow Control in Distributed Systems: Understanding Backpressure</title>
+      <link>https://MikeMwita.github.io/thoughts/understanding-backpressure/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/understanding-backpressure/</guid>
+      <description></description>
+    </item>
     <item>
       <title>Mike Mwita’s Resume / CV</title>
       <link>https://MikeMwita.github.io/cv/</link>

@@ -8,6 +8,21 @@
     <loc>https://MikeMwita.github.io/</loc>
     <lastmod>2026-01-07T13:10:00+03:00</lastmod>
   </url><url>
+    <loc>https://MikeMwita.github.io/tags/backend/</loc>
+    <lastmod>2026-01-07T13:10:00+03:00</lastmod>
+  </url><url>
+    <loc>https://MikeMwita.github.io/thoughts/beyond-the-backend-basics/</loc>
+    <lastmod>2026-01-07T13:10:00+03:00</lastmod>
+  </url><url>
+    <loc>https://MikeMwita.github.io/tags/distributed-systems/</loc>
+    <lastmod>2026-01-07T13:10:00+03:00</lastmod>
+  </url><url>
+    <loc>https://MikeMwita.github.io/tags/engineering/</loc>
+    <lastmod>2026-01-07T13:10:00+03:00</lastmod>
+  </url><url>
+    <loc>https://MikeMwita.github.io/tags/staff-level/</loc>
+    <lastmod>2026-01-07T13:10:00+03:00</lastmod>
+  </url><url>
     <loc>https://MikeMwita.github.io/tags/clean-code/</loc>
     <lastmod>2025-10-21T07:00:00+03:00</lastmod>
   </url><url>
@@ -150,13 +165,13 @@
   </url><url>
     <loc>https://MikeMwita.github.io/tags/devops/</loc>
   </url><url>
-    <loc>https://MikeMwita.github.io/tags/distributed-systems/</loc>
-  </url><url>
-    <loc>https://MikeMwita.github.io/tags/engineering/</loc>
-  </url><url>
     <loc>https://MikeMwita.github.io/thoughts/escape-analysis-in-go/</loc>
   </url><url>
     <loc>https://MikeMwita.github.io/tags/ffi/</loc>
+  </url><url>
+    <loc>https://MikeMwita.github.io/thoughts/understanding-backpressure/</loc>
+  </url><url>
+    <loc>https://MikeMwita.github.io/tags/flow-control/</loc>
   </url><url>
     <loc>https://MikeMwita.github.io/thoughts/foreign-function-interface/</loc>
   </url><url>
@@ -173,6 +188,10 @@
     <loc>https://MikeMwita.github.io/tags/memory/</loc>
   </url><url>
     <loc>https://MikeMwita.github.io/cv/</loc>
+  </url><url>
+    <loc>https://MikeMwita.github.io/tags/resilience/</loc>
+  </url><url>
+    <loc>https://MikeMwita.github.io/tags/scalability/</loc>
   </url><url>
     <loc>https://MikeMwita.github.io/tags/software-craftsmanship/</loc>
   </url><url>

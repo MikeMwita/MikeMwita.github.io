@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Beyond Backend Basics :: Mike Mwita</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="A creative roadmap for backend devs." />
+<meta name="keywords" content="Web Development, Software Developer Engineer, Programming, Data Structures and Algorithms, Kubernetes, Go, Cloud Engineering" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://MikeMwita.github.io/thoughts/beyond-the-backend-basics/" />
+
+
+
+
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/green.min.54165f6c5a7a5f0716da6ffb1e3cf34584ec54d8a5ef3f5328de62ffd59a9ffa.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/buttons.min.86f6b4c106b6c6eb690ae5203d36b442c1f66f718ff4e8164fa86cf6c61ad641.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/code.min.d529ea4b2fb8d34328d7d31afc5466d5f7bc2f0bc9abdd98b69385335d7baee4.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/fonts.min.5bb7ed13e1d00d8ff39ea84af26737007eb5051b157b86fc24487c94f3dc8bbe.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/footer.min.eb8dfc2c6a7eafa36cd3ba92d63e69e849e2200e0002a228d137f236b09ecd75.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/gist.min.a751e8b0abe1ba8bc53ced52a38b19d8950fe78ca29454ea8c2595cf26aad5c0.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/header.min.75c7eb0e2872d95ff48109c6647d0223a38db52e2561dd87966eb5fc7c6bdac6.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/main.min.36833afd348409fc6c3d09d0897c5833d9d5bf1ff31f5e60ea3ee42ce2b1268c.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/menu.min.3c17467ebeb3d38663dce68f71f519901124fa5cbb4519b2fb0667a21e9aca39.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/pagination.min.bbb986dbce00a5ce5aca0504b7925fc1c581992a4bf57f163e5d69cc1db7d836.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/post.min.e6dddd258e64c83e05cec0cd49c05216742d42fc8ecbfbe6b67083412b609bd3.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/syntax.min.a0773cce9310cb6d8ed23e50f005448facf29a53001b57e038828daa466b25c0.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/terminal.min.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/terms.min.b81791663c3790e738e571cdbf802312390d30e4b1d8dc9d814a5b5454d0ac11.css">
+
+
+
+
+
+
+
+<link rel="shortcut icon" href="https://MikeMwita.github.io/favicon.png">
+<link rel="apple-touch-icon" href="https://MikeMwita.github.io/apple-touch-icon.png">
+
+
+<meta name="twitter:card" content="summary" />
+
+  
+    <meta name="twitter:site" content="https://MikeMwita.github.io/" />
+  
+    <meta name="twitter:creator" content="" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Beyond Backend Basics">
+<meta property="og:description" content="A creative roadmap for backend devs." />
+<meta property="og:url" content="https://MikeMwita.github.io/thoughts/beyond-the-backend-basics/" />
+<meta property="og:site_name" content="Mike Mwita" />
+
+  <meta property="og:image" content="https://MikeMwita.github.io/og-image.png">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2026-01-07 13:10:00 &#43;0300 &#43;0300" />
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+
+
+<div class="container center">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    Mike  Mwita (⌐▨_▨)
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/cv">CV</a></li>
+        
+      
+        
+          <li><a href="/projects">Projects</a></li>
+        
+      
+        
+          <li><a href="/thoughts">Thoughts?</a></li>
+        
+      
+        
+          <li><a href="/books">Books</a></li>
+        
+      
+        
+          <li><a href="/contacts">Contacts</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/cv" >CV</a></li>
+        
+      
+        
+          <li><a href="/projects" >Projects</a></li>
+        
+      
+        
+          <li><a href="/thoughts" >Thoughts?</a></li>
+        
+      
+        
+          <li><a href="/books" >Books</a></li>
+        
+      
+        
+          <li><a href="/contacts" >Contacts</a></li>
+        
+      
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://MikeMwita.github.io/thoughts/beyond-the-backend-basics/">Beyond Backend Basics</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2026-01-07&nbsp;[Updated On 2026-01-07]</time></div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://MikeMwita.github.io/tags/backend/">backend</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/distributed-systems/">distributed-systems</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/engineering/">engineering</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/staff-level/">staff-level</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+  
+
+  <div class="post-content"><div>
+        <h1 id="beyond-backend-basics">Beyond Backend Basics<a href="#beyond-backend-basics" class="hanchor" ariaLabel="Anchor">#</a> </h1>
+<p>Most backend developers can build APIs, wire up databases, and scale services.
+That’s good. But “good” is not enough if your ambition is to become the kind of engineer who can design <strong>distributed systems that survive chaos</strong> and influence organizations at scale.</p>
+<p>It’s a checklist of some of  the skills you need to learn now if you want to operate at the highest levels of engineering.</p>
+<hr>
+<h2 id="from-backend-comfort--distributed-systems-reality">From Backend Comfort → Distributed Systems Reality<a href="#from-backend-comfort--distributed-systems-reality" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>The leap from backend to distributed systems is not about syntax or frameworks.
+It’s about learning to think in terms of <strong>tradeoffs, failures, and coordination across unreliable networks</strong>.</p>
+<p>Here are the domains that will stretch you:</p>
+<ul>
+<li><strong>CAP &amp; PACELC</strong>: Not abstract theory, but the daily reality of choosing between consistency, availability, and latency.</li>
+<li><strong>Leader Election</strong>: Raft, Paxos, Zab — and the humility to know when consensus is overkill(is not the answer).Consensus is a tax. You pay it only when correctness absolutely demands it.</li>
+<li><strong>Failure Detection</strong>:Your application must survive being called twice, ten times, or out of order. Heartbeats, phi-accrual, and the art of deciding when a node is “really” dead.</li>
+<li><strong>Idempotency</strong>: The difference between delivering a message and processing it safely.</li>
+</ul>
+<hr>
+<h2 id="building-dangerous-systems">Building Dangerous Systems<a href="#building-dangerous-systems" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Once you’ve internalized the basics, you start building systems that can survive production:</p>
+<ul>
+<li><strong>Distributed Logs</strong>: Kafka internals, commit indices, and why truncation matters.</li>
+<li><strong>Backpressure</strong>: Designing so your system bends under load instead of melting.You design pressure signals ,that includes bounded queues ,adaptive concurrency limits &amp; load shedding with intent</li>
+<li><strong>Hotspot Mitigation</strong>: Sharding keys, hashing strategies, and the fight against uneven traffic.</li>
+<li><strong>Transactions</strong>: 2PC, sagas, and the outbox pattern — because correctness is never free.</li>
+<li><strong>Concurrency Control</strong>: Understanding MVCC, OCC, and the subtle art of conflict resolution.This means we design to minimize contention windows ,prefer optimistic paths as well make conflicts cheap &amp; visible.</li>
+</ul>
+<hr>
+<h2 id="thinking-in-time-failure-and-coordination">Thinking in Time, Failure, and Coordination<a href="#thinking-in-time-failure-and-coordination" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Distributed systems force you to confront illusions:</p>
+<ul>
+<li><strong>Time</strong>: Time is among the most dangerous dependency.NTP drift, Lamport clocks, hybrid logical clocks — because “now” is relative.</li>
+<li><strong>Coordination</strong>: Leases, fencing tokens, distributed locks — and why most locks are lies.The goal is not mutual exclusion — it’s preventing stale actors from causing harm.</li>
+<li><strong>Consistency</strong>: CRDTs, anti-entropy, hinted handoff — eventual consistency done right.</li>
+<li><strong>Retries</strong>: Backoff, jitter, and how to avoid thundering herds.One should keep note that retries fix transient failures but they can also amplify outages.</li>
+<li><strong>Resilience</strong>: Circuit breakers and bulkheads that save clusters from cascading collapse.</li>
+</ul>
+<hr>
+<h2 id="operating-at-scale">Operating at Scale<a href="#operating-at-scale" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>You should not just design systems but run the system as well:</p>
+<ul>
+<li><strong>Storage Internals</strong>: LSM trees, SSTables, WALs, compaction strategies.You dont understand a data store until you understand write &amp; read amplification and the compaction debt. Rule of thumb,perfomance comes from the disk , so the disk eventually wins arguments.</li>
+<li><strong>Network Realities</strong>: Packets drop, reorder, duplicate,arrive late — assume the network lies.</li>
+<li><strong>Queue Semantics</strong>: At-most-once, at-least-once, exactly-once — and the dead-letter queues that save you.</li>
+<li><strong>Caching</strong>: Locality, invalidation, TTL discipline — because cache bugs are production bugs.</li>
+<li><strong>Hot Path Optimizations</strong>: Tail latency, p99 debugging, kernel bypass, gRPC tuning.</li>
+</ul>
+<hr>
+<p>The final leap is not just technical. It’s organizational:</p>
+<ul>
+<li><strong>Operational Predictability</strong>: SLOs, error budgets, and designing on-call rotations that don’t burn people out.</li>
+<li><strong>Observability</strong>: Tracing, structured logs, flame graphs — because you can’t fix what you can’t see. Logs explain what happened,metrics explain how often ,traces explain why.</li>
+<li><strong>Disaster Testing</strong>: Chaos engineering, fault injection, partition testing.</li>
+<li><strong>Prod-First Mentality</strong>: Knowing how your system behaves in reality, not just in design docs.</li>
+<li><strong>Influence</strong>: Writing design docs, leading deep-dive reviews, aligning cross-team efforts.</li>
+</ul>
+<hr>
+
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright copyright--user">
+        <span>© 2025 Mike Mwita</span>
+    
+      <span>:: <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

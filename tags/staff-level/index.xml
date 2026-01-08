@@ -1,27 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Engineering on Mike Mwita</title>
-    <link>https://MikeMwita.github.io/tags/engineering/</link>
-    <description>Recent content in Engineering on Mike Mwita</description>
+    <title>Staff-Level on Mike Mwita</title>
+    <link>https://MikeMwita.github.io/tags/staff-level/</link>
+    <description>Recent content in Staff-Level on Mike Mwita</description>
     <generator>Hugo</generator>
     <language>en</language>
     <copyright>© 2025 Mike Mwita</copyright>
     <lastBuildDate>Wed, 07 Jan 2026 13:10:00 +0300</lastBuildDate>
-    <atom:link href="https://MikeMwita.github.io/tags/engineering/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://MikeMwita.github.io/tags/staff-level/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Beyond Backend Basics</title>
       <link>https://MikeMwita.github.io/thoughts/beyond-the-backend-basics/</link>
       <pubDate>Wed, 07 Jan 2026 13:10:00 +0300</pubDate>
       <guid>https://MikeMwita.github.io/thoughts/beyond-the-backend-basics/</guid>
       <description>&lt;h1 id=&#34;beyond-backend-basics&#34;&gt;Beyond Backend Basics&lt;/h1&gt;&#xA;&lt;p&gt;Most backend developers can build APIs, wire up databases, and scale services.&#xA;That’s good. But “good” is not enough if your ambition is to become the kind of engineer who can design &lt;strong&gt;distributed systems that survive chaos&lt;/strong&gt; and influence organizations at scale.&lt;/p&gt;&#xA;&lt;p&gt;It’s a checklist of some of  the skills you need to learn now if you want to operate at the highest levels of engineering.&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;from-backend-comfort--distributed-systems-reality&#34;&gt;From Backend Comfort → Distributed Systems Reality&lt;/h2&gt;&#xA;&lt;p&gt;The leap from backend to distributed systems is not about syntax or frameworks.&#xA;It’s about learning to think in terms of &lt;strong&gt;tradeoffs, failures, and coordination across unreliable networks&lt;/strong&gt;.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>What It Takes to Be a Real Go Engineer</title>
-      <link>https://MikeMwita.github.io/thoughts/what-it-takes-to-be-a-real-go-engineer/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://MikeMwita.github.io/thoughts/what-it-takes-to-be-a-real-go-engineer/</guid>
-      <description>&lt;h1 id=&#34;syntax-is-easy-judgment-is-rare&#34;&gt;Syntax Is Easy. Judgment Is Rare.&lt;/h1&gt;&#xA;&lt;p&gt;Most developers can learn Go’s syntax quickly.&#xA;But writing production-grade Go? That takes something deeper: judgment, restraint, and clarity.&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;the-easy-part-features&#34;&gt;The Easy Part: Features&lt;/h2&gt;&#xA;&lt;p&gt;I can teach someone &lt;strong&gt;goroutines&lt;/strong&gt; and &lt;strong&gt;channels&lt;/strong&gt; in an afternoon.&#xA;I can walk them through slices, maps, and interfaces.&#xA;These are tools — powerful, elegant, and deceptively simple.&lt;/p&gt;&#xA;&lt;p&gt;But tools alone don’t make an engineer.&#xA;They make a technician.&lt;/p&gt;&#xA;&lt;hr&gt;</description>
     </item>
   </channel>
 </rss>
