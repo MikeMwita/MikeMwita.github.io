@@ -23,5 +23,12 @@
       <guid>https://MikeMwita.github.io/thoughts/bdd-tests-in-go/</guid>
       <description>&lt;p&gt;Testing is often seen as a technical safeguard — a way to ensure code correctness.&#xA;But what if tests could do more than that?&#xA;What if they could express intent, document behavior, and communicate meaning across developers, testers, and product owners alike?&lt;/p&gt;</description>
     </item>
+    <item>
+      <title>My Thoughts on Domain-Driven Design in Golang</title>
+      <link>https://MikeMwita.github.io/thoughts/domain-driven-design/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/domain-driven-design/</guid>
+      <description></description>
+    </item>
   </channel>
 </rss>

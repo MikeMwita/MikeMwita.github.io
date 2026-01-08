@@ -30,5 +30,12 @@
       <guid>https://MikeMwita.github.io/projects/africas-talking-go-sdk/</guid>
       <description>&lt;h2 id=&#34;motivation&#34;&gt;Motivation&lt;/h2&gt;&#xA;&lt;p&gt;Africa’s Talking provides powerful communication and payment APIs, but Go developers lacked a cohesive, idiomatic SDK that reduced boilerplate and simplified integrations.&lt;/p&gt;&#xA;&lt;p&gt;This project aimed to make building telecom-driven applications in Go as seamless as possible, from quick prototypes to production systems.&lt;/p&gt;&#xA;&lt;h2 id=&#34;results&#34;&gt;Results&lt;/h2&gt;&#xA;&lt;p&gt;The SDK offers clean abstractions for SMS, Voice, USSD, Airtime, and Payments with minimal setup. It follows Go conventions closely, enabling predictable usage and easy extensibility.&lt;/p&gt;</description>
     </item>
+    <item>
+      <title>My Thoughts on Domain-Driven Design in Golang</title>
+      <link>https://MikeMwita.github.io/thoughts/domain-driven-design/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/domain-driven-design/</guid>
+      <description></description>
+    </item>
   </channel>
 </rss>
