@@ -4,8 +4,8 @@
     <title>Bucket on Mike Mwita</title>
     <link>http://localhost:1313/bucket/</link>
     <description>Recent content in Bucket on Mike Mwita</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en</language>
+    <generator>Hugo</generator>
+    <language>en-us</language>
     <copyright>© 2026 Mike Mwita</copyright>
     <lastBuildDate></lastBuildDate>
     <atom:link href="http://localhost:1313/bucket/index.xml" rel="self" type="application/rss+xml" />

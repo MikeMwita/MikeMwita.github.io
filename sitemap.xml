@@ -155,8 +155,6 @@
   </url><url>
     <loc>https://MikeMwita.github.io/tags/backend-development/</loc>
   </url><url>
-    <loc>https://MikeMwita.github.io/books/</loc>
-  </url><url>
     <loc>https://MikeMwita.github.io/tags/books/</loc>
   </url><url>
     <loc>https://MikeMwita.github.io/tags/ci/cd/</loc>
@@ -185,7 +183,7 @@
   </url><url>
     <loc>https://MikeMwita.github.io/tags/judgment/</loc>
   </url><url>
-    <loc>https://MikeMwita.github.io/books/just_use_postgres/</loc>
+    <loc>https://MikeMwita.github.io/reads/just_use_postgres/</loc>
   </url><url>
     <loc>https://MikeMwita.github.io/tags/kubernetes/</loc>
   </url><url>
@@ -194,6 +192,8 @@
     <loc>https://MikeMwita.github.io/cv/</loc>
   </url><url>
     <loc>https://MikeMwita.github.io/thoughts/domain-driven-design/</loc>
+  </url><url>
+    <loc>https://MikeMwita.github.io/reads/</loc>
   </url><url>
     <loc>https://MikeMwita.github.io/tags/resilience/</loc>
   </url><url>
@@ -211,7 +211,7 @@
   </url><url>
     <loc>https://MikeMwita.github.io/tags/systems-programming/</loc>
   </url><url>
-    <loc>https://MikeMwita.github.io/books/the-pragmatic-programmer/</loc>
+    <loc>https://MikeMwita.github.io/reads/the-pragmatic-programmer/</loc>
   </url><url>
     <loc>https://MikeMwita.github.io/thoughts/what-it-takes-to-be-a-real-go-engineer/</loc>
   </url>

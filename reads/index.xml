@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Book Notes &amp; Reviews on Mike Mwita</title>
-    <link>http://localhost:1313/books/</link>
-    <description>Recent content in Book Notes &amp; Reviews on Mike Mwita</description>
+    <title>Reads  on Mike Mwita</title>
+    <link>https://MikeMwita.github.io/reads/</link>
+    <description>Recent content in Reads  on Mike Mwita</description>
     <generator>Hugo</generator>
-    <language>en-us</language>
+    <language>en</language>
     <copyright>© 2026 Mike Mwita</copyright>
-    <atom:link href="http://localhost:1313/books/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://MikeMwita.github.io/reads/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Just Use Postgres</title>
-      <link>http://localhost:1313/books/just_use_postgres/</link>
+      <link>https://MikeMwita.github.io/reads/just_use_postgres/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/books/just_use_postgres/</guid>
+      <guid>https://MikeMwita.github.io/reads/just_use_postgres/</guid>
       <description>&lt;ul&gt;&#xA;&lt;li&gt;PostgreSQL’s source code is overwhelmingly written in C .(Over 85%)&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
     </item>
     <item>
       <title>The Pragmatic Programmer</title>
-      <link>http://localhost:1313/books/the-pragmatic-programmer/</link>
+      <link>https://MikeMwita.github.io/reads/the-pragmatic-programmer/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/books/the-pragmatic-programmer/</guid>
+      <guid>https://MikeMwita.github.io/reads/the-pragmatic-programmer/</guid>
       <description>&lt;h2 id=&#34;highlights&#34;&gt;Highlights&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Don’t live with broken windows&lt;/li&gt;&#xA;&lt;li&gt;Make it easy to change&lt;/li&gt;&#xA;&lt;li&gt;Build software that can explain itself&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
     </item>
   </channel>
