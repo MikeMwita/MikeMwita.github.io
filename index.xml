@@ -122,6 +122,13 @@
       <description>&lt;ul&gt;&#xA;&lt;li&gt;PostgreSQL’s source code is overwhelmingly written in C .(Over 85%)&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
     </item>
     <item>
+      <title>Multitenancy Lessons from Slack</title>
+      <link>https://MikeMwita.github.io/thoughts/multitenancy-lessons-from-slack/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/multitenancy-lessons-from-slack/</guid>
+      <description>&lt;h1 id=&#34;multitenancy-lessons-from-slack&#34;&gt;Multitenancy Lessons from Slack&lt;/h1&gt;&#xA;&lt;p&gt;Slack looks like a messaging app. Under the hood, it is a multi-tenant distributed system solving problems that every SaaS platform eventually runs into — just at a scale that makes the problems impossible to ignore.&lt;/p&gt;&#xA;&lt;p&gt;If you think about it carefully, every architectural decision Slack makes is shaped by one central tension: &lt;strong&gt;every workspace feels isolated, but you cannot afford isolated infrastructure per customer.&lt;/strong&gt;&lt;/p&gt;&#xA;&lt;p&gt;That tension is the defining constraint. Everything else — how messages are delivered, how storage is structured, how quotas are enforced — is downstream of it.&lt;/p&gt;</description>
+    </item>
+    <item>
       <title>My Thoughts on Domain-Driven Design in Golang</title>
       <link>https://MikeMwita.github.io/thoughts/domain-driven-design/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

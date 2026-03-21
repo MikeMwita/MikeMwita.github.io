@@ -30,5 +30,12 @@
       <guid>https://MikeMwita.github.io/cv/</guid>
       <description>&lt;h2 id=&#34;mike-mwita&#34;&gt;Mike Mwita&lt;/h2&gt;&#xA;&lt;p&gt;&lt;strong&gt;Ambitious Software Developer&lt;/strong&gt;&lt;/p&gt;&#xA;&lt;p&gt;Passionate about building reliable software systems, scalable backends, and clean developer experiences across web, cloud, and distributed environments.&lt;/p&gt;&#xA;&lt;p&gt;&lt;a href=&#34;https://MikeMwita.github.io/cv/mike-mwita.pdf&#34;&gt;Download full CV (PDF)&lt;/a&gt;&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;&#xA;&lt;p&gt;I am a driven and enthusiastic software developer with a strong interest in backend systems, cloud infrastructure, and developer tooling. I enjoy designing and building software that is maintainable, scalable, and easy to reason about.&lt;/p&gt;&#xA;&lt;p&gt;I have hands-on experience collaborating in cross-functional teams, contributing to open-source projects, and delivering production-ready systems using modern tools and practices.&lt;/p&gt;</description>
     </item>
+    <item>
+      <title>Multitenancy Lessons from Slack</title>
+      <link>https://MikeMwita.github.io/thoughts/multitenancy-lessons-from-slack/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/multitenancy-lessons-from-slack/</guid>
+      <description>&lt;h1 id=&#34;multitenancy-lessons-from-slack&#34;&gt;Multitenancy Lessons from Slack&lt;/h1&gt;&#xA;&lt;p&gt;Slack looks like a messaging app. Under the hood, it is a multi-tenant distributed system solving problems that every SaaS platform eventually runs into — just at a scale that makes the problems impossible to ignore.&lt;/p&gt;&#xA;&lt;p&gt;If you think about it carefully, every architectural decision Slack makes is shaped by one central tension: &lt;strong&gt;every workspace feels isolated, but you cannot afford isolated infrastructure per customer.&lt;/strong&gt;&lt;/p&gt;&#xA;&lt;p&gt;That tension is the defining constraint. Everything else — how messages are delivered, how storage is structured, how quotas are enforced — is downstream of it.&lt;/p&gt;</description>
+    </item>
   </channel>
 </rss>

@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Multitenancy Lessons from Slack :: Mike Mwita</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Come to think of it , Slack is not a chat app. It&#39;s a multi-tenant distributed system wearing a friendly UI. The lessons from how it handles isolation, fanout, and noisy neighbors apply far beyond messaging." />
+<meta name="keywords" content="Web Development, Software Developer Engineer, Programming, Data Structures and Algorithms, Kubernetes, Go, Cloud Engineering" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://MikeMwita.github.io/thoughts/multitenancy-lessons-from-slack/" />
+
+
+
+
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/green.min.54165f6c5a7a5f0716da6ffb1e3cf34584ec54d8a5ef3f5328de62ffd59a9ffa.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/buttons.min.86f6b4c106b6c6eb690ae5203d36b442c1f66f718ff4e8164fa86cf6c61ad641.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/code.min.d529ea4b2fb8d34328d7d31afc5466d5f7bc2f0bc9abdd98b69385335d7baee4.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/fonts.min.5bb7ed13e1d00d8ff39ea84af26737007eb5051b157b86fc24487c94f3dc8bbe.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/footer.min.eb8dfc2c6a7eafa36cd3ba92d63e69e849e2200e0002a228d137f236b09ecd75.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/gist.min.a751e8b0abe1ba8bc53ced52a38b19d8950fe78ca29454ea8c2595cf26aad5c0.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/header.min.75c7eb0e2872d95ff48109c6647d0223a38db52e2561dd87966eb5fc7c6bdac6.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/main.min.36833afd348409fc6c3d09d0897c5833d9d5bf1ff31f5e60ea3ee42ce2b1268c.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/menu.min.3c17467ebeb3d38663dce68f71f519901124fa5cbb4519b2fb0667a21e9aca39.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/pagination.min.bbb986dbce00a5ce5aca0504b7925fc1c581992a4bf57f163e5d69cc1db7d836.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/post.min.e6dddd258e64c83e05cec0cd49c05216742d42fc8ecbfbe6b67083412b609bd3.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/syntax.min.a0773cce9310cb6d8ed23e50f005448facf29a53001b57e038828daa466b25c0.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/terminal.min.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/terms.min.b81791663c3790e738e571cdbf802312390d30e4b1d8dc9d814a5b5454d0ac11.css">
+
+
+
+
+
+
+
+<link rel="shortcut icon" href="https://MikeMwita.github.io/favicon.png">
+<link rel="apple-touch-icon" href="https://MikeMwita.github.io/apple-touch-icon.png">
+
+
+<meta name="twitter:card" content="summary" />
+
+  
+    <meta name="twitter:site" content="https://MikeMwita.github.io/" />
+  
+    <meta name="twitter:creator" content="" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Multitenancy Lessons from Slack">
+<meta property="og:description" content="Come to think of it , Slack is not a chat app. It&#39;s a multi-tenant distributed system wearing a friendly UI. The lessons from how it handles isolation, fanout, and noisy neighbors apply far beyond messaging." />
+<meta property="og:url" content="https://MikeMwita.github.io/thoughts/multitenancy-lessons-from-slack/" />
+<meta property="og:site_name" content="Mike Mwita" />
+
+  <meta property="og:image" content="https://MikeMwita.github.io/og-image.png">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+
+
+<div class="container center">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    Mike  Mwita (⌐▨_▨)
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/cv">CV</a></li>
+        
+      
+        
+          <li><a href="/projects">Projects</a></li>
+        
+      
+        
+          <li><a href="/thoughts">Thoughts?</a></li>
+        
+      
+        
+          <li><a href="/reads">Reads</a></li>
+        
+      
+        
+          <li><a href="/contacts">Contacts</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/cv" >CV</a></li>
+        
+      
+        
+          <li><a href="/projects" >Projects</a></li>
+        
+      
+        
+          <li><a href="/thoughts" >Thoughts?</a></li>
+        
+      
+        
+          <li><a href="/reads" >Reads</a></li>
+        
+      
+        
+          <li><a href="/contacts" >Contacts</a></li>
+        
+      
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://MikeMwita.github.io/thoughts/multitenancy-lessons-from-slack/">Multitenancy Lessons from Slack</a>
+  </h1>
+  <div class="post-meta"></div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://MikeMwita.github.io/tags/distributed-systems/">distributed-systems</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/architecture/">architecture</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/multitenancy/">multitenancy</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/scalability/">scalability</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/real-time/">real-time</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+  
+
+  <div class="post-content"><div>
+        <h1 id="multitenancy-lessons-from-slack">Multitenancy Lessons from Slack<a href="#multitenancy-lessons-from-slack" class="hanchor" ariaLabel="Anchor">#</a> </h1>
+<p>Slack looks like a messaging app. Under the hood, it is a multi-tenant distributed system solving problems that every SaaS platform eventually runs into — just at a scale that makes the problems impossible to ignore.</p>
+<p>If you think about it carefully, every architectural decision Slack makes is shaped by one central tension: <strong>every workspace feels isolated, but you cannot afford isolated infrastructure per customer.</strong></p>
+<p>That tension is the defining constraint. Everything else — how messages are delivered, how storage is structured, how quotas are enforced — is downstream of it.</p>
+<hr>
+<h2 id="the-illusion-of-isolation">The Illusion of Isolation<a href="#the-illusion-of-isolation" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>When you open Slack, your workspace feels like it belongs to you. Your channels, your members, your history. No other workspace bleeds into your experience.</p>
+<p>But Slack runs tens of thousands of workspaces on shared infrastructure. A fully isolated stack per tenant — dedicated databases, dedicated queues, dedicated compute — would be financially and operationally impossible at that scale.</p>
+<p>The engineering challenge is to <strong>create the perception of isolation without paying the cost of real isolation.</strong> You do this through:</p>
+<ul>
+<li><strong>Logical partitioning</strong>: partition your data by <code>workspace_id</code> (or tenant ID) at the application layer, even when the underlying database is shared.</li>
+<li><strong>Namespace enforcement</strong>: every query, every cache key, every queue message carries the tenant identifier. The tenant boundary is never implicit.</li>
+<li><strong>Auth at every layer</strong>: authorization is not a gateway check at the edge. It is re-verified at the database, at the message bus, at the API handler. A compromised layer should not expose a different tenant&rsquo;s data.</li>
+</ul>
+<p>The mistake most teams make is treating isolation as an API concern. It is a data-layer concern. If your ORM lets you query without a tenant filter, you will eventually have a bug that crosses tenant boundaries.</p>
+<div class="mermaid">
+flowchart TD
+    WA([" Workspace A"])
+    WB([" Workspace B"])
+    WC([" Workspace C"])
+
+    GW["API Gateway\nresolve tenant · verify auth · attach tenant_id"]
+
+    WA -->|"tenant_id = ws_a"| GW
+    WB -->|"tenant_id = ws_b"| GW
+    WC -->|"tenant_id = ws_c"| GW
+
+    GW --> DB[("Database\nWHERE workspace_id = ?")]
+    GW --> CACHE["Cache\nws_a:channel:msgs"]
+    GW --> QUEUE[/"Queue\n{ tenant: ws_b, msg: ... }"/]
+
+</div>
+<style>
+  .mermaid text { font-weight: 300 !important; }
+  .mermaid .node rect,
+  .mermaid .node circle,
+  .mermaid .node ellipse,
+  .mermaid .node polygon,
+  .mermaid .node path { fill: transparent !important; }
+  .mermaid .edgeLabel rect { fill: transparent !important; }
+  .mermaid .edgeLabel foreignObject div,
+  .mermaid .edgeLabel foreignObject span,
+  .mermaid .edgeLabel { background-color: transparent !important; background: transparent !important; }
+</style>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, look: 'handDrawn', theme: 'dark' });
+</script>
+
+<hr>
+<h2 id="most-traffic-is-fanout">Most Traffic is Fanout<a href="#most-traffic-is-fanout" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>One message in Slack does not result in one database write. It results in many things happening in parallel:</p>
+<ul>
+<li>Delivery to every connected device of every channel member</li>
+<li>Push notifications for mobile clients that are offline</li>
+<li>Updating unread counts across sessions</li>
+<li>Search indexing</li>
+<li>Feed updates for activity views</li>
+<li>Webhook delivery for third-party integrations</li>
+</ul>
+<p>This is a <strong>fanout problem</strong>. One write becomes N downstream operations. At Slack&rsquo;s scale, a single message in a large channel can fan out to thousands of deliveries.</p>
+<p>The lesson here is to <strong>design your write path with fanout in mind from the start.</strong> A naive implementation that processes all of this synchronously will collapse the moment you have a large workspace. You need:</p>
+<ul>
+<li>An event bus that decouples the write from the fanout (Kafka is the standard choice here).</li>
+<li>Consumer groups per concern: delivery, notifications, indexing, and webhooks each consume independently.</li>
+<li>Backpressure signals so a slow search indexer does not block message delivery.</li>
+</ul>
+<p>Fanout also affects your capacity planning. Your peak load is not proportional to active users — it is proportional to active users multiplied by their average channel membership. A workspace with 500 users each in 50 channels creates a very different traffic profile than 500 users each in 2 channels.</p>
+<div class="mermaid">
+flowchart LR
+    MSG["Message Send\n(1 write)"]
+    BUS["Event Bus\nKafka"]
+
+    MSG --> BUS
+
+    BUS --> D["Delivery\nConsumer\n(WebSocket push)"]
+    BUS --> N["Notification\nConsumer\n(mobile push)"]
+    BUS --> S["Search Index\nConsumer\n(async, eventual)"]
+    BUS --> W["Webhook\nConsumer\n(3rd-party integrations)"]
+    BUS --> U["Unread Count\nConsumer\n(per-session state)"]
+
+</div>
+<style>
+  .mermaid text { font-weight: 300 !important; }
+  .mermaid .node rect,
+  .mermaid .node circle,
+  .mermaid .node ellipse,
+  .mermaid .node polygon,
+  .mermaid .node path { fill: transparent !important; }
+  .mermaid .edgeLabel rect { fill: transparent !important; }
+  .mermaid .edgeLabel foreignObject div,
+  .mermaid .edgeLabel foreignObject span,
+  .mermaid .edgeLabel { background-color: transparent !important; background: transparent !important; }
+</style>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, look: 'handDrawn', theme: 'dark' });
+</script>
+
+<hr>
+<h2 id="real-time-needs-boring-guarantees">Real-Time Needs Boring Guarantees<a href="#real-time-needs-boring-guarantees" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>The &ldquo;real-time&rdquo; part of Slack is powered by WebSocket connections. But real-time is the easy part to say and the hard part to do correctly. The hard part is the guarantees underneath.</p>
+<p><strong>Ordering.</strong> Messages in a channel must appear in order. That is obvious. What is less obvious is that ordering guarantees are hard to maintain when you have multiple servers, network partitions, and clients that reconnect after being offline. Slack uses monotonically increasing sequence numbers per channel. When a client reconnects, it knows exactly which messages it missed.</p>
+<p><strong>Retries.</strong> Mobile networks are unreliable. A client may send a message, lose the connection, and not know whether the message was received. Without idempotency, a retry creates a duplicate. Slack uses client-generated idempotency keys — a UUID generated on the client before the send. The server deduplicates on that key, so retries are safe.</p>
+<p><strong>Backpressure.</strong> When a mobile client reconnects after being offline for hours, it may have thousands of events to catch up on. If the server pushes all of them immediately, it overwhelms the client. The reconnect protocol must support batching and pacing, letting the client signal when it is ready for more.</p>
+<p>The pattern is: <strong>design the happy path last.</strong> Design for disconnection, reorder, retry, and slow clients first. The happy path is trivial; the edge cases are where real-time systems fail.</p>
+<hr>
+<h2 id="storage-is-layered">Storage is Layered<a href="#storage-is-layered" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Not all data is accessed equally. A message sent five minutes ago is queried constantly — by the sender, by recipients, by the unread-count system. A message sent two years ago is queried rarely, usually for compliance exports or search.</p>
+<p>Treating all of this data the same way is expensive. Slack&rsquo;s storage strategy is layered:</p>
+<ul>
+<li><strong>Hot path</strong>: optimized for recency. Read the last N messages in a channel. This lives in a fast store — possibly a distributed cache or a highly indexed relational table — designed for low-latency tail reads.</li>
+<li><strong>Cold path</strong>: optimized for retention. Older messages are tiered to cheaper object storage. The read path for compliance exports accepts higher latency in exchange for lower cost.</li>
+<li><strong>Search index</strong>: asynchronous. Messages are written to the primary store first, then indexed for full-text search separately. The index is eventually consistent with the primary store, which is an acceptable tradeoff because users tolerate a few seconds of search lag.</li>
+</ul>
+<p>The lesson: <strong>tiered storage is not just a cost optimization.</strong> It lets you tune each layer independently. Your hot path can optimize for <code>p99 &lt; 5ms</code>. Your cold path can optimize for <code>cost per GB</code>. Your search index can optimize for recall and relevance. These are different problems and they deserve different solutions.</p>
+<div class="mermaid">
+flowchart TD
+    WRITE["Message Written"]
+
+    WRITE --> HOT["Hot Store\n(recent messages)\np99 < 5ms\nHigh cost, fast reads"]
+    WRITE -.->|async| SEARCH["Search Index\n(eventually consistent)\nOptimised for recall"]
+
+    HOT -->|age-out after N days| COLD["Cold Store\n(object storage)\nLow cost, high latency\nCompliance & exports"]
+
+</div>
+<style>
+  .mermaid text { font-weight: 300 !important; }
+  .mermaid .node rect,
+  .mermaid .node circle,
+  .mermaid .node ellipse,
+  .mermaid .node polygon,
+  .mermaid .node path { fill: transparent !important; }
+  .mermaid .edgeLabel rect { fill: transparent !important; }
+  .mermaid .edgeLabel foreignObject div,
+  .mermaid .edgeLabel foreignObject span,
+  .mermaid .edgeLabel { background-color: transparent !important; background: transparent !important; }
+</style>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, look: 'handDrawn', theme: 'dark' });
+</script>
+
+<hr>
+<h2 id="multi-tenant-is-the-hard-part">Multi-Tenant is the Hard Part<a href="#multi-tenant-is-the-hard-part" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Everything above — fanout, ordering, tiered storage — is difficult on its own. Multi-tenancy makes each problem harder by adding a new dimension: <strong>tenant fairness</strong>.</p>
+<p>The classic failure mode is the noisy neighbor. A single large enterprise workspace sends a burst of messages that consumes all available database connections, or saturates a Kafka partition, or causes a queue consumer to fall behind for every other tenant on the same shard.</p>
+<p>Preventing this requires <strong>tenant-aware resource management at every layer</strong>:</p>
+<p><strong>Partitioning by tenant.</strong> Workspaces are assigned to shards, and shards are sized to limit blast radius. If a shard degrades, only the tenants on that shard are affected. The rest of the fleet is isolated.</p>
+<p><strong>Per-tenant rate limiting and quotas.</strong> Message send rates, API call rates, and integration webhook rates are all quota-controlled per workspace. Enforcement happens at the edge, before the request hits shared infrastructure.</p>
+<p><strong>Tenant-aware routing.</strong> Large enterprise customers can be placed on dedicated shards or dedicated clusters. Slack calls these &ldquo;enterprise grid&rdquo; deployments. You trade some infrastructure efficiency for a guarantee that one massive customer cannot affect others.</p>
+<p><strong>Work scheduling with tenant weighting.</strong> When consumers process background jobs — search indexing, notification delivery — they use fair-share scheduling across tenants. No single tenant&rsquo;s backlog monopolizes a worker pool.</p>
+<p>The deeper lesson: <strong>multi-tenancy is not a feature you bolt on later.</strong> If you build a single-tenant system and then try to add tenant isolation, you will find tenant assumptions baked into every layer — your query patterns, your caching keys, your queue topic design, your logging. Retrofitting this is painful. Design tenant isolation as a first-class constraint from the beginning.</p>
+<hr>
+<h2 id="the-right-mental-model">The Right Mental Model<a href="#the-right-mental-model" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>The engineers who built Slack did not start by designing a chat feature. They started by asking: how do we give thousands of isolated groups a reliable, real-time, searchable communication platform on shared infrastructure?</p>
+<p>That question naturally leads to partitioning strategies, fanout architectures, tiered storage, and tenant-aware scheduling. The chat UI is the product. The multi-tenant distributed system is the engineering problem.</p>
+<p>If you are building any SaaS platform — whether it is &ldquo;just&rdquo; a project management tool or a developer platform or a CRM — you are building a multi-tenant system. The earlier you treat tenant isolation, blast-radius containment, and noisy neighbor prevention as first-class design constraints, the less painful your scaling story will be.</p>
+<p>Design for tenant isolation first. Then optimize the features.</p>
+<hr>
+
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright copyright--user">
+        <span>© 2026 Mike Mwita</span>
+    
+      <span>:: <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>
