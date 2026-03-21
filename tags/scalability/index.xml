@@ -22,5 +22,12 @@
       <guid>https://MikeMwita.github.io/thoughts/multitenancy-lessons-from-slack/</guid>
       <description>&lt;h1 id=&#34;multitenancy-lessons-from-slack&#34;&gt;Multitenancy Lessons from Slack&lt;/h1&gt;&#xA;&lt;p&gt;Slack looks like a messaging app. Under the hood, it is a multi-tenant distributed system solving problems that every SaaS platform eventually runs into — just at a scale that makes the problems impossible to ignore.&lt;/p&gt;&#xA;&lt;p&gt;If you think about it carefully, every architectural decision Slack makes is shaped by one central tension: &lt;strong&gt;every workspace feels isolated, but you cannot afford isolated infrastructure per customer.&lt;/strong&gt;&lt;/p&gt;&#xA;&lt;p&gt;That tension is the defining constraint. Everything else — how messages are delivered, how storage is structured, how quotas are enforced — is downstream of it.&lt;/p&gt;</description>
     </item>
+    <item>
+      <title>The Thundering Herd Problem</title>
+      <link>https://MikeMwita.github.io/thoughts/cache-stampede/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/cache-stampede/</guid>
+      <description>&lt;h1 id=&#34;the-thundering-herd-problem&#34;&gt;The Thundering Herd Problem&lt;/h1&gt;&#xA;&lt;p&gt;Your site&amp;rsquo;s homepage is heavily cached. The cache key expires every 60 seconds. At 12:00 PM, the cache expires. At 12:00:01 PM, 10,000 concurrent user requests come in. None of them find anything in cache. All 10,000 hit your database simultaneously to regenerate the exact same content.&lt;/p&gt;&#xA;&lt;p&gt;Your database crashes. The site goes down.&lt;/p&gt;&#xA;&lt;p&gt;This is a &lt;strong&gt;cache stampede&lt;/strong&gt;, also called a thundering herd. The irony is that the cache was there to protect the database. The moment it failed to do its job, it caused something worse than if it had never existed.&lt;/p&gt;</description>
+    </item>
   </channel>
 </rss>

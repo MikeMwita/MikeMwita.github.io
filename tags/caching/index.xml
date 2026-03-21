@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Caching on Mike Mwita</title>
+    <link>https://MikeMwita.github.io/tags/caching/</link>
+    <description>Recent content in Caching on Mike Mwita</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <copyright>© 2026 Mike Mwita</copyright>
+    <atom:link href="https://MikeMwita.github.io/tags/caching/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>The Thundering Herd Problem</title>
+      <link>https://MikeMwita.github.io/thoughts/cache-stampede/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/cache-stampede/</guid>
+      <description>&lt;h1 id=&#34;the-thundering-herd-problem&#34;&gt;The Thundering Herd Problem&lt;/h1&gt;&#xA;&lt;p&gt;Your site&amp;rsquo;s homepage is heavily cached. The cache key expires every 60 seconds. At 12:00 PM, the cache expires. At 12:00:01 PM, 10,000 concurrent user requests come in. None of them find anything in cache. All 10,000 hit your database simultaneously to regenerate the exact same content.&lt;/p&gt;&#xA;&lt;p&gt;Your database crashes. The site goes down.&lt;/p&gt;&#xA;&lt;p&gt;This is a &lt;strong&gt;cache stampede&lt;/strong&gt;, also called a thundering herd. The irony is that the cache was there to protect the database. The moment it failed to do its job, it caused something worse than if it had never existed.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>The Thundering Herd Problem :: Mike Mwita</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Cache stampede is when your own users become the attack. The fix is not more cache — it is treating the cache miss path like a critical section." />
+<meta name="keywords" content="Web Development, Software Developer Engineer, Programming, Data Structures and Algorithms, Kubernetes, Go, Cloud Engineering" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://MikeMwita.github.io/thoughts/cache-stampede/" />
+
+
+
+
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/green.min.54165f6c5a7a5f0716da6ffb1e3cf34584ec54d8a5ef3f5328de62ffd59a9ffa.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/buttons.min.86f6b4c106b6c6eb690ae5203d36b442c1f66f718ff4e8164fa86cf6c61ad641.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/code.min.d529ea4b2fb8d34328d7d31afc5466d5f7bc2f0bc9abdd98b69385335d7baee4.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/fonts.min.5bb7ed13e1d00d8ff39ea84af26737007eb5051b157b86fc24487c94f3dc8bbe.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/footer.min.eb8dfc2c6a7eafa36cd3ba92d63e69e849e2200e0002a228d137f236b09ecd75.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/gist.min.a751e8b0abe1ba8bc53ced52a38b19d8950fe78ca29454ea8c2595cf26aad5c0.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/header.min.75c7eb0e2872d95ff48109c6647d0223a38db52e2561dd87966eb5fc7c6bdac6.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/main.min.36833afd348409fc6c3d09d0897c5833d9d5bf1ff31f5e60ea3ee42ce2b1268c.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/menu.min.3c17467ebeb3d38663dce68f71f519901124fa5cbb4519b2fb0667a21e9aca39.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/pagination.min.bbb986dbce00a5ce5aca0504b7925fc1c581992a4bf57f163e5d69cc1db7d836.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/post.min.e6dddd258e64c83e05cec0cd49c05216742d42fc8ecbfbe6b67083412b609bd3.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/syntax.min.a0773cce9310cb6d8ed23e50f005448facf29a53001b57e038828daa466b25c0.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/terminal.min.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/terms.min.b81791663c3790e738e571cdbf802312390d30e4b1d8dc9d814a5b5454d0ac11.css">
+
+
+
+
+
+
+
+<link rel="shortcut icon" href="https://MikeMwita.github.io/favicon.png">
+<link rel="apple-touch-icon" href="https://MikeMwita.github.io/apple-touch-icon.png">
+
+
+<meta name="twitter:card" content="summary" />
+
+  
+    <meta name="twitter:site" content="https://MikeMwita.github.io/" />
+  
+    <meta name="twitter:creator" content="" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="The Thundering Herd Problem">
+<meta property="og:description" content="Cache stampede is when your own users become the attack. The fix is not more cache — it is treating the cache miss path like a critical section." />
+<meta property="og:url" content="https://MikeMwita.github.io/thoughts/cache-stampede/" />
+<meta property="og:site_name" content="Mike Mwita" />
+
+  <meta property="og:image" content="https://MikeMwita.github.io/og-image.png">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+
+
+<div class="container center">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    Mike  Mwita (⌐▨_▨)
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/cv">CV</a></li>
+        
+      
+        
+          <li><a href="/projects">Projects</a></li>
+        
+      
+        
+          <li><a href="/thoughts">Thoughts?</a></li>
+        
+      
+        
+          <li><a href="/reads">Reads</a></li>
+        
+      
+        
+          <li><a href="/contacts">Contacts</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/cv" >CV</a></li>
+        
+      
+        
+          <li><a href="/projects" >Projects</a></li>
+        
+      
+        
+          <li><a href="/thoughts" >Thoughts?</a></li>
+        
+      
+        
+          <li><a href="/reads" >Reads</a></li>
+        
+      
+        
+          <li><a href="/contacts" >Contacts</a></li>
+        
+      
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://MikeMwita.github.io/thoughts/cache-stampede/">The Thundering Herd Problem</a>
+  </h1>
+  <div class="post-meta"></div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://MikeMwita.github.io/tags/distributed-systems/">distributed-systems</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/caching/">caching</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/scalability/">scalability</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/backend/">backend</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/performance/">performance</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+  
+
+  <div class="post-content"><div>
+        <h1 id="the-thundering-herd-problem">The Thundering Herd Problem<a href="#the-thundering-herd-problem" class="hanchor" ariaLabel="Anchor">#</a> </h1>
+<p>Your site&rsquo;s homepage is heavily cached. The cache key expires every 60 seconds. At 12:00 PM, the cache expires. At 12:00:01 PM, 10,000 concurrent user requests come in. None of them find anything in cache. All 10,000 hit your database simultaneously to regenerate the exact same content.</p>
+<p>Your database crashes. The site goes down.</p>
+<p>This is a <strong>cache stampede</strong>, also called a thundering herd. The irony is that the cache was there to protect the database. The moment it failed to do its job, it caused something worse than if it had never existed.</p>
+<hr>
+<h2 id="why-it-happens">Why It Happens<a href="#why-it-happens" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>The failure mode is simple: you have no coordination between concurrent readers on a cache miss.</p>
+<p>When a key expires, every waiting request independently concludes &ldquo;nothing in cache, I need to compute this.&rdquo; They all race to the database. The database receives N times the expected load in a single instant — not spread over time, but all at once, for the exact same query.</p>
+<p>At low traffic this is invisible. At scale it is catastrophic, and the damage is proportional to how popular the cached content is. Your homepage, your trending feed, your most-viewed product — these are the keys that will hurt you.</p>
+<p>The mental model that matters: <strong>a cache miss path is a critical section.</strong> If you do not protect it, you have no mutual exclusion, and every TTL boundary becomes a potential self-inflicted denial of service.</p>
+<div class="mermaid">
+flowchart LR
+    subgraph users["10,000 concurrent requests"]
+        R1(["req 1"])
+        R2(["req 2"])
+        RN(["req N..."])
+    end
+
+    CACHE[("Cache\nKEY EXPIRED")]
+    DB[("Database\nCRASHED")]
+
+    R1 -->|"cache miss"| CACHE
+    R2 -->|"cache miss"| CACHE
+    RN -->|"cache miss"| CACHE
+    CACHE -->|"all 10,000 fall through"| DB
+
+</div>
+<style>
+  .mermaid text { font-weight: 300 !important; }
+  .mermaid .node rect,
+  .mermaid .node circle,
+  .mermaid .node ellipse,
+  .mermaid .node polygon,
+  .mermaid .node path { fill: transparent !important; }
+  .mermaid .edgeLabel rect { fill: transparent !important; }
+  .mermaid .edgeLabel foreignObject div,
+  .mermaid .edgeLabel foreignObject span,
+  .mermaid .edgeLabel { background-color: transparent !important; background: transparent !important; }
+</style>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, look: 'handDrawn', theme: 'dark' });
+</script>
+
+<hr>
+<h2 id="fix-1-single-flight--request-coalescing">Fix 1: Single Flight / Request Coalescing<a href="#fix-1-single-flight--request-coalescing" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>The cleanest solution is to allow only one request to rebuild the value. Everyone else either waits for that result or gets a stale copy.</p>
+<p>In Go, the standard library has <code>singleflight</code> for exactly this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">var</span> group singleflight.Group
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> <span style="color:#447fcf">getHomepage</span>(ctx context.Context) ([]<span style="color:#6ab825;font-weight:bold">byte</span>, <span style="color:#6ab825;font-weight:bold">error</span>) {
+</span></span><span style="display:flex;"><span>    result, err, _ := group.<span style="color:#447fcf">Do</span>(<span style="color:#ed9d13">&#34;homepage&#34;</span>, <span style="color:#6ab825;font-weight:bold">func</span>() (<span style="color:#6ab825;font-weight:bold">interface</span>{}, <span style="color:#6ab825;font-weight:bold">error</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#447fcf">fetchFromDB</span>(ctx)
+</span></span><span style="display:flex;"><span>    })
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> result.([]<span style="color:#6ab825;font-weight:bold">byte</span>), err
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>The <code>Do</code> call deduplicates: if 10,000 goroutines call it concurrently, only one actually runs the function. The other 9,999 block and share the result when it arrives.</p>
+<p>In a distributed setup across multiple servers, <code>singleflight</code> alone is not enough — each server will deduplicate within itself but not across the fleet. For that you need a <strong>distributed lock</strong> in Redis or a coordination layer, with losers either waiting or serving stale.</p>
+<div class="mermaid">
+flowchart TD
+    MISS["Cache Miss"]
+    LOCK["Distributed Lock\nSET lock:key NX PX 5000"]
+
+    MISS --> LOCK
+
+    LOCK -->|"wins"| WINNER["1 worker\nfetches from DB"]
+    LOCK -->|"lose"| LOSERS["9,999 others\nwait / serve stale"]
+
+    WINNER --> DB[("Database\n1 query")]
+    DB --> CACHE[("Cache\npopulated")]
+    CACHE --> RESULT["All requests\nget the result"]
+    LOSERS --> RESULT
+
+</div>
+<style>
+  .mermaid text { font-weight: 300 !important; }
+  .mermaid .node rect,
+  .mermaid .node circle,
+  .mermaid .node ellipse,
+  .mermaid .node polygon,
+  .mermaid .node path { fill: transparent !important; }
+  .mermaid .edgeLabel rect { fill: transparent !important; }
+  .mermaid .edgeLabel foreignObject div,
+  .mermaid .edgeLabel foreignObject span,
+  .mermaid .edgeLabel { background-color: transparent !important; background: transparent !important; }
+</style>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, look: 'handDrawn', theme: 'dark' });
+</script>
+
+<hr>
+<h2 id="fix-2-serve-stale-while-revalidate">Fix 2: Serve Stale While Revalidate<a href="#fix-2-serve-stale-while-revalidate" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>The idea is two TTLs on every cache entry: a soft TTL and a hard TTL.</p>
+<ul>
+<li><strong>Soft TTL</strong>: when this expires, the value is &ldquo;stale but still usable.&rdquo; Serve it immediately, but trigger a background job to refresh it.</li>
+<li><strong>Hard TTL</strong>: when this expires, the value is gone. Only used as a fallback floor.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>Store: { value, soft_ttl: now+55s, hard_ttl: now+120s }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>On read:
+</span></span><span style="display:flex;"><span>  if age &lt; soft_ttl  → serve fresh
+</span></span><span style="display:flex;"><span>  if soft_ttl &lt; age &lt; hard_ttl → serve stale, kick off background refresh
+</span></span><span style="display:flex;"><span>  if age &gt; hard_ttl  → must block and recompute (last resort)
+</span></span></code></pre></div><p>Users never wait because there is always something to serve. The database never sees a stampede because refreshes happen in the background, one at a time, before the hard TTL hits. This is how CDNs like Cloudflare implement <code>stale-while-revalidate</code> at the HTTP layer — you can apply the same pattern at the application cache level.</p>
+<div class="mermaid">
+flowchart LR
+    W["Cache Write\nt = 0"]
+
+    W --> FRESH["FRESH\n0s → 55s\nServe immediately"]
+    FRESH --> STALE["STALE\n55s → 120s\nServe instantly\n+ background refresh"]
+    STALE --> GONE["HARD EXPIRE\n> 120s\nMust recompute\n(last resort)"]
+
+    STALE -.->|"async"| BG["Background\nworker refreshes\ncache quietly"]
+
+</div>
+<style>
+  .mermaid text { font-weight: 300 !important; }
+  .mermaid .node rect,
+  .mermaid .node circle,
+  .mermaid .node ellipse,
+  .mermaid .node polygon,
+  .mermaid .node path { fill: transparent !important; }
+  .mermaid .edgeLabel rect { fill: transparent !important; }
+  .mermaid .edgeLabel foreignObject div,
+  .mermaid .edgeLabel foreignObject span,
+  .mermaid .edgeLabel { background-color: transparent !important; background: transparent !important; }
+</style>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, look: 'handDrawn', theme: 'dark' });
+</script>
+
+<hr>
+<h2 id="fix-3-distributed-lock-with-jitter">Fix 3: Distributed Lock with Jitter<a href="#fix-3-distributed-lock-with-jitter" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>If you cannot serve stale, the next best option is a lock with short lease.</p>
+<p>In Redis:</p>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>SET lock:homepage &lt;worker-id&gt; NX PX 5000
+</span></span></code></pre></div><p><code>NX</code> means &ldquo;only set if not exists.&rdquo; <code>PX 5000</code> is a 5-second expiry so the lock cannot be held forever if the worker crashes.</p>
+<p>The worker that wins the lock recomputes and populates the cache. Losers poll cache with a small sleep until the value appears, then serve it.</p>
+<p>The equally important part is <strong>jitter on expiry times</strong>. If you set every homepage cache key to expire at exactly 60 seconds, all of them expire together. Randomise the TTL by ±10% so keys are staggered:</p>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>ttl := <span style="color:#3677a9">60</span>*time.Second + time.<span style="color:#447fcf">Duration</span>(rand.<span style="color:#447fcf">Intn</span>(<span style="color:#3677a9">12</span>))*time.Second
+</span></span><span style="display:flex;"><span>cache.<span style="color:#447fcf">Set</span>(<span style="color:#ed9d13">&#34;homepage&#34;</span>, value, ttl)
+</span></span></code></pre></div><p>Jitter is cheap and eliminates a whole class of correlated failures. Use it everywhere you set expiry times.</p>
+<hr>
+<h2 id="fix-4-proactive-refresh">Fix 4: Proactive Refresh<a href="#fix-4-proactive-refresh" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>The most reliable protection is to never let a hot key expire under load in the first place.</p>
+<p>If you know a key is hot — homepage, trending content, featured product — refresh it on a schedule before users become your cron job:</p>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>Every 55 seconds: refresh homepage cache
+</span></span><span style="display:flex;"><span>On publish event: immediately invalidate and refresh affected keys
+</span></span></code></pre></div><p>This decouples cache population from user requests entirely. No miss, no stampede, no problem. The downside is that you need to know which keys are hot in advance, which requires either instrumentation or heuristics. For predictable hot keys like a homepage this is a no-brainer. For long-tail content it is less practical.</p>
+<hr>
+<h2 id="fix-5-circuit-breakers-on-the-rebuild-path">Fix 5: Circuit Breakers on the Rebuild Path<a href="#fix-5-circuit-breakers-on-the-rebuild-path" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Even with all the above, assume that sometimes a rebuild will fail. The database has a bad moment. The downstream service is slow. The lock winner times out.</p>
+<p>Without protection, that failure cascades: the lock expires, new winner tries, also fails, repeat. You get a retry storm on top of the original stampede.</p>
+<p>Protect the rebuild path the same way you protect any external dependency:</p>
+<ul>
+<li><strong>Concurrency limit</strong>: only N goroutines allowed to hit the database for cache rebuilds at once. Others degrade immediately.</li>
+<li><strong>Timeout</strong>: rebuild attempts have a strict deadline. A slow rebuild is worse than a fast failure because it holds the lock and blocks everyone waiting.</li>
+<li><strong>Degraded mode</strong>: if rebuild fails, serve the last known stale value with a flag rather than returning an error. An outdated homepage is far better than a 500.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">if</span> rebuildErr != <span style="color:#6ab825;font-weight:bold">nil</span> {
+</span></span><span style="display:flex;"><span>    stale, exists := cache.<span style="color:#447fcf">GetStale</span>(<span style="color:#ed9d13">&#34;homepage&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> exists {
+</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> stale, <span style="color:#6ab825;font-weight:bold">nil</span>  <span style="color:#999;font-style:italic">// serve stale silently
+</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#6ab825;font-weight:bold">nil</span>, rebuildErr
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="putting-it-together">Putting It Together<a href="#putting-it-together" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>None of these fixes are mutually exclusive. A production-grade cache layer uses all of them in layers:</p>
+<ol>
+<li><strong>Proactive refresh</strong> for known hot keys — most stampedes never happen</li>
+<li><strong>Stale-while-revalidate</strong> as the default read strategy — users never wait</li>
+<li><strong>Single flight / distributed lock</strong> as the fallback when stale is unavailable</li>
+<li><strong>Jitter</strong> on every TTL — spreads load across time</li>
+<li><strong>Circuit breakers</strong> on the rebuild path — contains failures when they do occur</li>
+</ol>
+<p>The cache miss path is a critical section. Treat it like one from the start, before traffic proves you wrong.</p>
+<hr>
+
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright copyright--user">
+        <span>© 2026 Mike Mwita</span>
+    
+      <span>:: <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

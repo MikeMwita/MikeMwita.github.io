@@ -16,5 +16,12 @@
       <guid>https://MikeMwita.github.io/thoughts/beyond-the-backend-basics/</guid>
       <description>&lt;h1 id=&#34;beyond-backend-basics&#34;&gt;Beyond Backend Basics&lt;/h1&gt;&#xA;&lt;p&gt;Most backend developers can build APIs, wire up databases, and scale services.&#xA;That’s good. But “good” is not enough if your ambition is to become the kind of engineer who can design &lt;strong&gt;distributed systems that survive chaos&lt;/strong&gt; and influence organizations at scale.&lt;/p&gt;&#xA;&lt;p&gt;It’s a checklist of some of  the skills you need to learn now if you want to operate at the highest levels of engineering.&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;from-backend-comfort--distributed-systems-reality&#34;&gt;From Backend Comfort → Distributed Systems Reality&lt;/h2&gt;&#xA;&lt;p&gt;The leap from backend to distributed systems is not about syntax or frameworks.&#xA;It’s about learning to think in terms of &lt;strong&gt;tradeoffs, failures, and coordination across unreliable networks&lt;/strong&gt;.&lt;/p&gt;</description>
     </item>
+    <item>
+      <title>The Thundering Herd Problem</title>
+      <link>https://MikeMwita.github.io/thoughts/cache-stampede/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/cache-stampede/</guid>
+      <description>&lt;h1 id=&#34;the-thundering-herd-problem&#34;&gt;The Thundering Herd Problem&lt;/h1&gt;&#xA;&lt;p&gt;Your site&amp;rsquo;s homepage is heavily cached. The cache key expires every 60 seconds. At 12:00 PM, the cache expires. At 12:00:01 PM, 10,000 concurrent user requests come in. None of them find anything in cache. All 10,000 hit your database simultaneously to regenerate the exact same content.&lt;/p&gt;&#xA;&lt;p&gt;Your database crashes. The site goes down.&lt;/p&gt;&#xA;&lt;p&gt;This is a &lt;strong&gt;cache stampede&lt;/strong&gt;, also called a thundering herd. The irony is that the cache was there to protect the database. The moment it failed to do its job, it caused something worse than if it had never existed.&lt;/p&gt;</description>
+    </item>
   </channel>
 </rss>
