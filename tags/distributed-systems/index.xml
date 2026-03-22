@@ -17,6 +17,13 @@
       <description>&lt;h1 id=&#34;beyond-backend-basics&#34;&gt;Beyond Backend Basics&lt;/h1&gt;&#xA;&lt;p&gt;Most backend developers can build APIs, wire up databases, and scale services.&#xA;That’s good. But “good” is not enough if your ambition is to become the kind of engineer who can design &lt;strong&gt;distributed systems that survive chaos&lt;/strong&gt; and influence organizations at scale.&lt;/p&gt;&#xA;&lt;p&gt;It’s a checklist of some of  the skills you need to learn now if you want to operate at the highest levels of engineering.&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;from-backend-comfort--distributed-systems-reality&#34;&gt;From Backend Comfort → Distributed Systems Reality&lt;/h2&gt;&#xA;&lt;p&gt;The leap from backend to distributed systems is not about syntax or frameworks.&#xA;It’s about learning to think in terms of &lt;strong&gt;tradeoffs, failures, and coordination across unreliable networks&lt;/strong&gt;.&lt;/p&gt;</description>
     </item>
     <item>
+      <title>Caching Is Easy. Invalidation Is Where Systems Falter.</title>
+      <link>https://MikeMwita.github.io/thoughts/cache-invalidation/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/cache-invalidation/</guid>
+      <description>&lt;h1 id=&#34;caching-is-easy-invalidation-is-where-systems-falter&#34;&gt;Caching Is Easy. Invalidation Is Where Systems Falter.&lt;/h1&gt;&#xA;&lt;p&gt;Adding a cache is a one-afternoon task. You pick a layer, set a TTL, watch your database load drop. It feels like engineering.&lt;/p&gt;&#xA;&lt;p&gt;Invalidation is the part nobody writes down. It is also the part that wakes you up at 3am. Users seeing stale data after an update. A rollback that leaves garbage in cache for 24 hours. A race condition where two services update the same key in the wrong order and nobody notices for a week.&lt;/p&gt;</description>
+    </item>
+    <item>
       <title>Flow Control in Distributed Systems: Understanding Backpressure</title>
       <link>https://MikeMwita.github.io/thoughts/understanding-backpressure/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

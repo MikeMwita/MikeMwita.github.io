@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Caching Is Easy. Invalidation Is Where Systems Falter. :: Mike Mwita</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Everyone knows how to add a cache. Almost no one has a written-down invalidation strategy before shipping." />
+<meta name="keywords" content="Web Development, Software Developer Engineer, Programming, Data Structures and Algorithms, Kubernetes, Go, Cloud Engineering" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://MikeMwita.github.io/thoughts/cache-invalidation/" />
+
+
+
+
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/green.min.54165f6c5a7a5f0716da6ffb1e3cf34584ec54d8a5ef3f5328de62ffd59a9ffa.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/buttons.min.86f6b4c106b6c6eb690ae5203d36b442c1f66f718ff4e8164fa86cf6c61ad641.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/code.min.d529ea4b2fb8d34328d7d31afc5466d5f7bc2f0bc9abdd98b69385335d7baee4.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/fonts.min.5bb7ed13e1d00d8ff39ea84af26737007eb5051b157b86fc24487c94f3dc8bbe.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/footer.min.eb8dfc2c6a7eafa36cd3ba92d63e69e849e2200e0002a228d137f236b09ecd75.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/gist.min.a751e8b0abe1ba8bc53ced52a38b19d8950fe78ca29454ea8c2595cf26aad5c0.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/header.min.75c7eb0e2872d95ff48109c6647d0223a38db52e2561dd87966eb5fc7c6bdac6.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/main.min.36833afd348409fc6c3d09d0897c5833d9d5bf1ff31f5e60ea3ee42ce2b1268c.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/menu.min.3c17467ebeb3d38663dce68f71f519901124fa5cbb4519b2fb0667a21e9aca39.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/pagination.min.bbb986dbce00a5ce5aca0504b7925fc1c581992a4bf57f163e5d69cc1db7d836.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/post.min.e6dddd258e64c83e05cec0cd49c05216742d42fc8ecbfbe6b67083412b609bd3.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/syntax.min.a0773cce9310cb6d8ed23e50f005448facf29a53001b57e038828daa466b25c0.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/terminal.min.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/terms.min.b81791663c3790e738e571cdbf802312390d30e4b1d8dc9d814a5b5454d0ac11.css">
+
+
+
+
+
+
+
+<link rel="shortcut icon" href="https://MikeMwita.github.io/favicon.png">
+<link rel="apple-touch-icon" href="https://MikeMwita.github.io/apple-touch-icon.png">
+
+
+<meta name="twitter:card" content="summary" />
+
+  
+    <meta name="twitter:site" content="https://MikeMwita.github.io/" />
+  
+    <meta name="twitter:creator" content="" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Caching Is Easy. Invalidation Is Where Systems Falter.">
+<meta property="og:description" content="Everyone knows how to add a cache. Almost no one has a written-down invalidation strategy before shipping." />
+<meta property="og:url" content="https://MikeMwita.github.io/thoughts/cache-invalidation/" />
+<meta property="og:site_name" content="Mike Mwita" />
+
+  <meta property="og:image" content="https://MikeMwita.github.io/og-image.png">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+
+
+<div class="container center">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    Mike  Mwita (⌐▨_▨)
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/cv">CV</a></li>
+        
+      
+        
+          <li><a href="/projects">Projects</a></li>
+        
+      
+        
+          <li><a href="/thoughts">Thoughts?</a></li>
+        
+      
+        
+          <li><a href="/reads">Reads</a></li>
+        
+      
+        
+          <li><a href="/contacts">Contacts</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/cv" >CV</a></li>
+        
+      
+        
+          <li><a href="/projects" >Projects</a></li>
+        
+      
+        
+          <li><a href="/thoughts" >Thoughts?</a></li>
+        
+      
+        
+          <li><a href="/reads" >Reads</a></li>
+        
+      
+        
+          <li><a href="/contacts" >Contacts</a></li>
+        
+      
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://MikeMwita.github.io/thoughts/cache-invalidation/">Caching Is Easy. Invalidation Is Where Systems Falter.</a>
+  </h1>
+  <div class="post-meta"></div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://MikeMwita.github.io/tags/distributed-systems/">distributed-systems</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/caching/">caching</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/backend/">backend</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/scalability/">scalability</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/performance/">performance</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+  
+
+  <div class="post-content"><div>
+        <h1 id="caching-is-easy-invalidation-is-where-systems-falter">Caching Is Easy. Invalidation Is Where Systems Falter.<a href="#caching-is-easy-invalidation-is-where-systems-falter" class="hanchor" ariaLabel="Anchor">#</a> </h1>
+<p>Adding a cache is a one-afternoon task. You pick a layer, set a TTL, watch your database load drop. It feels like engineering.</p>
+<p>Invalidation is the part nobody writes down. It is also the part that wakes you up at 3am. Users seeing stale data after an update. A rollback that leaves garbage in cache for 24 hours. A race condition where two services update the same key in the wrong order and nobody notices for a week.</p>
+<p>Phil Karlton&rsquo;s famous line — &ldquo;there are only two hard things in computer science: cache invalidation and naming things&rdquo; — is funny because it is true. The difficulty is not technical. It is that invalidation requires you to reason about the relationship between your write path and your read path across time, across services, and across failures.</p>
+<p>Here is how to do it without guessing.</p>
+<hr>
+<h2 id="1-pick-the-right-cache-layer-first">1. Pick the Right Cache Layer First<a href="#1-pick-the-right-cache-layer-first" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Before thinking about invalidation, you need to know what you are actually caching and why. Each layer has different invalidation semantics:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Layer</th>
+          <th>Scope</th>
+          <th>Invalidation control</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Browser cache</td>
+          <td>Per user, per device</td>
+          <td><code>Cache-Control</code> headers, versioned URLs</td>
+      </tr>
+      <tr>
+          <td>CDN (Cloudflare, Fastly)</td>
+          <td>Global edge nodes</td>
+          <td>Purge API, surrogate keys, <code>stale-while-revalidate</code></td>
+      </tr>
+      <tr>
+          <td>Redis / Memcached</td>
+          <td>Shared across services</td>
+          <td>Delete by key, versioned keys, pub/sub events</td>
+      </tr>
+      <tr>
+          <td>In-process (in-memory)</td>
+          <td>Single process instance</td>
+          <td>Full control, but no visibility across instances</td>
+      </tr>
+  </tbody>
+</table>
+<p>The mistake is picking a layer based on what is easy to add rather than what you are optimising for. If you are optimising for p95 latency, in-process cache with local state is fastest but hardest to invalidate across a fleet. If you are optimising for database load, Redis is the right answer. Know the tradeoff before you commit.</p>
+<hr>
+<h2 id="2-ttls-are-a-safety-net-not-a-strategy">2. TTLs Are a Safety Net, Not a Strategy<a href="#2-ttls-are-a-safety-net-not-a-strategy" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Setting a TTL is not an invalidation strategy. It is a fallback for when your actual invalidation fails.</p>
+<p>A 24-hour TTL on a user profile means stale data can live for up to 24 hours after an update. If that is acceptable — say, for a recommendation model that retrains daily — then a long TTL is fine. If users expect to see their profile picture update immediately after they change it, 24 hours is not a TTL, it is a bug with an expiry.</p>
+<p>Short TTLs (60 seconds, 5 minutes) are often used as a substitute for event-driven invalidation. This works at small scale and fails loudly at large scale — it is the mechanism behind the thundering herd problem covered in the previous article.</p>
+<p>The right mental model: <strong>TTL is a ceiling on how stale your data can get if nothing else fires.</strong> Your primary invalidation should be event-driven. TTL is the safety net underneath.</p>
+<hr>
+<h2 id="3-versioned-keys-beat-delete-in-distributed-systems">3. Versioned Keys Beat Delete in Distributed Systems<a href="#3-versioned-keys-beat-delete-in-distributed-systems" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>The naive invalidation approach is: on write, delete the cache key. Then the next read will miss and repopulate.</p>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>write user:123 → cache.delete(&#34;user:123&#34;)
+</span></span></code></pre></div><p>This breaks down in distributed systems for a subtle reason: <strong>you cannot guarantee the order of operations across services and cache nodes.</strong></p>
+<p>Consider this sequence:</p>
+<ol>
+<li>Service A reads <code>user:123</code> from cache — gets v6 of the profile</li>
+<li>Service B updates the user — deletes <code>user:123</code> from cache</li>
+<li>Service A, still processing, writes its stale v6 back into cache</li>
+<li>Cache now has stale data, and it will stay there until next TTL</li>
+</ol>
+<p>This is a classic write-after-invalidation race. The delete happened, but then a concurrent reader wrote stale data back.</p>
+<p><strong>Versioned keys eliminate this race.</strong> Instead of <code>user:123</code>, the key is <code>user:123:v7</code>. When the user is updated, the version is incremented. Old keys become unreachable, not deleted — they age out via TTL.</p>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">from</span> <span style="color:#447fcf;text-decoration:underline">dataclasses</span> <span style="color:#6ab825;font-weight:bold">import</span> dataclass
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">from</span> <span style="color:#447fcf;text-decoration:underline">datetime</span> <span style="color:#6ab825;font-weight:bold">import</span> timedelta
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ffa500">@dataclass</span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">class</span> <span style="color:#447fcf;text-decoration:underline">User</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#24909d">id</span>: <span style="color:#24909d">int</span>
+</span></span><span style="display:flex;"><span>    version: <span style="color:#24909d">int</span>
+</span></span><span style="display:flex;"><span>    name: <span style="color:#24909d">str</span>
+</span></span><span style="display:flex;"><span>    email: <span style="color:#24909d">str</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">def</span> <span style="color:#447fcf">cache_key</span>(user_id: <span style="color:#24909d">int</span>, version: <span style="color:#24909d">int</span>) -&gt; <span style="color:#24909d">str</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#ed9d13">f</span><span style="color:#ed9d13">&#34;user:</span><span style="color:#ed9d13">{</span>user_id<span style="color:#ed9d13">}</span><span style="color:#ed9d13">:v</span><span style="color:#ed9d13">{</span>version<span style="color:#ed9d13">}</span><span style="color:#ed9d13">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"># On write: bump version in DB, write new key</span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">def</span> <span style="color:#447fcf">update_user</span>(db, cache, user: User, ttl: timedelta) -&gt; <span style="color:#6ab825;font-weight:bold">None</span>:
+</span></span><span style="display:flex;"><span>    user.version += <span style="color:#3677a9">1</span>
+</span></span><span style="display:flex;"><span>    db.save(user)
+</span></span><span style="display:flex;"><span>    key = cache_key(user.id, user.version)
+</span></span><span style="display:flex;"><span>    cache.set(key, user, ttl)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"># On read: fetch current version from DB, then get versioned key from cache</span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">def</span> <span style="color:#447fcf">get_user</span>(db, cache, user_id: <span style="color:#24909d">int</span>) -&gt; User | <span style="color:#6ab825;font-weight:bold">None</span>:
+</span></span><span style="display:flex;"><span>    version = db.get_version(user_id)
+</span></span><span style="display:flex;"><span>    key = cache_key(user_id, version)
+</span></span><span style="display:flex;"><span>    cached = cache.get(key)
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> cached:
+</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> cached
+</span></span><span style="display:flex;"><span>    user = db.get_user(user_id)
+</span></span><span style="display:flex;"><span>    cache.set(key, user, ttl=timedelta(minutes=<span style="color:#3677a9">10</span>))
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> user
+</span></span></code></pre></div><p>Rollbacks become trivially safe: decrement the version, old keys are already in cache, no garbage to clean up. There are also no delete races because you never delete — you just stop using old keys.</p>
+<div class="mermaid">
+flowchart LR
+    subgraph delete["Naive: delete on write"]
+        direction TB
+        W1["Write user:123"] --> D["DELETE user:123"]
+        D --> R1["Next read repopulates"]
+        R2["Concurrent read\nwrites stale v6 back"] -.->|"race"| D
+    end
+
+    subgraph versioned["Versioned keys"]
+        direction TB
+        W2["Write user:123\nbump to v7"] --> K["New key: user:123:v7"]
+        K --> R3["Readers use v7"]
+        OLD["Old key: user:123:v6\nstill in cache, unreachable"] -.->|"ages out via TTL"| K
+    end
+
+</div>
+<style>
+  .mermaid text { font-weight: 300 !important; }
+  .mermaid .node rect,
+  .mermaid .node circle,
+  .mermaid .node ellipse,
+  .mermaid .node polygon,
+  .mermaid .node path { fill: transparent !important; }
+  .mermaid .edgeLabel rect { fill: transparent !important; }
+  .mermaid .edgeLabel foreignObject div,
+  .mermaid .edgeLabel foreignObject span,
+  .mermaid .edgeLabel { background-color: transparent !important; background: transparent !important; }
+</style>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, look: 'handDrawn', theme: 'dark' });
+</script>
+
+<hr>
+<h2 id="4-invalidate-by-event-not-by-guessing">4. Invalidate by Event, Not by Guessing<a href="#4-invalidate-by-event-not-by-guessing" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>The write path should emit events. The cache invalidation layer consumes those events.</p>
+<p>This separates two concerns that are often tangled: the service that writes data does not need to know what caches exist downstream. It just emits <code>UserUpdated(id: 123, version: 7)</code>. Every cache layer that cares about users subscribes and handles it.</p>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">from</span> <span style="color:#447fcf;text-decoration:underline">dataclasses</span> <span style="color:#6ab825;font-weight:bold">import</span> dataclass
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ffa500">@dataclass</span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">class</span> <span style="color:#447fcf;text-decoration:underline">UserUpdatedEvent</span>:
+</span></span><span style="display:flex;"><span>    user_id: <span style="color:#24909d">int</span>
+</span></span><span style="display:flex;"><span>    version: <span style="color:#24909d">int</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"># Write path — knows nothing about cache topology</span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">class</span> <span style="color:#447fcf;text-decoration:underline">UserService</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">def</span> __init__(self, db, events):
+</span></span><span style="display:flex;"><span>        self.db = db
+</span></span><span style="display:flex;"><span>        self.events = events
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">def</span> <span style="color:#447fcf">update_user</span>(self, user: User) -&gt; <span style="color:#6ab825;font-weight:bold">None</span>:
+</span></span><span style="display:flex;"><span>        self.db.save(user)
+</span></span><span style="display:flex;"><span>        self.events.publish(<span style="color:#ed9d13">&#34;user.updated&#34;</span>, UserUpdatedEvent(
+</span></span><span style="display:flex;"><span>            user_id=user.id,
+</span></span><span style="display:flex;"><span>            version=user.version,
+</span></span><span style="display:flex;"><span>        ))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"># Cache invalidation consumer — owns its own logic</span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">class</span> <span style="color:#447fcf;text-decoration:underline">UserCacheConsumer</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">def</span> __init__(self, cache):
+</span></span><span style="display:flex;"><span>        self.cache = cache
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">def</span> <span style="color:#447fcf">handle</span>(self, event: UserUpdatedEvent) -&gt; <span style="color:#6ab825;font-weight:bold">None</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#999;font-style:italic"># bump version index so next reads use the new key</span>
+</span></span><span style="display:flex;"><span>        version_key = <span style="color:#ed9d13">f</span><span style="color:#ed9d13">&#34;user:</span><span style="color:#ed9d13">{</span>event.user_id<span style="color:#ed9d13">}</span><span style="color:#ed9d13">:version&#34;</span>
+</span></span><span style="display:flex;"><span>        self.cache.set(version_key, event.version, ttl=timedelta(hours=<span style="color:#3677a9">1</span>))
+</span></span></code></pre></div><p>This pattern scales well. When you add a new downstream service that caches user data, it subscribes to the same event stream without touching the write path. When you remove a service, the same. The write path stays stable.</p>
+<div class="mermaid">
+flowchart LR
+    DB[("Database")]
+    WRITE["Write Service"]
+    BUS["Event Bus"]
+
+    WRITE -->|"save"| DB
+    WRITE -->|"UserUpdated(123, v7)"| BUS
+
+    BUS --> C1["Redis Consumer\nbump version key"]
+    BUS --> C2["CDN Consumer\npurge edge cache"]
+    BUS --> C3["Search Consumer\nreindex document"]
+
+</div>
+<style>
+  .mermaid text { font-weight: 300 !important; }
+  .mermaid .node rect,
+  .mermaid .node circle,
+  .mermaid .node ellipse,
+  .mermaid .node polygon,
+  .mermaid .node path { fill: transparent !important; }
+  .mermaid .edgeLabel rect { fill: transparent !important; }
+  .mermaid .edgeLabel foreignObject div,
+  .mermaid .edgeLabel foreignObject span,
+  .mermaid .edgeLabel { background-color: transparent !important; background: transparent !important; }
+</style>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, look: 'handDrawn', theme: 'dark' });
+</script>
+
+<hr>
+<h2 id="5-stale-while-revalidate-for-correctness-on-hot-paths">5. Stale-While-Revalidate for Correctness on Hot Paths<a href="#5-stale-while-revalidate-for-correctness-on-hot-paths" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>When a cache miss blocks the user — they wait while you recompute — you have a latency problem that compounds under load. The alternative is to always serve something immediately, even if it is slightly stale, and refresh in the background.</p>
+<p>This is <code>stale-while-revalidate</code>. Keep two TTLs per entry:</p>
+<ul>
+<li><strong>Soft TTL</strong>: serve fresh until this point</li>
+<li><strong>Hard TTL</strong>: serve stale (but trigger background refresh) until this point</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">import</span> <span style="color:#447fcf;text-decoration:underline">threading</span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">from</span> <span style="color:#447fcf;text-decoration:underline">dataclasses</span> <span style="color:#6ab825;font-weight:bold">import</span> dataclass
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">from</span> <span style="color:#447fcf;text-decoration:underline">datetime</span> <span style="color:#6ab825;font-weight:bold">import</span> datetime, timedelta
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">from</span> <span style="color:#447fcf;text-decoration:underline">typing</span> <span style="color:#6ab825;font-weight:bold">import</span> Any
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ffa500">@dataclass</span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">class</span> <span style="color:#447fcf;text-decoration:underline">CacheEntry</span>:
+</span></span><span style="display:flex;"><span>    value: Any
+</span></span><span style="display:flex;"><span>    soft_ttl: datetime
+</span></span><span style="display:flex;"><span>    hard_ttl: datetime
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">class</span> <span style="color:#447fcf;text-decoration:underline">StaleWhileRevalidateCache</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">def</span> __init__(self):
+</span></span><span style="display:flex;"><span>        self._store: <span style="color:#24909d">dict</span>[<span style="color:#24909d">str</span>, CacheEntry] = {}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">def</span> <span style="color:#447fcf">set</span>(self, key: <span style="color:#24909d">str</span>, value: Any, soft: timedelta, hard: timedelta) -&gt; <span style="color:#6ab825;font-weight:bold">None</span>:
+</span></span><span style="display:flex;"><span>        now = datetime.utcnow()
+</span></span><span style="display:flex;"><span>        self._store[key] = CacheEntry(
+</span></span><span style="display:flex;"><span>            value=value,
+</span></span><span style="display:flex;"><span>            soft_ttl=now + soft,
+</span></span><span style="display:flex;"><span>            hard_ttl=now + hard,
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">def</span> <span style="color:#447fcf">get</span>(self, key: <span style="color:#24909d">str</span>) -&gt; <span style="color:#24909d">tuple</span>[Any, <span style="color:#24909d">bool</span>]:
+</span></span><span style="display:flex;"><span>        entry = self._store.get(key)
+</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">if</span> <span style="color:#6ab825;font-weight:bold">not</span> entry:
+</span></span><span style="display:flex;"><span>            <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#6ab825;font-weight:bold">None</span>, <span style="color:#6ab825;font-weight:bold">False</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        now = datetime.utcnow()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">if</span> now &lt; entry.soft_ttl:
+</span></span><span style="display:flex;"><span>            <span style="color:#6ab825;font-weight:bold">return</span> entry.value, <span style="color:#6ab825;font-weight:bold">True</span>          <span style="color:#999;font-style:italic"># fresh, serve immediately</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">if</span> now &lt; entry.hard_ttl:
+</span></span><span style="display:flex;"><span>            threading.Thread(                 <span style="color:#999;font-style:italic"># stale — serve now, refresh async</span>
+</span></span><span style="display:flex;"><span>                target=self._refresh, args=(key,), daemon=<span style="color:#6ab825;font-weight:bold">True</span>
+</span></span><span style="display:flex;"><span>            ).start()
+</span></span><span style="display:flex;"><span>            <span style="color:#6ab825;font-weight:bold">return</span> entry.value, <span style="color:#6ab825;font-weight:bold">True</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#6ab825;font-weight:bold">None</span>, <span style="color:#6ab825;font-weight:bold">False</span>                    <span style="color:#999;font-style:italic"># expired, must recompute</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">def</span> <span style="color:#447fcf">_refresh</span>(self, key: <span style="color:#24909d">str</span>) -&gt; <span style="color:#6ab825;font-weight:bold">None</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#999;font-style:italic"># fetch from source and repopulate cache</span>
+</span></span><span style="display:flex;"><span>        ...
+</span></span></code></pre></div><p>Users see no latency increase. The database sees a steady stream of refreshes rather than a burst at TTL boundaries. This is the same mechanism CDNs use at the HTTP layer — bring it into your application cache layer.</p>
+<hr>
+<h2 id="6-negative-caching-and-stampede-guards">6. Negative Caching and Stampede Guards<a href="#6-negative-caching-and-stampede-guards" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Two smaller but important practices.</p>
+<p><strong>Negative caching</strong>: if a lookup returns no result (a 404, a missing record), cache that absence explicitly for a short TTL. Without it, every request for a nonexistent key hits the database, which is exactly the class of attack that amplifies with absent cache hits.</p>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>NOT_FOUND = <span style="color:#24909d">object</span>()  <span style="color:#999;font-style:italic"># sentinel value</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>user = db.get_user(user_id)
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">if</span> user <span style="color:#6ab825;font-weight:bold">is</span> <span style="color:#6ab825;font-weight:bold">None</span>:
+</span></span><span style="display:flex;"><span>    cache.set(key, NOT_FOUND, ttl=timedelta(seconds=<span style="color:#3677a9">30</span>))  <span style="color:#999;font-style:italic"># cache the miss</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">raise</span> UserNotFoundError(user_id)
+</span></span></code></pre></div><p><strong>Stampede guards</strong>: when a key expires and many requests miss simultaneously, only one should recompute. Use <code>singleflight</code> within a process and a distributed lock (Redis <code>SET NX</code>) across a fleet. Add jitter to TTLs so keys do not expire in a synchronized wave. The thundering herd article covers this in detail — these patterns apply here too.</p>
+<hr>
+<h2 id="write-down-your-invalidation-strategy-before-you-ship">Write Down Your Invalidation Strategy Before You Ship<a href="#write-down-your-invalidation-strategy-before-you-ship" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>This is the practical takeaway. Before any caching feature goes to production, the design should answer:</p>
+<ul>
+<li>What event triggers invalidation?</li>
+<li>Who is responsible for invalidating (the writer, an event consumer, a scheduled job)?</li>
+<li>What is the maximum staleness users will see?</li>
+<li>What happens on rollback?</li>
+<li>What happens if invalidation fails?</li>
+</ul>
+<p>If the answer to any of these is &ldquo;we will delete the key and hope&rdquo; or &ldquo;we will use a short TTL,&rdquo; push back. Those answers are not strategies — they are deferred problems.</p>
+<p>Monotonic versions per aggregate, event-driven invalidation, and stale-while-revalidate together make a system where cache correctness is a property of the design, not something you debug in production.</p>
+<hr>
+
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright copyright--user">
+        <span>© 2026 Mike Mwita</span>
+    
+      <span>:: <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>
