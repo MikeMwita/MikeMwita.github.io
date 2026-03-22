@@ -217,76 +217,105 @@
   <div class="post-content"><div>
         <h1 id="that-username-is-taken-how-does-google-know-instantly">That Username Is Taken. How Does Google Know Instantly?<a href="#that-username-is-taken-how-does-google-know-instantly" class="hanchor" ariaLabel="Anchor">#</a> </h1>
 <p><img alt="Gmail username availability check — &ldquo;newuser&rdquo; is taken, n12205707 is suggested" src="/images/gmail-username-check.png"></p>
-<p>I was scrolling and someone posted a screenshot of the Gmail signup screen. You type &ldquo;newuser&rdquo; — already taken. The UI suggests &ldquo;n12205707&rdquo; before you have even stopped typing. No spinner. No network flicker. Just instant.</p>
-<p>Someone asked a Staff Google engineer how it worked. He laughed at the Elasticsearch suggestion. That laugh told you everything.</p>
-<p>I have been thinking about this problem for a while. Here is what I think is actually happening — and more importantly, why the framing most engineers use is wrong from the start.</p>
+<p>You type &ldquo;newuser&rdquo; into the Gmail signup screen. Already taken. The UI suggests &ldquo;n12205707&rdquo; before you have even stopped typing. No spinner. No network flicker. Just instant.</p>
+<p>You are not doing an Elasticsearch query on every keypress. That would be a crime.</p>
+<p>So how does it work? I want to walk through what I think is the right solution — the math behind it, and why most engineers reach for the wrong tool first.</p>
 <hr>
-<h2 id="the-wrong-question">The Wrong Question<a href="#the-wrong-question" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<h2 id="two-problems-not-one">Two Problems, Not One<a href="#two-problems-not-one" class="hanchor" ariaLabel="Anchor">#</a> </h2>
 <p>Most engineers ask: &ldquo;How do I check if a username is available fast enough to feel instant?&rdquo;</p>
-<p>That is the wrong question. It conflates two completely different problems that need completely different solutions.</p>
+<p>That is the wrong question. It conflates two problems with opposite requirements.</p>
 <p><strong>Problem 1: UX feedback.</strong> The user is typing. They need a signal — &ldquo;this looks taken&rdquo; or &ldquo;this looks free&rdquo; — without waiting 200ms for a server round trip. This needs to be fast. It does not need to be correct.</p>
-<p><strong>Problem 2: Uniqueness guarantee.</strong> When the user submits, the system must guarantee the username is not already taken by someone else. This must be correct. Speed matters less.</p>
-<p>These have opposite requirements. Solving them with the same mechanism is where engineers go wrong. You do not need one system. You need two, with a clear handoff between them.</p>
+<p><strong>Problem 2: Uniqueness guarantee.</strong> When the user submits, the system must guarantee the username is not taken by anyone else. This must be correct. Speed matters less.</p>
+<p>Solving both with the same mechanism is where engineers go wrong. You need two systems with a clear handoff between them.</p>
 <hr>
-<h2 id="the-hint-layer-bloom-filters-not-tries">The Hint Layer: Bloom Filters, Not Tries<a href="#the-hint-layer-bloom-filters-not-tries" class="hanchor" ariaLabel="Anchor">#</a> </h2>
-<p>The thread proposes an in-memory trie. The math checks out — prefix sharing collapses the memory, and with smart sharding you get per-shard sizes that fit in edge memory. It is a clever idea.</p>
-<p>But a trie is the wrong data structure for the hint layer. Here is why.</p>
-<p>A trie answers the question &ldquo;does this exact string exist?&rdquo; in O(k) where k is the string length. So does a Bloom filter — but with far better space efficiency.</p>
-<p>A <strong>Bloom filter</strong> is a probabilistic data structure with one guarantee: <strong>no false negatives.</strong> If it says a username is available, it is available. If it says taken, it might be wrong — but that is acceptable here. The user just sees &ldquo;checking&hellip;&rdquo; and you fall back to a server call.</p>
-<p>Numbers:</p>
+<h2 id="the-classy-approach-in-memory-trie">The Classy Approach: In-Memory Trie<a href="#the-classy-approach-in-memory-trie" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>My preferred approach for the hint layer: keep an in-memory trie of all registered usernames, update it asynchronously via delta pushes, and let the UI check locally in O(k) — where k is the length of the username being typed.</p>
+<p>No network call. No latency. The check happens in memory on the pod handling the request.</p>
+<p>The natural objection is memory. Let us do the math.</p>
+<p><strong>Worst-case memory estimate:</strong></p>
 <ul>
-<li>2 billion usernames</li>
-<li>Bloom filter with 1% false positive rate</li>
-<li>Memory needed: approximately <strong>2.4 GB</strong></li>
+<li>Assume 2 billion registered usernames</li>
+<li>Average length: 10 characters</li>
+<li>Raw storage if you kept them as strings: 2B × 10 = <strong>20 billion characters</strong></li>
+<li>At 1 byte per character: ~20GB just for the raw strings</li>
 </ul>
-<p>Compare that to the trie&rsquo;s 160GB worst-case. The Bloom filter fits in a single Redis instance, or distributed across edge nodes. You push a delta update to it when usernames are registered or released. Reads are local, O(k), zero network.</p>
-<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">import</span> (
-</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;strings&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;sync&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    boom <span style="color:#ed9d13">&#34;github.com/tylertreat/BoomFilters&#34;</span>
-</span></span><span style="display:flex;"><span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">var</span> (
-</span></span><span style="display:flex;"><span>    bloom     *boom.ScalableBloomFilter
-</span></span><span style="display:flex;"><span>    bloomOnce sync.Once
-</span></span><span style="display:flex;"><span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic">// InitBloom loads the serialised snapshot on pod startup.
-</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span><span style="color:#6ab825;font-weight:bold">func</span> <span style="color:#447fcf">InitBloom</span>(snapshot []<span style="color:#6ab825;font-weight:bold">byte</span>) {
-</span></span><span style="display:flex;"><span>    bloomOnce.<span style="color:#447fcf">Do</span>(<span style="color:#6ab825;font-weight:bold">func</span>() {
-</span></span><span style="display:flex;"><span>        bloom = boom.<span style="color:#447fcf">NewDefaultScalableBloomFilter</span>(<span style="color:#3677a9">0.01</span>) <span style="color:#999;font-style:italic">// 1% false positive rate
-</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>        bloom.<span style="color:#447fcf">GobDecode</span>(snapshot)
-</span></span><span style="display:flex;"><span>    })
+<p>A trie is not storing raw strings. It is about prefix sharing. Common prefixes — &ldquo;john&rdquo;, &ldquo;mike&rdquo;, &ldquo;alex&rdquo; — collapse into shared nodes. Real usernames are not random; they cluster heavily around common names, numbers, and patterns. Prefix sharing cuts the real memory by a large multiple.</p>
+<p><strong>Modelling the node cost:</strong></p>
+<ul>
+<li>Worst-case: ~1 node per character = ~20 billion nodes</li>
+<li>With tight-packed arrays, bitsets, and offset indices instead of raw pointers: ~8 bytes per node</li>
+<li>Worst-case total: 20B × 8 = <strong>160GB</strong></li>
+</ul>
+<p>That sounds large. But now shard by the first two characters.</p>
+<p><strong>Sharding:</strong></p>
+<ul>
+<li>Characters are <code>a–z</code> and <code>0–9</code>: 36 options</li>
+<li>First two characters: 36² = <strong>1,296 shards</strong></li>
+<li>160GB / 1,296 ≈ <strong>~123MB per shard</strong></li>
+</ul>
+<p>123MB fits comfortably in memory on any front-end pod or edge POP. You assign shards to pods, each pod owns its slice of the trie, and the UI routes the check to the right pod based on the first two characters of the username.</p>
+<p>Suddenly &ldquo;instant check&rdquo; is just a local memory read.</p>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">type</span> TrieNode <span style="color:#6ab825;font-weight:bold">struct</span> {
+</span></span><span style="display:flex;"><span>    children [<span style="color:#3677a9">36</span>]*TrieNode <span style="color:#999;font-style:italic">// a-z (0-25), 0-9 (26-35)
+</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>    isEnd    <span style="color:#6ab825;font-weight:bold">bool</span>
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic">// IsProbablyTaken returns true if the username is likely taken.
-</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic">// No false negatives — if this returns false, the username is definitely free.
-</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span><span style="color:#6ab825;font-weight:bold">func</span> <span style="color:#447fcf">IsProbablyTaken</span>(username <span style="color:#6ab825;font-weight:bold">string</span>) <span style="color:#6ab825;font-weight:bold">bool</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> bloom.<span style="color:#447fcf">Test</span>([]<span style="color:#24909d">byte</span>(strings.<span style="color:#447fcf">ToLower</span>(username)))
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">type</span> Trie <span style="color:#6ab825;font-weight:bold">struct</span> {
+</span></span><span style="display:flex;"><span>    root *TrieNode
+</span></span><span style="display:flex;"><span>    mu   sync.RWMutex
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>The response path becomes:</p>
-<ol>
-<li>User types &ldquo;newuser&rdquo;</li>
-<li>Local Bloom filter check — microseconds</li>
-<li>If <code>probably_taken=True</code> → show red, suggest alternatives</li>
-<li>If <code>probably_taken=False</code> → show optimistic green, but do not commit yet</li>
-</ol>
-<p>No network. No Elasticsearch. No prayer at peak signup traffic.</p>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> <span style="color:#447fcf">charIndex</span>(c <span style="color:#6ab825;font-weight:bold">byte</span>) <span style="color:#6ab825;font-weight:bold">int</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> c &gt;= <span style="color:#ed9d13">&#39;a&#39;</span> &amp;&amp; c &lt;= <span style="color:#ed9d13">&#39;z&#39;</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#24909d">int</span>(c - <span style="color:#ed9d13">&#39;a&#39;</span>)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#24909d">int</span>(c-<span style="color:#ed9d13">&#39;0&#39;</span>) + <span style="color:#3677a9">26</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic">// IsTaken checks if a username exists in O(k).
+</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span><span style="color:#6ab825;font-weight:bold">func</span> (t *Trie) <span style="color:#447fcf">IsTaken</span>(username <span style="color:#6ab825;font-weight:bold">string</span>) <span style="color:#6ab825;font-weight:bold">bool</span> {
+</span></span><span style="display:flex;"><span>    t.mu.<span style="color:#447fcf">RLock</span>()
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">defer</span> t.mu.<span style="color:#447fcf">RUnlock</span>()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    node := t.root
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">for</span> i := <span style="color:#3677a9">0</span>; i &lt; <span style="color:#24909d">len</span>(username); i++ {
+</span></span><span style="display:flex;"><span>        idx := <span style="color:#447fcf">charIndex</span>(username[i])
+</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">if</span> node.children[idx] == <span style="color:#6ab825;font-weight:bold">nil</span> {
+</span></span><span style="display:flex;"><span>            <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#6ab825;font-weight:bold">false</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        node = node.children[idx]
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> node.isEnd
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic">// Add inserts a username — called on delta push from the reservation stream.
+</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span><span style="color:#6ab825;font-weight:bold">func</span> (t *Trie) <span style="color:#447fcf">Add</span>(username <span style="color:#6ab825;font-weight:bold">string</span>) {
+</span></span><span style="display:flex;"><span>    t.mu.<span style="color:#447fcf">Lock</span>()
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">defer</span> t.mu.<span style="color:#447fcf">Unlock</span>()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    node := t.root
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">for</span> i := <span style="color:#3677a9">0</span>; i &lt; <span style="color:#24909d">len</span>(username); i++ {
+</span></span><span style="display:flex;"><span>        idx := <span style="color:#447fcf">charIndex</span>(username[i])
+</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">if</span> node.children[idx] == <span style="color:#6ab825;font-weight:bold">nil</span> {
+</span></span><span style="display:flex;"><span>            node.children[idx] = &amp;TrieNode{}
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        node = node.children[idx]
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    node.isEnd = <span style="color:#6ab825;font-weight:bold">true</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>The trie is updated asynchronously — delta pushes from a Kafka topic or Redis pub/sub stream whenever a username is reserved. Individual pods do not need to be perfectly in sync; a few seconds of lag is acceptable for a UI hint.</p>
 <div class="mermaid">
 flowchart LR
-    INPUT["User types username"]
-    BLOOM["Local Bloom Filter\n~2.4GB per pod"]
+    INPUT["User types username\ne.g. newuser"]
+    SHARD["Route to shard\nbased on first 2 chars"]
+    TRIE["In-memory Trie\n~123MB per shard"]
     TAKEN["Show: taken\nSuggest alternative"]
     FREE["Show: available\n(optimistic)"]
-    SERVER["Server\nDB unique check"]
-    COMMIT["Reserve username\nin DB"]
 
-    INPUT --> BLOOM
-    BLOOM -->|"probably taken"| TAKEN
-    BLOOM -->|"definitely not taken"| FREE
-    FREE -->|"on submit"| SERVER
-    SERVER --> COMMIT
+    INPUT --> SHARD
+    SHARD --> TRIE
+    TRIE -->|"found"| TAKEN
+    TRIE -->|"not found"| FREE
 
 </div>
 <style>
@@ -307,23 +336,22 @@ flowchart LR
 </script>
 
 <hr>
-<h2 id="where-the-trie-actually-belongs">Where the Trie Actually Belongs<a href="#where-the-trie-actually-belongs" class="hanchor" ariaLabel="Anchor">#</a> </h2>
-<p>The critic in the thread is right that a trie is an expensive, eventually-stale hint system for a consistency problem. But they are criticising it for the wrong job.</p>
-<p>Look at what Google actually shows: <strong>&ldquo;Available: n12205707&rdquo;</strong></p>
-<p>That is not a lookup. That is a <strong>suggestion.</strong> The system is not just checking — it is generating alternatives. And that is where a trie earns its complexity.</p>
-<p>A trie over registered usernames lets you walk the prefix tree to find gaps — registered sibling nodes that are not taken. You can generate &ldquo;n12205707&rdquo; by traversing from the &ldquo;n&rdquo; prefix and finding an unoccupied leaf. This is an O(k) walk, not a full scan.</p>
-<p>So the architecture separates:</p>
-<ul>
-<li><strong>Bloom filter</strong> → &ldquo;is this taken?&rdquo; — compact, fast, fits everywhere</li>
-<li><strong>Trie</strong> → &ldquo;what should I suggest instead?&rdquo; — runs server-side on the suggestion service</li>
-<li><strong>Database</strong> → &ldquo;is this actually reserved?&rdquo; — the only true source of truth</li>
-</ul>
-<p>The trie does not need to live on every pod. It serves the suggestions endpoint, which fires only when the Bloom filter says &ldquo;taken.&rdquo; That is a fraction of keystrokes. The latency budget for a suggestion is 50–100ms. A server call is fine here.</p>
+<h2 id="where-the-trie-does-double-duty-suggestions">Where the Trie Does Double Duty: Suggestions<a href="#where-the-trie-does-double-duty-suggestions" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Look at what Gmail actually shows: <strong>&ldquo;Available: n12205707&rdquo;</strong></p>
+<p>That is not just a lookup — it is a <strong>suggestion.</strong> And the trie handles this naturally.</p>
+<p>When a username is taken, you walk the prefix tree from the matched node and find sibling paths that are not yet occupied — available leaves adjacent to the taken one. This is how &ldquo;n12205707&rdquo; gets generated from &ldquo;newuser&rdquo;: the system walks nearby nodes in the trie and surfaces an unoccupied alternative. Still O(k), still in memory.</p>
+<p>No separate suggestion service needed. The trie earns its complexity by solving two problems at once.</p>
+<hr>
+<h2 id="what-most-people-actually-ship">What Most People Actually Ship<a href="#what-most-people-actually-ship" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>For completeness, here is the spectrum:</p>
+<p><strong>The Elasticsearch approach</strong> — prefix query on every keypress with 150ms debounce and some caching. Works at low scale. Becomes expensive and fragile at high signup traffic. The &ldquo;pray at peak traffic&rdquo; strategy.</p>
+<p><strong>The WebSocket approach</strong> — client streams keystrokes, server replies with availability in real time. Stateful, low-latency, fine at moderate scale. But you have now built a hot stateful service just for a UI hint.</p>
+<p><strong>The trie approach</strong> — in-memory, O(k), local to the pod. Scales with sharding. The UI feels like magic because it is not making a network call at all.</p>
 <hr>
 <h2 id="the-consistency-layer-only-the-database-counts">The Consistency Layer: Only the Database Counts<a href="#the-consistency-layer-only-the-database-counts" class="hanchor" ariaLabel="Anchor">#</a> </h2>
-<p>Here is where the thread underestimates the problem. The Bloom filter and the trie are both hint systems. They improve UX. Neither of them guarantees uniqueness.</p>
-<p>Two users can both type &ldquo;mikemwita&rdquo;, both see &ldquo;available&rdquo; from the Bloom filter, and both click submit simultaneously. You cannot solve that with a local data structure.</p>
-<p>The guarantee comes from one place: <strong>a unique constraint in the database</strong>, enforced at write time with a distributed lock or compare-and-swap.</p>
+<p>The trie is a hint system. It improves UX. It does not guarantee uniqueness.</p>
+<p>Two users can both type &ldquo;mikemwita&rdquo;, both get &ldquo;available&rdquo; from the trie, and both click submit simultaneously. You cannot solve that with any local data structure — trie, Bloom filter, or otherwise.</p>
+<p>The guarantee comes from one place: <strong>a unique constraint in the database</strong>, enforced at write time with a distributed lock.</p>
 <div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">import</span> (
 </span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;context&#34;</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;database/sql&#34;</span>
@@ -382,8 +410,7 @@ flowchart LR
 </span></span><span style="display:flex;"><span>    )
 </span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> err == <span style="color:#6ab825;font-weight:bold">nil</span>, err
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>The database has a unique index on <code>username</code>. Even without the lock, a concurrent write will fail with a constraint violation. The lock just makes the failure cleaner — you return a clear &ldquo;taken&rdquo; response instead of catching a database exception.</p>
-<p>After a successful reservation, you push an update to the Bloom filter delta stream. The filter propagates to edge pods over the next few seconds. Temporarily stale. Permanently consistent.</p>
+</span></span></code></pre></div><p>The database has a unique index on <code>username</code>. Even without the lock, a concurrent write fails with a constraint violation. The lock makes the failure clean — a clear &ldquo;taken&rdquo; response instead of a caught exception. After a successful reservation, a delta event is pushed to the trie update stream so pods stay current.</p>
 <div class="mermaid">
 flowchart TD
     SUBMIT["User submits"]
@@ -391,7 +418,7 @@ flowchart TD
     DBCHECK[("DB unique check\nSELECT + INSERT")]
     SUCCESS["Username reserved"]
     FAIL["Return: taken"]
-    DELTA["Push delta to\nBloom filter stream"]
+    DELTA["Push delta to\ntrie update stream"]
 
     SUBMIT --> LOCK
     LOCK -->|"lock acquired"| DBCHECK
@@ -399,7 +426,7 @@ flowchart TD
     DBCHECK -->|"unique"| SUCCESS
     DBCHECK -->|"conflict"| FAIL
     SUCCESS --> DELTA
-    DELTA -->|"async propagation"| BLOOM["Edge Bloom\nfilters update"]
+    DELTA -->|"async"| TRIE["Shard tries\nupdate in memory"]
 
 </div>
 <style>
@@ -421,7 +448,7 @@ flowchart TD
 
 <hr>
 <h2 id="the-full-picture">The Full Picture<a href="#the-full-picture" class="hanchor" ariaLabel="Anchor">#</a> </h2>
-<p>The reason this feels like magic at Google scale is that they have separated three distinct concerns with three distinct mechanisms:</p>
+<p>Three layers, three distinct concerns:</p>
 <table>
   <thead>
       <tr>
@@ -434,14 +461,14 @@ flowchart TD
   <tbody>
       <tr>
           <td>UX feedback while typing</td>
-          <td>Bloom filter (local)</td>
+          <td>Sharded in-memory trie</td>
           <td>&lt; 1ms</td>
-          <td>Probabilistic</td>
+          <td>Eventually consistent</td>
       </tr>
       <tr>
           <td>Alternative suggestions</td>
-          <td>Trie (server-side)</td>
-          <td>50–100ms</td>
+          <td>Same trie, prefix walk</td>
+          <td>&lt; 1ms</td>
           <td>Eventually consistent</td>
       </tr>
       <tr>
@@ -452,27 +479,9 @@ flowchart TD
       </tr>
   </tbody>
 </table>
-<p>The UI assembles the result of all three. While you type, the Bloom filter responds locally. When it says taken, a server call fetches a suggestion from the trie. When you submit, the database makes the final call.</p>
-<p>The WebSocket approach mentioned in the thread works too — stream keystrokes to the server, get availability back. It is stateful and more expensive, but simpler to reason about and fine at moderate scale. What does not work is hitting Elasticsearch on every keypress and hoping debounce saves you at peak signup traffic.</p>
-<hr>
-<h2 id="what-i-would-actually-ship">What I Would Actually Ship<a href="#what-i-would-actually-ship" class="hanchor" ariaLabel="Anchor">#</a> </h2>
-<p>For a system at scale:</p>
-<ol>
-<li>
-<p><strong>Bloom filter</strong> serialised and distributed to edge nodes on startup, updated via a delta stream (Kafka topic or Redis pub/sub) on every username reservation. Keep a 24-hour snapshot for pod restarts.</p>
-</li>
-<li>
-<p><strong>Suggestion service</strong> backed by a trie built from a periodic snapshot of the usernames table. Rebuild nightly. Serve suggestions on cache miss.</p>
-</li>
-<li>
-<p><strong>Reservation endpoint</strong> with a unique DB constraint as the hard guarantee. Distributed lock to make conflict handling clean. Bloom filter delta pushed on success.</p>
-</li>
-<li>
-<p><strong>UI flow</strong>: type → Bloom check (local) → if taken, debounce 150ms → suggestions API → on submit → reservation API → handle conflict gracefully.</p>
-</li>
-</ol>
-<p>The trie is real engineering. The Bloom filter is better engineering for the specific job. The database unique constraint is the only engineering that actually matters for correctness.</p>
-<p>Everything else is UX.</p>
+<p>While you type, the trie responds locally. When it says taken, it walks the tree and surfaces a suggestion from the same data structure. When you submit, the database makes the final call.</p>
+<p>The UI feels instant because for the vast majority of keystrokes, it is: a memory read on the local pod, O(k) on the username length, no network, no latency budget to worry about.</p>
+<p>Things are just different at this scale. But the ideas are not complicated — just applied with precision.</p>
 <hr>
 
       </div></div>
