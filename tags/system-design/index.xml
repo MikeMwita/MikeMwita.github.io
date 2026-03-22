@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>System-Design on Mike Mwita</title>
+    <link>https://MikeMwita.github.io/tags/system-design/</link>
+    <description>Recent content in System-Design on Mike Mwita</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <copyright>© 2026 Mike Mwita</copyright>
+    <atom:link href="https://MikeMwita.github.io/tags/system-design/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>That Username Is Taken. How Does Google Know Instantly?</title>
+      <link>https://MikeMwita.github.io/thoughts/username-availability-at-scale/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/username-availability-at-scale/</guid>
+      <description>&lt;h1 id=&#34;that-username-is-taken-how-does-google-know-instantly&#34;&gt;That Username Is Taken. How Does Google Know Instantly?&lt;/h1&gt;&#xA;&lt;p&gt;&lt;img alt=&#34;Gmail username availability check — &amp;ldquo;newuser&amp;rdquo; is taken, n12205707 is suggested&#34; src=&#34;https://MikeMwita.github.io/images/gmail-username-check.png&#34;&gt;&lt;/p&gt;&#xA;&lt;p&gt;I was scrolling and someone posted a screenshot of the Gmail signup screen. You type &amp;ldquo;newuser&amp;rdquo; — already taken. The UI suggests &amp;ldquo;n12205707&amp;rdquo; before you have even stopped typing. No spinner. No network flicker. Just instant.&lt;/p&gt;&#xA;&lt;p&gt;Someone asked a Staff Google engineer how it worked. He laughed at the Elasticsearch suggestion. That laugh told you everything.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

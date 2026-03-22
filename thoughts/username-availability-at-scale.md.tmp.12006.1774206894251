@@ -1,0 +1,258 @@
+---
+title: "That Username Is Taken. How Does Google Know Instantly?"
+authors:
+  - Mike Mwita
+tags:
+  - distributed-systems
+  - backend
+  - scalability
+  - data-structures
+  - system-design
+description: "You type a username. Before you finish, it's already taken. No network call. No lag. How?"
+---
+
+# That Username Is Taken. How Does Google Know Instantly?
+
+![Gmail username availability check — "newuser" is taken, n12205707 is suggested](/images/gmail-username-check.png)
+
+I was scrolling and someone posted a screenshot of the Gmail signup screen. You type "newuser" — already taken. The UI suggests "n12205707" before you have even stopped typing. No spinner. No network flicker. Just instant.
+
+Someone asked a Staff Google engineer how it worked. He laughed at the Elasticsearch suggestion. That laugh told you everything.
+
+I have been thinking about this problem for a while. Here is what I think is actually happening — and more importantly, why the framing most engineers use is wrong from the start.
+
+---
+
+## The Wrong Question
+
+Most engineers ask: "How do I check if a username is available fast enough to feel instant?"
+
+That is the wrong question. It conflates two completely different problems that need completely different solutions.
+
+**Problem 1: UX feedback.** The user is typing. They need a signal — "this looks taken" or "this looks free" — without waiting 200ms for a server round trip. This needs to be fast. It does not need to be correct.
+
+**Problem 2: Uniqueness guarantee.** When the user submits, the system must guarantee the username is not already taken by someone else. This must be correct. Speed matters less.
+
+These have opposite requirements. Solving them with the same mechanism is where engineers go wrong. You do not need one system. You need two, with a clear handoff between them.
+
+---
+
+## The Hint Layer: Bloom Filters, Not Tries
+
+The thread proposes an in-memory trie. The math checks out — prefix sharing collapses the memory, and with smart sharding you get per-shard sizes that fit in edge memory. It is a clever idea.
+
+But a trie is the wrong data structure for the hint layer. Here is why.
+
+A trie answers the question "does this exact string exist?" in O(k) where k is the string length. So does a Bloom filter — but with far better space efficiency.
+
+A **Bloom filter** is a probabilistic data structure with one guarantee: **no false negatives.** If it says a username is available, it is available. If it says taken, it might be wrong — but that is acceptable here. The user just sees "checking..." and you fall back to a server call.
+
+Numbers:
+
+- 2 billion usernames
+- Bloom filter with 1% false positive rate
+- Memory needed: approximately **2.4 GB**
+
+Compare that to the trie's 160GB worst-case. The Bloom filter fits in a single Redis instance, or distributed across edge nodes. You push a delta update to it when usernames are registered or released. Reads are local, O(k), zero network.
+
+```go
+import (
+    "strings"
+    "sync"
+
+    boom "github.com/tylertreat/BoomFilters"
+)
+
+var (
+    bloom     *boom.ScalableBloomFilter
+    bloomOnce sync.Once
+)
+
+// InitBloom loads the serialised snapshot on pod startup.
+func InitBloom(snapshot []byte) {
+    bloomOnce.Do(func() {
+        bloom = boom.NewDefaultScalableBloomFilter(0.01) // 1% false positive rate
+        bloom.GobDecode(snapshot)
+    })
+}
+
+// IsProbablyTaken returns true if the username is likely taken.
+// No false negatives — if this returns false, the username is definitely free.
+func IsProbablyTaken(username string) bool {
+    return bloom.Test([]byte(strings.ToLower(username)))
+}
+```
+
+The response path becomes:
+
+1. User types "newuser"
+2. Local Bloom filter check — microseconds
+3. If `probably_taken=True` → show red, suggest alternatives
+4. If `probably_taken=False` → show optimistic green, but do not commit yet
+
+No network. No Elasticsearch. No prayer at peak signup traffic.
+
+{{< mermaid >}}
+flowchart LR
+    INPUT["User types username"]
+    BLOOM["Local Bloom Filter\n~2.4GB per pod"]
+    TAKEN["Show: taken\nSuggest alternative"]
+    FREE["Show: available\n(optimistic)"]
+    SERVER["Server\nDB unique check"]
+    COMMIT["Reserve username\nin DB"]
+
+    INPUT --> BLOOM
+    BLOOM -->|"probably taken"| TAKEN
+    BLOOM -->|"definitely not taken"| FREE
+    FREE -->|"on submit"| SERVER
+    SERVER --> COMMIT
+{{< /mermaid >}}
+
+---
+
+## Where the Trie Actually Belongs
+
+The critic in the thread is right that a trie is an expensive, eventually-stale hint system for a consistency problem. But they are criticising it for the wrong job.
+
+Look at what Google actually shows: **"Available: n12205707"**
+
+That is not a lookup. That is a **suggestion.** The system is not just checking — it is generating alternatives. And that is where a trie earns its complexity.
+
+A trie over registered usernames lets you walk the prefix tree to find gaps — registered sibling nodes that are not taken. You can generate "n12205707" by traversing from the "n" prefix and finding an unoccupied leaf. This is an O(k) walk, not a full scan.
+
+So the architecture separates:
+
+- **Bloom filter** → "is this taken?" — compact, fast, fits everywhere
+- **Trie** → "what should I suggest instead?" — runs server-side on the suggestion service
+- **Database** → "is this actually reserved?" — the only true source of truth
+
+The trie does not need to live on every pod. It serves the suggestions endpoint, which fires only when the Bloom filter says "taken." That is a fraction of keystrokes. The latency budget for a suggestion is 50–100ms. A server call is fine here.
+
+---
+
+## The Consistency Layer: Only the Database Counts
+
+Here is where the thread underestimates the problem. The Bloom filter and the trie are both hint systems. They improve UX. Neither of them guarantees uniqueness.
+
+Two users can both type "mikemwita", both see "available" from the Bloom filter, and both click submit simultaneously. You cannot solve that with a local data structure.
+
+The guarantee comes from one place: **a unique constraint in the database**, enforced at write time with a distributed lock or compare-and-swap.
+
+```go
+import (
+    "context"
+    "database/sql"
+    "fmt"
+    "strings"
+    "time"
+
+    "github.com/google/uuid"
+    "github.com/redis/go-redis/v9"
+)
+
+const lockTTL = 5 * time.Second
+
+// releaseLock releases the Redis lock only if we still own it.
+var releaseLock = redis.NewScript(`
+    if redis.call("get", KEYS[1]) == ARGV[1] then
+        return redis.call("del", KEYS[1])
+    else
+        return 0
+    end
+`)
+
+// ReserveUsername atomically claims a username for userID.
+// Returns false if taken or if another reservation is in flight.
+func ReserveUsername(ctx context.Context, db *sql.DB, rdb *redis.Client, username string, userID int64) (bool, error) {
+    username = strings.ToLower(username)
+    lockKey := fmt.Sprintf("lock:username:%s", username)
+    lockValue := uuid.New().String()
+
+    // Acquire distributed lock — only one writer at a time
+    ok, err := rdb.SetNX(ctx, lockKey, lockValue, lockTTL).Result()
+    if err != nil {
+        return false, err
+    }
+    if !ok {
+        return false, nil // another reservation is in flight
+    }
+    defer releaseLock.Run(ctx, rdb, []string{lockKey}, lockValue)
+
+    // Final check against the DB — the only source of truth
+    var exists int
+    err = db.QueryRowContext(ctx,
+        "SELECT 1 FROM usernames WHERE username = $1", username,
+    ).Scan(&exists)
+
+    if err != nil && err != sql.ErrNoRows {
+        return false, err
+    }
+    if err == nil {
+        return false, nil // already taken
+    }
+
+    _, err = db.ExecContext(ctx,
+        "INSERT INTO usernames (username, user_id) VALUES ($1, $2)",
+        username, userID,
+    )
+    return err == nil, err
+}
+```
+
+The database has a unique index on `username`. Even without the lock, a concurrent write will fail with a constraint violation. The lock just makes the failure cleaner — you return a clear "taken" response instead of catching a database exception.
+
+After a successful reservation, you push an update to the Bloom filter delta stream. The filter propagates to edge pods over the next few seconds. Temporarily stale. Permanently consistent.
+
+{{< mermaid >}}
+flowchart TD
+    SUBMIT["User submits"]
+    LOCK["Redis distributed lock\nSET NX username:lock"]
+    DBCHECK[("DB unique check\nSELECT + INSERT")]
+    SUCCESS["Username reserved"]
+    FAIL["Return: taken"]
+    DELTA["Push delta to\nBloom filter stream"]
+
+    SUBMIT --> LOCK
+    LOCK -->|"lock acquired"| DBCHECK
+    LOCK -->|"lock taken"| FAIL
+    DBCHECK -->|"unique"| SUCCESS
+    DBCHECK -->|"conflict"| FAIL
+    SUCCESS --> DELTA
+    DELTA -->|"async propagation"| BLOOM["Edge Bloom\nfilters update"]
+{{< /mermaid >}}
+
+---
+
+## The Full Picture
+
+The reason this feels like magic at Google scale is that they have separated three distinct concerns with three distinct mechanisms:
+
+| Concern | Mechanism | Latency | Correctness |
+|---|---|---|---|
+| UX feedback while typing | Bloom filter (local) | < 1ms | Probabilistic |
+| Alternative suggestions | Trie (server-side) | 50–100ms | Eventually consistent |
+| Uniqueness guarantee | DB + distributed lock | 50–200ms | Strongly consistent |
+
+The UI assembles the result of all three. While you type, the Bloom filter responds locally. When it says taken, a server call fetches a suggestion from the trie. When you submit, the database makes the final call.
+
+The WebSocket approach mentioned in the thread works too — stream keystrokes to the server, get availability back. It is stateful and more expensive, but simpler to reason about and fine at moderate scale. What does not work is hitting Elasticsearch on every keypress and hoping debounce saves you at peak signup traffic.
+
+---
+
+## What I Would Actually Ship
+
+For a system at scale:
+
+1. **Bloom filter** serialised and distributed to edge nodes on startup, updated via a delta stream (Kafka topic or Redis pub/sub) on every username reservation. Keep a 24-hour snapshot for pod restarts.
+
+2. **Suggestion service** backed by a trie built from a periodic snapshot of the usernames table. Rebuild nightly. Serve suggestions on cache miss.
+
+3. **Reservation endpoint** with a unique DB constraint as the hard guarantee. Distributed lock to make conflict handling clean. Bloom filter delta pushed on success.
+
+4. **UI flow**: type → Bloom check (local) → if taken, debounce 150ms → suggestions API → on submit → reservation API → handle conflict gracefully.
+
+The trie is real engineering. The Bloom filter is better engineering for the specific job. The database unique constraint is the only engineering that actually matters for correctness.
+
+Everything else is UX.
+
+---

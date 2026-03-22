@@ -16,5 +16,12 @@
       <guid>https://MikeMwita.github.io/projects/go-bloomfilter/</guid>
       <description>&lt;h2 id=&#34;motivation&#34;&gt;Motivation&lt;/h2&gt;&#xA;&lt;p&gt;Many backend systems need to answer one question extremely fast: &lt;em&gt;have I seen this before?&lt;/em&gt; Traditional data structures often trade memory for speed, which becomes expensive at scale.&lt;/p&gt;&#xA;&lt;p&gt;This project was created to explore probabilistic data structures in Go while gaining hands-on experience with bitwise operations, hashing strategies, and memory-efficient design.&lt;/p&gt;&#xA;&lt;h2 id=&#34;results&#34;&gt;Results&lt;/h2&gt;&#xA;&lt;p&gt;The implementation uses a compact &lt;code&gt;[]uint64&lt;/code&gt; bit array with auto-tuned parameters to balance false positives and memory usage. Hashing is inspired by MurmurHash to ensure even distribution and consistent performance.&lt;/p&gt;</description>
     </item>
+    <item>
+      <title>That Username Is Taken. How Does Google Know Instantly?</title>
+      <link>https://MikeMwita.github.io/thoughts/username-availability-at-scale/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/username-availability-at-scale/</guid>
+      <description>&lt;h1 id=&#34;that-username-is-taken-how-does-google-know-instantly&#34;&gt;That Username Is Taken. How Does Google Know Instantly?&lt;/h1&gt;&#xA;&lt;p&gt;&lt;img alt=&#34;Gmail username availability check — &amp;ldquo;newuser&amp;rdquo; is taken, n12205707 is suggested&#34; src=&#34;https://MikeMwita.github.io/images/gmail-username-check.png&#34;&gt;&lt;/p&gt;&#xA;&lt;p&gt;I was scrolling and someone posted a screenshot of the Gmail signup screen. You type &amp;ldquo;newuser&amp;rdquo; — already taken. The UI suggests &amp;ldquo;n12205707&amp;rdquo; before you have even stopped typing. No spinner. No network flicker. Just instant.&lt;/p&gt;&#xA;&lt;p&gt;Someone asked a Staff Google engineer how it worked. He laughed at the Elasticsearch suggestion. That laugh told you everything.&lt;/p&gt;</description>
+    </item>
   </channel>
 </rss>

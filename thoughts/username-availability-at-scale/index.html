@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>That Username Is Taken. How Does Google Know Instantly? :: Mike Mwita</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="You type a username. Before you finish, it&#39;s already taken. No network call. No lag. How?" />
+<meta name="keywords" content="Web Development, Software Developer Engineer, Programming, Data Structures and Algorithms, Kubernetes, Go, Cloud Engineering" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://MikeMwita.github.io/thoughts/username-availability-at-scale/" />
+
+
+
+
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/green.min.54165f6c5a7a5f0716da6ffb1e3cf34584ec54d8a5ef3f5328de62ffd59a9ffa.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/buttons.min.86f6b4c106b6c6eb690ae5203d36b442c1f66f718ff4e8164fa86cf6c61ad641.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/code.min.d529ea4b2fb8d34328d7d31afc5466d5f7bc2f0bc9abdd98b69385335d7baee4.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/fonts.min.5bb7ed13e1d00d8ff39ea84af26737007eb5051b157b86fc24487c94f3dc8bbe.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/footer.min.eb8dfc2c6a7eafa36cd3ba92d63e69e849e2200e0002a228d137f236b09ecd75.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/gist.min.a751e8b0abe1ba8bc53ced52a38b19d8950fe78ca29454ea8c2595cf26aad5c0.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/header.min.75c7eb0e2872d95ff48109c6647d0223a38db52e2561dd87966eb5fc7c6bdac6.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/main.min.36833afd348409fc6c3d09d0897c5833d9d5bf1ff31f5e60ea3ee42ce2b1268c.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/menu.min.3c17467ebeb3d38663dce68f71f519901124fa5cbb4519b2fb0667a21e9aca39.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/pagination.min.bbb986dbce00a5ce5aca0504b7925fc1c581992a4bf57f163e5d69cc1db7d836.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/post.min.e6dddd258e64c83e05cec0cd49c05216742d42fc8ecbfbe6b67083412b609bd3.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/syntax.min.a0773cce9310cb6d8ed23e50f005448facf29a53001b57e038828daa466b25c0.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/terminal.min.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/terms.min.b81791663c3790e738e571cdbf802312390d30e4b1d8dc9d814a5b5454d0ac11.css">
+
+
+
+
+
+
+
+<link rel="shortcut icon" href="https://MikeMwita.github.io/favicon.png">
+<link rel="apple-touch-icon" href="https://MikeMwita.github.io/apple-touch-icon.png">
+
+
+<meta name="twitter:card" content="summary" />
+
+  
+    <meta name="twitter:site" content="https://MikeMwita.github.io/" />
+  
+    <meta name="twitter:creator" content="" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="That Username Is Taken. How Does Google Know Instantly?">
+<meta property="og:description" content="You type a username. Before you finish, it&#39;s already taken. No network call. No lag. How?" />
+<meta property="og:url" content="https://MikeMwita.github.io/thoughts/username-availability-at-scale/" />
+<meta property="og:site_name" content="Mike Mwita" />
+
+  <meta property="og:image" content="https://MikeMwita.github.io/og-image.png">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+
+
+<div class="container center">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    Mike  Mwita (⌐▨_▨)
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/cv">CV</a></li>
+        
+      
+        
+          <li><a href="/projects">Projects</a></li>
+        
+      
+        
+          <li><a href="/thoughts">Thoughts?</a></li>
+        
+      
+        
+          <li><a href="/reads">Reads</a></li>
+        
+      
+        
+          <li><a href="/contacts">Contacts</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/cv" >CV</a></li>
+        
+      
+        
+          <li><a href="/projects" >Projects</a></li>
+        
+      
+        
+          <li><a href="/thoughts" >Thoughts?</a></li>
+        
+      
+        
+          <li><a href="/reads" >Reads</a></li>
+        
+      
+        
+          <li><a href="/contacts" >Contacts</a></li>
+        
+      
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://MikeMwita.github.io/thoughts/username-availability-at-scale/">That Username Is Taken. How Does Google Know Instantly?</a>
+  </h1>
+  <div class="post-meta"></div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://MikeMwita.github.io/tags/distributed-systems/">distributed-systems</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/backend/">backend</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/scalability/">scalability</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/data-structures/">data-structures</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/system-design/">system-design</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+  
+
+  <div class="post-content"><div>
+        <h1 id="that-username-is-taken-how-does-google-know-instantly">That Username Is Taken. How Does Google Know Instantly?<a href="#that-username-is-taken-how-does-google-know-instantly" class="hanchor" ariaLabel="Anchor">#</a> </h1>
+<p><img alt="Gmail username availability check — &ldquo;newuser&rdquo; is taken, n12205707 is suggested" src="/images/gmail-username-check.png"></p>
+<p>I was scrolling and someone posted a screenshot of the Gmail signup screen. You type &ldquo;newuser&rdquo; — already taken. The UI suggests &ldquo;n12205707&rdquo; before you have even stopped typing. No spinner. No network flicker. Just instant.</p>
+<p>Someone asked a Staff Google engineer how it worked. He laughed at the Elasticsearch suggestion. That laugh told you everything.</p>
+<p>I have been thinking about this problem for a while. Here is what I think is actually happening — and more importantly, why the framing most engineers use is wrong from the start.</p>
+<hr>
+<h2 id="the-wrong-question">The Wrong Question<a href="#the-wrong-question" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Most engineers ask: &ldquo;How do I check if a username is available fast enough to feel instant?&rdquo;</p>
+<p>That is the wrong question. It conflates two completely different problems that need completely different solutions.</p>
+<p><strong>Problem 1: UX feedback.</strong> The user is typing. They need a signal — &ldquo;this looks taken&rdquo; or &ldquo;this looks free&rdquo; — without waiting 200ms for a server round trip. This needs to be fast. It does not need to be correct.</p>
+<p><strong>Problem 2: Uniqueness guarantee.</strong> When the user submits, the system must guarantee the username is not already taken by someone else. This must be correct. Speed matters less.</p>
+<p>These have opposite requirements. Solving them with the same mechanism is where engineers go wrong. You do not need one system. You need two, with a clear handoff between them.</p>
+<hr>
+<h2 id="the-hint-layer-bloom-filters-not-tries">The Hint Layer: Bloom Filters, Not Tries<a href="#the-hint-layer-bloom-filters-not-tries" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>The thread proposes an in-memory trie. The math checks out — prefix sharing collapses the memory, and with smart sharding you get per-shard sizes that fit in edge memory. It is a clever idea.</p>
+<p>But a trie is the wrong data structure for the hint layer. Here is why.</p>
+<p>A trie answers the question &ldquo;does this exact string exist?&rdquo; in O(k) where k is the string length. So does a Bloom filter — but with far better space efficiency.</p>
+<p>A <strong>Bloom filter</strong> is a probabilistic data structure with one guarantee: <strong>no false negatives.</strong> If it says a username is available, it is available. If it says taken, it might be wrong — but that is acceptable here. The user just sees &ldquo;checking&hellip;&rdquo; and you fall back to a server call.</p>
+<p>Numbers:</p>
+<ul>
+<li>2 billion usernames</li>
+<li>Bloom filter with 1% false positive rate</li>
+<li>Memory needed: approximately <strong>2.4 GB</strong></li>
+</ul>
+<p>Compare that to the trie&rsquo;s 160GB worst-case. The Bloom filter fits in a single Redis instance, or distributed across edge nodes. You push a delta update to it when usernames are registered or released. Reads are local, O(k), zero network.</p>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">import</span> (
+</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;strings&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;sync&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    boom <span style="color:#ed9d13">&#34;github.com/tylertreat/BoomFilters&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">var</span> (
+</span></span><span style="display:flex;"><span>    bloom     *boom.ScalableBloomFilter
+</span></span><span style="display:flex;"><span>    bloomOnce sync.Once
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic">// InitBloom loads the serialised snapshot on pod startup.
+</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span><span style="color:#6ab825;font-weight:bold">func</span> <span style="color:#447fcf">InitBloom</span>(snapshot []<span style="color:#6ab825;font-weight:bold">byte</span>) {
+</span></span><span style="display:flex;"><span>    bloomOnce.<span style="color:#447fcf">Do</span>(<span style="color:#6ab825;font-weight:bold">func</span>() {
+</span></span><span style="display:flex;"><span>        bloom = boom.<span style="color:#447fcf">NewDefaultScalableBloomFilter</span>(<span style="color:#3677a9">0.01</span>) <span style="color:#999;font-style:italic">// 1% false positive rate
+</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>        bloom.<span style="color:#447fcf">GobDecode</span>(snapshot)
+</span></span><span style="display:flex;"><span>    })
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic">// IsProbablyTaken returns true if the username is likely taken.
+</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic">// No false negatives — if this returns false, the username is definitely free.
+</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span><span style="color:#6ab825;font-weight:bold">func</span> <span style="color:#447fcf">IsProbablyTaken</span>(username <span style="color:#6ab825;font-weight:bold">string</span>) <span style="color:#6ab825;font-weight:bold">bool</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> bloom.<span style="color:#447fcf">Test</span>([]<span style="color:#24909d">byte</span>(strings.<span style="color:#447fcf">ToLower</span>(username)))
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>The response path becomes:</p>
+<ol>
+<li>User types &ldquo;newuser&rdquo;</li>
+<li>Local Bloom filter check — microseconds</li>
+<li>If <code>probably_taken=True</code> → show red, suggest alternatives</li>
+<li>If <code>probably_taken=False</code> → show optimistic green, but do not commit yet</li>
+</ol>
+<p>No network. No Elasticsearch. No prayer at peak signup traffic.</p>
+<div class="mermaid">
+flowchart LR
+    INPUT["User types username"]
+    BLOOM["Local Bloom Filter\n~2.4GB per pod"]
+    TAKEN["Show: taken\nSuggest alternative"]
+    FREE["Show: available\n(optimistic)"]
+    SERVER["Server\nDB unique check"]
+    COMMIT["Reserve username\nin DB"]
+
+    INPUT --> BLOOM
+    BLOOM -->|"probably taken"| TAKEN
+    BLOOM -->|"definitely not taken"| FREE
+    FREE -->|"on submit"| SERVER
+    SERVER --> COMMIT
+
+</div>
+<style>
+  .mermaid text { font-weight: 300 !important; }
+  .mermaid .node rect,
+  .mermaid .node circle,
+  .mermaid .node ellipse,
+  .mermaid .node polygon,
+  .mermaid .node path { fill: transparent !important; }
+  .mermaid .edgeLabel rect { fill: transparent !important; }
+  .mermaid .edgeLabel foreignObject div,
+  .mermaid .edgeLabel foreignObject span,
+  .mermaid .edgeLabel { background-color: transparent !important; background: transparent !important; }
+</style>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, look: 'handDrawn', theme: 'dark' });
+</script>
+
+<hr>
+<h2 id="where-the-trie-actually-belongs">Where the Trie Actually Belongs<a href="#where-the-trie-actually-belongs" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>The critic in the thread is right that a trie is an expensive, eventually-stale hint system for a consistency problem. But they are criticising it for the wrong job.</p>
+<p>Look at what Google actually shows: <strong>&ldquo;Available: n12205707&rdquo;</strong></p>
+<p>That is not a lookup. That is a <strong>suggestion.</strong> The system is not just checking — it is generating alternatives. And that is where a trie earns its complexity.</p>
+<p>A trie over registered usernames lets you walk the prefix tree to find gaps — registered sibling nodes that are not taken. You can generate &ldquo;n12205707&rdquo; by traversing from the &ldquo;n&rdquo; prefix and finding an unoccupied leaf. This is an O(k) walk, not a full scan.</p>
+<p>So the architecture separates:</p>
+<ul>
+<li><strong>Bloom filter</strong> → &ldquo;is this taken?&rdquo; — compact, fast, fits everywhere</li>
+<li><strong>Trie</strong> → &ldquo;what should I suggest instead?&rdquo; — runs server-side on the suggestion service</li>
+<li><strong>Database</strong> → &ldquo;is this actually reserved?&rdquo; — the only true source of truth</li>
+</ul>
+<p>The trie does not need to live on every pod. It serves the suggestions endpoint, which fires only when the Bloom filter says &ldquo;taken.&rdquo; That is a fraction of keystrokes. The latency budget for a suggestion is 50–100ms. A server call is fine here.</p>
+<hr>
+<h2 id="the-consistency-layer-only-the-database-counts">The Consistency Layer: Only the Database Counts<a href="#the-consistency-layer-only-the-database-counts" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Here is where the thread underestimates the problem. The Bloom filter and the trie are both hint systems. They improve UX. Neither of them guarantees uniqueness.</p>
+<p>Two users can both type &ldquo;mikemwita&rdquo;, both see &ldquo;available&rdquo; from the Bloom filter, and both click submit simultaneously. You cannot solve that with a local data structure.</p>
+<p>The guarantee comes from one place: <strong>a unique constraint in the database</strong>, enforced at write time with a distributed lock or compare-and-swap.</p>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">import</span> (
+</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;context&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;database/sql&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;strings&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;time&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;github.com/google/uuid&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;github.com/redis/go-redis/v9&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">const</span> lockTTL = <span style="color:#3677a9">5</span> * time.Second
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic">// releaseLock releases the Redis lock only if we still own it.
+</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span><span style="color:#6ab825;font-weight:bold">var</span> releaseLock = redis.<span style="color:#447fcf">NewScript</span>(<span style="color:#ed9d13">`
+</span></span></span><span style="display:flex;"><span><span style="color:#ed9d13">    if redis.call(&#34;get&#34;, KEYS[1]) == ARGV[1] then
+</span></span></span><span style="display:flex;"><span><span style="color:#ed9d13">        return redis.call(&#34;del&#34;, KEYS[1])
+</span></span></span><span style="display:flex;"><span><span style="color:#ed9d13">    else
+</span></span></span><span style="display:flex;"><span><span style="color:#ed9d13">        return 0
+</span></span></span><span style="display:flex;"><span><span style="color:#ed9d13">    end
+</span></span></span><span style="display:flex;"><span><span style="color:#ed9d13">`</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic">// ReserveUsername atomically claims a username for userID.
+</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic">// Returns false if taken or if another reservation is in flight.
+</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span><span style="color:#6ab825;font-weight:bold">func</span> <span style="color:#447fcf">ReserveUsername</span>(ctx context.Context, db *sql.DB, rdb *redis.Client, username <span style="color:#6ab825;font-weight:bold">string</span>, userID <span style="color:#6ab825;font-weight:bold">int64</span>) (<span style="color:#6ab825;font-weight:bold">bool</span>, <span style="color:#6ab825;font-weight:bold">error</span>) {
+</span></span><span style="display:flex;"><span>    username = strings.<span style="color:#447fcf">ToLower</span>(username)
+</span></span><span style="display:flex;"><span>    lockKey := fmt.<span style="color:#447fcf">Sprintf</span>(<span style="color:#ed9d13">&#34;lock:username:%s&#34;</span>, username)
+</span></span><span style="display:flex;"><span>    lockValue := uuid.<span style="color:#447fcf">New</span>().<span style="color:#447fcf">String</span>()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#999;font-style:italic">// Acquire distributed lock — only one writer at a time
+</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>    ok, err := rdb.<span style="color:#447fcf">SetNX</span>(ctx, lockKey, lockValue, lockTTL).<span style="color:#447fcf">Result</span>()
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> err != <span style="color:#6ab825;font-weight:bold">nil</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#6ab825;font-weight:bold">false</span>, err
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> !ok {
+</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#6ab825;font-weight:bold">false</span>, <span style="color:#6ab825;font-weight:bold">nil</span> <span style="color:#999;font-style:italic">// another reservation is in flight
+</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">defer</span> releaseLock.<span style="color:#447fcf">Run</span>(ctx, rdb, []<span style="color:#6ab825;font-weight:bold">string</span>{lockKey}, lockValue)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#999;font-style:italic">// Final check against the DB — the only source of truth
+</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>    <span style="color:#6ab825;font-weight:bold">var</span> exists <span style="color:#6ab825;font-weight:bold">int</span>
+</span></span><span style="display:flex;"><span>    err = db.<span style="color:#447fcf">QueryRowContext</span>(ctx,
+</span></span><span style="display:flex;"><span>        <span style="color:#ed9d13">&#34;SELECT 1 FROM usernames WHERE username = $1&#34;</span>, username,
+</span></span><span style="display:flex;"><span>    ).<span style="color:#447fcf">Scan</span>(&amp;exists)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> err != <span style="color:#6ab825;font-weight:bold">nil</span> &amp;&amp; err != sql.ErrNoRows {
+</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#6ab825;font-weight:bold">false</span>, err
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> err == <span style="color:#6ab825;font-weight:bold">nil</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#6ab825;font-weight:bold">false</span>, <span style="color:#6ab825;font-weight:bold">nil</span> <span style="color:#999;font-style:italic">// already taken
+</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    _, err = db.<span style="color:#447fcf">ExecContext</span>(ctx,
+</span></span><span style="display:flex;"><span>        <span style="color:#ed9d13">&#34;INSERT INTO usernames (username, user_id) VALUES ($1, $2)&#34;</span>,
+</span></span><span style="display:flex;"><span>        username, userID,
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> err == <span style="color:#6ab825;font-weight:bold">nil</span>, err
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>The database has a unique index on <code>username</code>. Even without the lock, a concurrent write will fail with a constraint violation. The lock just makes the failure cleaner — you return a clear &ldquo;taken&rdquo; response instead of catching a database exception.</p>
+<p>After a successful reservation, you push an update to the Bloom filter delta stream. The filter propagates to edge pods over the next few seconds. Temporarily stale. Permanently consistent.</p>
+<div class="mermaid">
+flowchart TD
+    SUBMIT["User submits"]
+    LOCK["Redis distributed lock\nSET NX username:lock"]
+    DBCHECK[("DB unique check\nSELECT + INSERT")]
+    SUCCESS["Username reserved"]
+    FAIL["Return: taken"]
+    DELTA["Push delta to\nBloom filter stream"]
+
+    SUBMIT --> LOCK
+    LOCK -->|"lock acquired"| DBCHECK
+    LOCK -->|"lock taken"| FAIL
+    DBCHECK -->|"unique"| SUCCESS
+    DBCHECK -->|"conflict"| FAIL
+    SUCCESS --> DELTA
+    DELTA -->|"async propagation"| BLOOM["Edge Bloom\nfilters update"]
+
+</div>
+<style>
+  .mermaid text { font-weight: 300 !important; }
+  .mermaid .node rect,
+  .mermaid .node circle,
+  .mermaid .node ellipse,
+  .mermaid .node polygon,
+  .mermaid .node path { fill: transparent !important; }
+  .mermaid .edgeLabel rect { fill: transparent !important; }
+  .mermaid .edgeLabel foreignObject div,
+  .mermaid .edgeLabel foreignObject span,
+  .mermaid .edgeLabel { background-color: transparent !important; background: transparent !important; }
+</style>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, look: 'handDrawn', theme: 'dark' });
+</script>
+
+<hr>
+<h2 id="the-full-picture">The Full Picture<a href="#the-full-picture" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>The reason this feels like magic at Google scale is that they have separated three distinct concerns with three distinct mechanisms:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Concern</th>
+          <th>Mechanism</th>
+          <th>Latency</th>
+          <th>Correctness</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>UX feedback while typing</td>
+          <td>Bloom filter (local)</td>
+          <td>&lt; 1ms</td>
+          <td>Probabilistic</td>
+      </tr>
+      <tr>
+          <td>Alternative suggestions</td>
+          <td>Trie (server-side)</td>
+          <td>50–100ms</td>
+          <td>Eventually consistent</td>
+      </tr>
+      <tr>
+          <td>Uniqueness guarantee</td>
+          <td>DB + distributed lock</td>
+          <td>50–200ms</td>
+          <td>Strongly consistent</td>
+      </tr>
+  </tbody>
+</table>
+<p>The UI assembles the result of all three. While you type, the Bloom filter responds locally. When it says taken, a server call fetches a suggestion from the trie. When you submit, the database makes the final call.</p>
+<p>The WebSocket approach mentioned in the thread works too — stream keystrokes to the server, get availability back. It is stateful and more expensive, but simpler to reason about and fine at moderate scale. What does not work is hitting Elasticsearch on every keypress and hoping debounce saves you at peak signup traffic.</p>
+<hr>
+<h2 id="what-i-would-actually-ship">What I Would Actually Ship<a href="#what-i-would-actually-ship" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>For a system at scale:</p>
+<ol>
+<li>
+<p><strong>Bloom filter</strong> serialised and distributed to edge nodes on startup, updated via a delta stream (Kafka topic or Redis pub/sub) on every username reservation. Keep a 24-hour snapshot for pod restarts.</p>
+</li>
+<li>
+<p><strong>Suggestion service</strong> backed by a trie built from a periodic snapshot of the usernames table. Rebuild nightly. Serve suggestions on cache miss.</p>
+</li>
+<li>
+<p><strong>Reservation endpoint</strong> with a unique DB constraint as the hard guarantee. Distributed lock to make conflict handling clean. Bloom filter delta pushed on success.</p>
+</li>
+<li>
+<p><strong>UI flow</strong>: type → Bloom check (local) → if taken, debounce 150ms → suggestions API → on submit → reservation API → handle conflict gracefully.</p>
+</li>
+</ol>
+<p>The trie is real engineering. The Bloom filter is better engineering for the specific job. The database unique constraint is the only engineering that actually matters for correctness.</p>
+<p>Everything else is UX.</p>
+<hr>
+
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright copyright--user">
+        <span>© 2026 Mike Mwita</span>
+    
+      <span>:: <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

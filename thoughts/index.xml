@@ -80,6 +80,13 @@
       <description></description>
     </item>
     <item>
+      <title>That Username Is Taken. How Does Google Know Instantly?</title>
+      <link>https://MikeMwita.github.io/thoughts/username-availability-at-scale/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/username-availability-at-scale/</guid>
+      <description>&lt;h1 id=&#34;that-username-is-taken-how-does-google-know-instantly&#34;&gt;That Username Is Taken. How Does Google Know Instantly?&lt;/h1&gt;&#xA;&lt;p&gt;&lt;img alt=&#34;Gmail username availability check — &amp;ldquo;newuser&amp;rdquo; is taken, n12205707 is suggested&#34; src=&#34;https://MikeMwita.github.io/images/gmail-username-check.png&#34;&gt;&lt;/p&gt;&#xA;&lt;p&gt;I was scrolling and someone posted a screenshot of the Gmail signup screen. You type &amp;ldquo;newuser&amp;rdquo; — already taken. The UI suggests &amp;ldquo;n12205707&amp;rdquo; before you have even stopped typing. No spinner. No network flicker. Just instant.&lt;/p&gt;&#xA;&lt;p&gt;Someone asked a Staff Google engineer how it worked. He laughed at the Elasticsearch suggestion. That laugh told you everything.&lt;/p&gt;</description>
+    </item>
+    <item>
       <title>The Thundering Herd Problem</title>
       <link>https://MikeMwita.github.io/thoughts/cache-stampede/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
