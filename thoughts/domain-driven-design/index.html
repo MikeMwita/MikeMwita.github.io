@@ -6,7 +6,7 @@
   
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="A lightweight perspective on applying Domain-Driven Design in Go — beyond folder naming, focusing on clear separation of concerns, testability, and aligning code with business rules." />
+<meta name="description" content="DDD is not about folder naming. Here is my lightweight take — what actually works, what gets abused, and when to just start small." />
 <meta name="keywords" content="Web Development, Software Developer Engineer, Programming, Data Structures and Algorithms, Kubernetes, Go, Cloud Engineering" />
 
   <meta name="robots" content="noodp" />
@@ -81,7 +81,7 @@
 <meta property="og:locale" content="en" />
 <meta property="og:type" content="article" />
 <meta property="og:title" content="My Thoughts on Domain-Driven Design in Golang">
-<meta property="og:description" content="A lightweight perspective on applying Domain-Driven Design in Go — beyond folder naming, focusing on clear separation of concerns, testability, and aligning code with business rules." />
+<meta property="og:description" content="DDD is not about folder naming. Here is my lightweight take — what actually works, what gets abused, and when to just start small." />
 <meta property="og:url" content="https://MikeMwita.github.io/thoughts/domain-driven-design/" />
 <meta property="og:site_name" content="Mike Mwita" />
 
@@ -214,7 +214,69 @@
 
   
 
-  <div class="post-content"></div>
+  <div class="post-content"><div>
+        <h1 id="my-thoughts-on-domain-driven-design-in-golang">My Thoughts on Domain-Driven Design in Golang<a href="#my-thoughts-on-domain-driven-design-in-golang" class="hanchor" ariaLabel="Anchor">#</a> </h1>
+<p>Contrary to what most people think, DDD is not about folder naming. It is not about having directories called <code>domain</code> and <code>infrastructure</code> and calling it a day.</p>
+<p>Here is my lightweight approach that helps you think about what your app domain actually is.</p>
+<p>The concept is straightforward: you see a domain, you create a directory for it. The real value is not in the structure itself — it is in the thinking the structure forces you to do.</p>
+<hr>
+<h2 id="what-ddd-actually-sells">What DDD Actually Sells<a href="#what-ddd-actually-sells" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Two things, done well, pay for all the complexity:</p>
+<p><strong>Clear separation of concerns.</strong> Business rules live in the domain layer. They do not leak into HTTP handlers, database queries, or Kafka consumers. When you need to change a business rule, you know exactly where to go.</p>
+<p><strong>Testability.</strong> When your domain is isolated from infrastructure, you can test it without spinning up a database. Unit tests become fast and deterministic. Integration tests cover the seams, not the logic.</p>
+<p>Those two things alone justify the pattern — if you apply it with discipline.</p>
+<hr>
+<h2 id="what-actually-goes-wrong">What Actually Goes Wrong<a href="#what-actually-goes-wrong" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>I have had enough conversations with engineers who have worked with DDD in practice to know that the theory and the reality diverge quickly.</p>
+<p><strong>The most common failure: someone put a struct in the root package and made everyone refer to it.</strong></p>
+<p>You get a root-level <code>models</code> package that becomes a catch-all. Every service imports it. The package grows. Fields that started with clear meaning blur over time. Engineers become afraid to reuse existing fields — because they are not sure who else is depending on them — so they duplicate instead. You end up with bloated interfaces, partial updates, and fields that mean slightly different things in different contexts.</p>
+<p>People lost track of what was where. The package was supposed to create clarity. It created a sprawl of hefty dependencies instead.</p>
+<p><strong>The second failure: treating DDD as a replacement for thinking.</strong></p>
+<p>In one team, DDD led to extremely convoluted hierarchies of interfaces and types — premature abstractions for things that were either two years out or never going to come. Abstractions for all sorts of API transport layers, when all they needed was an HTTP API. A <code>models</code> package full of types that would have been better defined close to where they were used.</p>
+<p>That may have been an artefact of the person who introduced it being &ldquo;young, motivated, but inexperienced.&rdquo; But it soured the whole team on the concept — which was not the concept&rsquo;s fault.</p>
+<p><strong>The third failure: consensus.</strong></p>
+<p>The most difficult part is not the code. It is getting a team to agree on how to organise files and packages. Once that consensus breaks — once one person interprets &ldquo;domain layer&rdquo; differently from everyone else — you get a hybrid that has all the overhead of DDD and none of the benefits.</p>
+<hr>
+<h2 id="a-practical-structure-that-works">A Practical Structure That Works<a href="#a-practical-structure-that-works" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>If you want to try it without going overboard, here is a structure that makes sense:</p>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>/infrastructure   — config, database connections, cache setup, bootstrap
+</span></span><span style="display:flex;"><span>/interfaces       — controllers, presenters (HTML/JSON)
+</span></span><span style="display:flex;"><span>/services         — use cases and repositories
+</span></span><span style="display:flex;"><span>/datamodels       — aggregates and domain types, close to their use
+</span></span></code></pre></div><ul>
+<li><code>infrastructure</code> holds anything that touches the outside world: config readers, DB connections, cache clients, the router setup, main bootstrap. One-time initialization.</li>
+<li><code>interfaces</code> holds controllers and presenters. It routes requests to the right service method and presents the output.</li>
+<li><code>services</code> holds use cases and repository interfaces. Business logic lives here.</li>
+<li><code>datamodels</code> holds your aggregates — structs that represent business concepts and can be manipulated and presented.</li>
+</ul>
+<p>If you have a large project, you can add subfolders inside <code>interfaces/controllers/</code> — for example <code>interfaces/controllers/finance</code>. Do the same for services and repos. But only do that when there is a real need, not before.</p>
+<p>For shared utilities — error types, logging helpers, things needed across the whole program — <code>root/common</code> is fine. When you start a second project, some of those common things might move to a shared library. But not before you need it.</p>
+<hr>
+<h2 id="the-onion--hexagonal-framing">The Onion / Hexagonal Framing<a href="#the-onion--hexagonal-framing" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>What I described above is essentially what people call onion architecture or hexagonal architecture. DDD, applied practically, tends to land in the same place.</p>
+<p>The flow looks like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>Infrastructure / Initialise
+</span></span><span style="display:flex;"><span>    ↓
+</span></span><span style="display:flex;"><span>Infrastructure / Web hit  →  routes to controller method
+</span></span><span style="display:flex;"><span>    ↓
+</span></span><span style="display:flex;"><span>Interfaces / Controller   →  points to use case method
+</span></span><span style="display:flex;"><span>    ↓
+</span></span><span style="display:flex;"><span>Services / Use Case       →  gets data from repository method
+</span></span><span style="display:flex;"><span>    ↓
+</span></span><span style="display:flex;"><span>Services / Repository     →  gets data from DB, all the way back to controller
+</span></span></code></pre></div><p>The domain provides business logic and uses abstractions. Infrastructure implements those abstractions. The application layer (interfaces) combines them and exposes the result to the user.</p>
+<p>You are probably already doing something close to this. Most engineers are. The DDD label is just a name for the instinct that says &ldquo;keep business rules away from database queries.&rdquo;</p>
+<hr>
+<h2 id="my-opinion">My Opinion<a href="#my-opinion" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>It depends on the size of the project.</p>
+<p><strong>If you start small, start simple.</strong> Do not overthink the structure. A flat layout with a few directories — <code>handlers</code>, <code>services</code>, <code>store</code> — is fine for a small service. Forcing DDD on a three-endpoint API is the fastest way to spend a week on architecture and zero time on the actual problem.</p>
+<p><strong>If you are building something that will grow, or that needs a team to work on it independently</strong>, DDD gives you a coordination mechanism. When the domain layer is well-defined, a new engineer can work on a use case without understanding the full stack. When you want to extract a service later, the boundaries are already drawn.</p>
+<p><strong>There is no one-size-fits-all.</strong> The best teams take what they need and leave what they do not. You do not have to be a purist. Structure the application using the layers that make sense for your context, use plenty of abstractions where they help, and skip them where they do not. There is no rule that says you must follow the full DDD playbook to get value from the thinking behind it.</p>
+<p>The concept is sound. What gets people into trouble is applying it too literally, too early, or without team consensus on what the words mean.</p>
+<p>Start small. Refactor when the structure earns it. Do not abstract things that do not exist yet.</p>
+<hr>
+
+      </div></div>
 
   
 
