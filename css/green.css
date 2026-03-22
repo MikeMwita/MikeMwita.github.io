@@ -1,28 +1,111 @@
-:root {
-  /* Accent colors */
-  --accent: #00ff99;
-  --accent-secondary: #00cc7a;
+/* ─── Terminal Green Override ──────────────────────────── */
 
-  /* Backgrounds */
-  --background: #0d1b1e;            /* deep green-black */
-  --background-secondary: #112426;  /* slightly lighter for containers */
-
-  /* Text */
-  --color: #d1f7d6;                 /* minty green text */
-
-  /* Borders */
-  --border-color: rgba(0, 255, 153, 0.25);
+/* CSS variables — override the theme's orange/yellow defaults */
+:root,
+body,
+.theme-orange,
+.theme-green {
+  --accent:            #00ff99 !important;
+  --accent-secondary:  #00cc7a !important;
+  --background:        #0a0f0a !important;
+  --background-secondary: #0d1a0d !important;
+  --color:             #c8f0c8 !important;
+  --border-color:      rgba(0, 255, 153, 0.2) !important;
+  --header-background: #0a0f0a !important;
 }
 
-/* Force background and text color */
-body {
-  background-color: var(--background) !important;
-  color: var(--color) !important;
+/* Base */
+html, body {
+  background-color: #0a0f0a !important;
+  color: #c8f0c8 !important;
 }
 
-/* Optional: apply secondary background to containers */
-.container,
-.main,
-.content {
-  background-color: var(--background-secondary) !important;
+/* All links */
+a, a:visited, a:link {
+  color: #00ff99 !important;
+}
+a:hover, a:focus {
+  color: #00cc7a !important;
+}
+
+/* Logo */
+.logo, .logo a, .logo__text, a.logo__text {
+  color: #00ff99 !important;
+  border-color: #00ff99 !important;
+  background-color: transparent !important;
+}
+.logo__cursor {
+  background-color: #00ff99 !important;
+}
+
+/* Nav */
+.menu a, .menu__inner a, .menu__sub-inner a {
+  color: #00ff99 !important;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  color: #00ff99 !important;
+}
+
+/* Post list separators (the ::::: lines) */
+.post-list__separator, hr {
+  border-color: rgba(0, 255, 153, 0.25) !important;
+  color: rgba(0, 255, 153, 0.25) !important;
+}
+
+/* Tags */
+.tags li, .tags a, .tag, .post-tags a, .tags__tag {
+  color: #00ff99 !important;
+  border-color: rgba(0, 255, 153, 0.3) !important;
+}
+
+/* Read more link */
+.read-more, .read-more a {
+  color: #00ff99 !important;
+}
+
+/* Pagination */
+.pagination, .pagination a, .posts-nav a,
+[rel="next"], [rel="prev"] {
+  color: #00ff99 !important;
+}
+
+/* Date */
+.post-meta, .post-date, time {
+  color: rgba(0, 255, 153, 0.6) !important;
+}
+
+/* Code */
+pre, code {
+  background-color: #0d1a0d !important;
+  border: 1px solid rgba(0, 255, 153, 0.15) !important;
+}
+p code, li code, td code {
+  color: #00ff99 !important;
+}
+
+/* Footer */
+footer, .footer, .footer__inner {
+  color: rgba(200, 240, 200, 0.45) !important;
+  border-top-color: rgba(0, 255, 153, 0.2) !important;
+}
+footer a { color: #00ff99 !important; }
+
+/* ─── Kill the wasted space on list pages ──────────────── */
+
+.index-content {
+  margin: 8px 0 !important;
+}
+
+.index-content p {
+  margin-bottom: 4px !important;
+}
+
+/* Tighten between posts */
+.posts-group {
+  margin-bottom: 0.5rem !important;
+}
+.posts-group__year {
+  margin-bottom: 0.25rem !important;
 }
