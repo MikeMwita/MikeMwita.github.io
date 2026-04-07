@@ -388,6 +388,34 @@ pre, pre code {
 }
 
 
+/* ─── View count in post meta ───────────────────────────── */
+
+.post-views {
+  color: rgba(0, 255, 153, 0.5);
+  font-size: 0.85em;
+}
+
+.post-views:not(:empty)::before {
+  content: '· ';
+}
+
+
+/* ─── Giscus comments section ───────────────────────────── */
+
+.giscus-comments {
+  margin-top: 3.5em;
+  padding-top: 2em;
+  border-top: 1px solid rgba(0, 255, 153, 0.15);
+}
+
+/* Override giscus iframe colours to match dark green theme */
+.giscus,
+.giscus-frame {
+  width: 100%;
+  color-scheme: dark;
+}
+
+
 /* ─── List pages ────────────────────────────────────────── */
 
 .index-content     { margin: 8px 0 !important; }

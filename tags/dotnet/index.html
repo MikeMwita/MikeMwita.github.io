@@ -102,6 +102,8 @@
 
 
 <link rel="stylesheet" href="/css/green.css">
+<script data-goatcounter="https://mikemwita.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
 
 
 </head>
@@ -290,6 +292,23 @@
       codeEl.parentElement.setAttribute('data-lang', langClass.replace('language-', ''));
     }
   });
+})();
+
+ 
+ 
+(function () {
+  var el = document.getElementById('article-view-count');
+  if (!el) return;
+  var path = encodeURIComponent(window.location.pathname);
+  fetch('https://mikemwita.goatcounter.com/api/v0/stats/hits?path=' + path, {
+    headers: { 'Content-Type': 'application/json' }
+  })
+  .then(function (r) { return r.json(); })
+  .then(function (data) {
+    var total = (data.stats && data.stats[0] && data.stats[0].count) ? data.stats[0].count : null;
+    if (total) el.textContent = total.toLocaleString() + ' views';
+  })
+  .catch(function () {});
 })();
 </script>
 
