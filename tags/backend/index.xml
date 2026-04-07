@@ -24,6 +24,13 @@
       <description>&lt;h1 id=&#34;caching-is-easy-invalidation-is-where-systems-falter&#34;&gt;Caching Is Easy. Invalidation Is Where Systems Falter.&lt;/h1&gt;&#xA;&lt;p&gt;Adding a cache is a one-afternoon task. You pick a layer, set a TTL, watch your database load drop. It feels like engineering.&lt;/p&gt;&#xA;&lt;p&gt;Invalidation is the part nobody writes down. It is also the part that wakes you up at 3am. Users seeing stale data after an update. A rollback that leaves garbage in cache for 24 hours. A race condition where two services update the same key in the wrong order and nobody notices for a week.&lt;/p&gt;</description>
     </item>
     <item>
+      <title>Hexagonal Architecture in Go</title>
+      <link>https://MikeMwita.github.io/thoughts/hexagonal-architecture-in-go/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/hexagonal-architecture-in-go/</guid>
+      <description>&lt;p&gt;&lt;span class=&#34;dropcap&#34;&gt;M&lt;/span&gt;&#xA;ost Go services start out reasonable. A handler calls a database. A function returns a struct. Six months later, your HTTP handler is importing your database package, your database package is calling an external API, and your tests require a live Postgres instance to run a single unit.&lt;/p&gt;&#xA;&lt;p&gt;This is not a Go problem. It is an architecture problem — and hexagonal architecture is the structural answer.&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;what-hexagonal-architecture-actually-says&#34;&gt;What Hexagonal Architecture Actually Says&lt;/h2&gt;&#xA;&lt;p&gt;Ports and adapters — the original name — was coined by Alistair Cockburn in 2005. The idea is simple:&lt;/p&gt;</description>
+    </item>
+    <item>
       <title>That Username Is Taken. How Does Google Know Instantly?</title>
       <link>https://MikeMwita.github.io/thoughts/username-availability-at-scale/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Hexagonal Architecture in Go :: Mike Mwita</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Most Go services start clean and turn into a tangle. Hexagonal architecture is the structural idea that keeps them untangled — here is how it works and how to apply it in Go." />
+<meta name="keywords" content="Web Development, Software Developer Engineer, Programming, Data Structures and Algorithms, Kubernetes, Go, Cloud Engineering" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://MikeMwita.github.io/thoughts/hexagonal-architecture-in-go/" />
+
+
+
+
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/green.min.54165f6c5a7a5f0716da6ffb1e3cf34584ec54d8a5ef3f5328de62ffd59a9ffa.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/buttons.min.86f6b4c106b6c6eb690ae5203d36b442c1f66f718ff4e8164fa86cf6c61ad641.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/code.min.d529ea4b2fb8d34328d7d31afc5466d5f7bc2f0bc9abdd98b69385335d7baee4.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/fonts.min.5bb7ed13e1d00d8ff39ea84af26737007eb5051b157b86fc24487c94f3dc8bbe.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/footer.min.eb8dfc2c6a7eafa36cd3ba92d63e69e849e2200e0002a228d137f236b09ecd75.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/gist.min.a751e8b0abe1ba8bc53ced52a38b19d8950fe78ca29454ea8c2595cf26aad5c0.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/header.min.75c7eb0e2872d95ff48109c6647d0223a38db52e2561dd87966eb5fc7c6bdac6.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/main.min.36833afd348409fc6c3d09d0897c5833d9d5bf1ff31f5e60ea3ee42ce2b1268c.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/menu.min.3c17467ebeb3d38663dce68f71f519901124fa5cbb4519b2fb0667a21e9aca39.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/pagination.min.bbb986dbce00a5ce5aca0504b7925fc1c581992a4bf57f163e5d69cc1db7d836.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/post.min.e6dddd258e64c83e05cec0cd49c05216742d42fc8ecbfbe6b67083412b609bd3.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/syntax.min.a0773cce9310cb6d8ed23e50f005448facf29a53001b57e038828daa466b25c0.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/terminal.min.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/terms.min.b81791663c3790e738e571cdbf802312390d30e4b1d8dc9d814a5b5454d0ac11.css">
+
+
+
+
+
+
+
+<link rel="shortcut icon" href="https://MikeMwita.github.io/favicon.png">
+<link rel="apple-touch-icon" href="https://MikeMwita.github.io/apple-touch-icon.png">
+
+
+<meta name="twitter:card" content="summary" />
+
+  
+    <meta name="twitter:site" content="https://MikeMwita.github.io/" />
+  
+    <meta name="twitter:creator" content="" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Hexagonal Architecture in Go">
+<meta property="og:description" content="Most Go services start clean and turn into a tangle. Hexagonal architecture is the structural idea that keeps them untangled — here is how it works and how to apply it in Go." />
+<meta property="og:url" content="https://MikeMwita.github.io/thoughts/hexagonal-architecture-in-go/" />
+<meta property="og:site_name" content="Mike Mwita" />
+
+  <meta property="og:image" content="https://MikeMwita.github.io/og-image.png">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/green.css">
+
+
+</head>
+<body>
+
+
+<div class="container center">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    Mike  Mwita (⌐▨_▨)
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/cv">CV</a></li>
+        
+      
+        
+          <li><a href="/projects">Projects</a></li>
+        
+      
+        
+          <li><a href="/thoughts">Thoughts?</a></li>
+        
+      
+        
+          <li><a href="/reads">Reads</a></li>
+        
+      
+        
+          <li><a href="/contacts">Contacts</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/cv" >CV</a></li>
+        
+      
+        
+          <li><a href="/projects" >Projects</a></li>
+        
+      
+        
+          <li><a href="/thoughts" >Thoughts?</a></li>
+        
+      
+        
+          <li><a href="/reads" >Reads</a></li>
+        
+      
+        
+          <li><a href="/contacts" >Contacts</a></li>
+        
+      
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://MikeMwita.github.io/thoughts/hexagonal-architecture-in-go/">Hexagonal Architecture in Go</a>
+  </h1>
+  <div class="post-meta"></div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://MikeMwita.github.io/tags/go/">go</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/architecture/">architecture</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/backend/">backend</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/software-design/">software-design</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+  
+
+  <div class="post-content"><div>
+        <p><span class="dropcap">M</span>
+ost Go services start out reasonable. A handler calls a database. A function returns a struct. Six months later, your HTTP handler is importing your database package, your database package is calling an external API, and your tests require a live Postgres instance to run a single unit.</p>
+<p>This is not a Go problem. It is an architecture problem — and hexagonal architecture is the structural answer.</p>
+<hr>
+<h2 id="what-hexagonal-architecture-actually-says">What Hexagonal Architecture Actually Says<a href="#what-hexagonal-architecture-actually-says" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Ports and adapters — the original name — was coined by Alistair Cockburn in 2005. The idea is simple:</p>
+<aside class="pullquote">
+  
+Your application should not know what drives it or what it talks to. It should only know what it does.
+
+</aside>
+
+<p>The <strong>hexagon</strong> is your application core: pure business logic, no imports of HTTP, SQL, or gRPC packages. It exposes <strong>ports</strong> — interfaces that describe what the core needs from the outside world.</p>
+<p><strong>Adapters</strong> sit outside the hexagon and implement those ports. An HTTP handler is an adapter. A Postgres repository is an adapter. A Kafka consumer is an adapter. They are interchangeable. The core does not care.</p>
+<hr>
+<h2 id="the-three-zones">The Three Zones<a href="#the-three-zones" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>┌─────────────────────────────────────────┐
+</span></span><span style="display:flex;"><span>│               Adapters (In)             │
+</span></span><span style="display:flex;"><span>│    HTTP handlers · gRPC · CLI · Kafka   │
+</span></span><span style="display:flex;"><span>│                    │                    │
+</span></span><span style="display:flex;"><span>│            ┌───────▼───────┐            │
+</span></span><span style="display:flex;"><span>│            │  Application  │            │
+</span></span><span style="display:flex;"><span>│            │     Core      │            │
+</span></span><span style="display:flex;"><span>│            │  (use cases)  │            │
+</span></span><span style="display:flex;"><span>│            └───────┬───────┘            │
+</span></span><span style="display:flex;"><span>│                    │                    │
+</span></span><span style="display:flex;"><span>│               Adapters (Out)            │
+</span></span><span style="display:flex;"><span>│    Postgres · Redis · S3 · HTTP client  │
+</span></span><span style="display:flex;"><span>└─────────────────────────────────────────┘
+</span></span></code></pre></div><p><strong>Driving adapters</strong> (in) call your core. They translate external signals — an HTTP request, a CLI flag, a message from a queue — into calls your application understands.</p>
+<p><strong>Driven adapters</strong> (out) are called by your core. They translate your application&rsquo;s needs into external actions — a SQL query, a Redis write, an outbound API call.</p>
+<p><strong>Ports</strong> are the interfaces between them. The core defines the interface. The adapter implements it. The dependency arrow always points inward.</p>
+<hr>
+<h2 id="what-it-looks-like-in-go">What It Looks Like in Go<a href="#what-it-looks-like-in-go" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Let us build a minimal user registration service.</p>
+<h3 id="the-core-define-the-port">The Core: Define the Port<a href="#the-core-define-the-port" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#999;font-style:italic">// internal/user/port.go
+</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">package</span> user
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">import</span> <span style="color:#ed9d13">&#34;context&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic">// Repository is a driven port — the core defines what it needs,
+</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic">// not how it is implemented.
+</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span><span style="color:#6ab825;font-weight:bold">type</span> Repository <span style="color:#6ab825;font-weight:bold">interface</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#447fcf">Save</span>(ctx context.Context, u User) <span style="color:#6ab825;font-weight:bold">error</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#447fcf">FindByEmail</span>(ctx context.Context, email <span style="color:#6ab825;font-weight:bold">string</span>) (User, <span style="color:#6ab825;font-weight:bold">error</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic">// User is a domain object. No database tags. No JSON tags.
+</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span><span style="color:#6ab825;font-weight:bold">type</span> User <span style="color:#6ab825;font-weight:bold">struct</span> {
+</span></span><span style="display:flex;"><span>    ID    <span style="color:#6ab825;font-weight:bold">string</span>
+</span></span><span style="display:flex;"><span>    Email <span style="color:#6ab825;font-weight:bold">string</span>
+</span></span><span style="display:flex;"><span>    Name  <span style="color:#6ab825;font-weight:bold">string</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="the-core-the-use-case">The Core: The Use Case<a href="#the-core-the-use-case" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#999;font-style:italic">// internal/user/service.go
+</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">package</span> user
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">import</span> (
+</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;context&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">type</span> Service <span style="color:#6ab825;font-weight:bold">struct</span> {
+</span></span><span style="display:flex;"><span>    repo Repository
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> <span style="color:#447fcf">NewService</span>(repo Repository) *Service {
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> &amp;Service{repo: repo}
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> (s *Service) <span style="color:#447fcf">Register</span>(ctx context.Context, email, name <span style="color:#6ab825;font-weight:bold">string</span>) (User, <span style="color:#6ab825;font-weight:bold">error</span>) {
+</span></span><span style="display:flex;"><span>    _, err := s.repo.<span style="color:#447fcf">FindByEmail</span>(ctx, email)
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> err == <span style="color:#6ab825;font-weight:bold">nil</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> User{}, fmt.<span style="color:#447fcf">Errorf</span>(<span style="color:#ed9d13">&#34;email already registered: %s&#34;</span>, email)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    u := User{
+</span></span><span style="display:flex;"><span>        ID:    <span style="color:#447fcf">newID</span>(),
+</span></span><span style="display:flex;"><span>        Email: email,
+</span></span><span style="display:flex;"><span>        Name:  name,
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> err := s.repo.<span style="color:#447fcf">Save</span>(ctx, u); err != <span style="color:#6ab825;font-weight:bold">nil</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> User{}, fmt.<span style="color:#447fcf">Errorf</span>(<span style="color:#ed9d13">&#34;save user: %w&#34;</span>, err)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> u, <span style="color:#6ab825;font-weight:bold">nil</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>No <code>database/sql</code>. No <code>net/http</code>. The core knows nothing about infrastructure.</p>
+<h3 id="the-driven-adapter-postgres">The Driven Adapter: Postgres<a href="#the-driven-adapter-postgres" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#999;font-style:italic">// internal/user/postgres.go
+</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">package</span> user
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">import</span> (
+</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;context&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;database/sql&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">type</span> PostgresRepository <span style="color:#6ab825;font-weight:bold">struct</span> {
+</span></span><span style="display:flex;"><span>    db *sql.DB
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> <span style="color:#447fcf">NewPostgresRepository</span>(db *sql.DB) *PostgresRepository {
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> &amp;PostgresRepository{db: db}
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> (r *PostgresRepository) <span style="color:#447fcf">Save</span>(ctx context.Context, u User) <span style="color:#6ab825;font-weight:bold">error</span> {
+</span></span><span style="display:flex;"><span>    _, err := r.db.<span style="color:#447fcf">ExecContext</span>(ctx,
+</span></span><span style="display:flex;"><span>        <span style="color:#ed9d13">`INSERT INTO users (id, email, name) VALUES ($1, $2, $3)`</span>,
+</span></span><span style="display:flex;"><span>        u.ID, u.Email, u.Name,
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> err
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> (r *PostgresRepository) <span style="color:#447fcf">FindByEmail</span>(ctx context.Context, email <span style="color:#6ab825;font-weight:bold">string</span>) (User, <span style="color:#6ab825;font-weight:bold">error</span>) {
+</span></span><span style="display:flex;"><span>    row := r.db.<span style="color:#447fcf">QueryRowContext</span>(ctx,
+</span></span><span style="display:flex;"><span>        <span style="color:#ed9d13">`SELECT id, email, name FROM users WHERE email = $1`</span>, email,
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">var</span> u User
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> err := row.<span style="color:#447fcf">Scan</span>(&amp;u.ID, &amp;u.Email, &amp;u.Name); err != <span style="color:#6ab825;font-weight:bold">nil</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> User{}, fmt.<span style="color:#447fcf">Errorf</span>(<span style="color:#ed9d13">&#34;find by email: %w&#34;</span>, err)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> u, <span style="color:#6ab825;font-weight:bold">nil</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>PostgresRepository</code> implements <code>Repository</code>. The core never imports this file.</p>
+<h3 id="the-driving-adapter-http-handler">The Driving Adapter: HTTP Handler<a href="#the-driving-adapter-http-handler" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#999;font-style:italic">// internal/user/handler.go
+</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">package</span> user
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">import</span> (
+</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;encoding/json&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;net/http&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">type</span> Handler <span style="color:#6ab825;font-weight:bold">struct</span> {
+</span></span><span style="display:flex;"><span>    svc *Service
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> <span style="color:#447fcf">NewHandler</span>(svc *Service) *Handler {
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> &amp;Handler{svc: svc}
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> (h *Handler) <span style="color:#447fcf">Register</span>(w http.ResponseWriter, r *http.Request) {
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">var</span> body <span style="color:#6ab825;font-weight:bold">struct</span> {
+</span></span><span style="display:flex;"><span>        Email <span style="color:#6ab825;font-weight:bold">string</span> <span style="color:#ed9d13">`json:&#34;email&#34;`</span>
+</span></span><span style="display:flex;"><span>        Name  <span style="color:#6ab825;font-weight:bold">string</span> <span style="color:#ed9d13">`json:&#34;name&#34;`</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> err := json.<span style="color:#447fcf">NewDecoder</span>(r.Body).<span style="color:#447fcf">Decode</span>(&amp;body); err != <span style="color:#6ab825;font-weight:bold">nil</span> {
+</span></span><span style="display:flex;"><span>        http.<span style="color:#447fcf">Error</span>(w, <span style="color:#ed9d13">&#34;bad request&#34;</span>, http.StatusBadRequest)
+</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    u, err := h.svc.<span style="color:#447fcf">Register</span>(r.<span style="color:#447fcf">Context</span>(), body.Email, body.Name)
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> err != <span style="color:#6ab825;font-weight:bold">nil</span> {
+</span></span><span style="display:flex;"><span>        http.<span style="color:#447fcf">Error</span>(w, err.<span style="color:#447fcf">Error</span>(), http.StatusConflict)
+</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    w.<span style="color:#447fcf">Header</span>().<span style="color:#447fcf">Set</span>(<span style="color:#ed9d13">&#34;Content-Type&#34;</span>, <span style="color:#ed9d13">&#34;application/json&#34;</span>)
+</span></span><span style="display:flex;"><span>    json.<span style="color:#447fcf">NewEncoder</span>(w).<span style="color:#447fcf">Encode</span>(u)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>The handler knows about HTTP. It does not know about Postgres. It calls the service and translates the result.</p>
+<hr>
+<h2 id="wiring-it-together">Wiring It Together<a href="#wiring-it-together" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#999;font-style:italic">// cmd/api/main.go
+</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">package</span> main
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">import</span> (
+</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;database/sql&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;net/http&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;github.com/mikemwita/myblog/internal/user&#34;</span>
+</span></span><span style="display:flex;"><span>    _ <span style="color:#ed9d13">&#34;github.com/lib/pq&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> <span style="color:#447fcf">main</span>() {
+</span></span><span style="display:flex;"><span>    db, _ := sql.<span style="color:#447fcf">Open</span>(<span style="color:#ed9d13">&#34;postgres&#34;</span>, <span style="color:#ed9d13">&#34;postgres://localhost/mydb?sslmode=disable&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    repo := user.<span style="color:#447fcf">NewPostgresRepository</span>(db)
+</span></span><span style="display:flex;"><span>    svc := user.<span style="color:#447fcf">NewService</span>(repo)
+</span></span><span style="display:flex;"><span>    h := user.<span style="color:#447fcf">NewHandler</span>(svc)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    http.<span style="color:#447fcf">HandleFunc</span>(<span style="color:#ed9d13">&#34;/users&#34;</span>, h.Register)
+</span></span><span style="display:flex;"><span>    http.<span style="color:#447fcf">ListenAndServe</span>(<span style="color:#ed9d13">&#34;:8080&#34;</span>, <span style="color:#6ab825;font-weight:bold">nil</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>The wiring happens at the outermost layer. Only <code>main</code> knows how all the pieces connect.</p>
+<hr>
+<h2 id="why-testing-becomes-trivial">Why Testing Becomes Trivial<a href="#why-testing-becomes-trivial" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Because the core depends on an interface, not a concrete type, you can test it with a fake:</p>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#999;font-style:italic">// internal/user/service_test.go
+</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">package</span> user_test
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">import</span> (
+</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;context&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;testing&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;github.com/mikemwita/myblog/internal/user&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">type</span> fakeRepo <span style="color:#6ab825;font-weight:bold">struct</span> {
+</span></span><span style="display:flex;"><span>    users <span style="color:#6ab825;font-weight:bold">map</span>[<span style="color:#6ab825;font-weight:bold">string</span>]user.User
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> (f *fakeRepo) <span style="color:#447fcf">Save</span>(_ context.Context, u user.User) <span style="color:#6ab825;font-weight:bold">error</span> {
+</span></span><span style="display:flex;"><span>    f.users[u.Email] = u
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#6ab825;font-weight:bold">nil</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> (f *fakeRepo) <span style="color:#447fcf">FindByEmail</span>(_ context.Context, email <span style="color:#6ab825;font-weight:bold">string</span>) (user.User, <span style="color:#6ab825;font-weight:bold">error</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> u, ok := f.users[email]; ok {
+</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> u, <span style="color:#6ab825;font-weight:bold">nil</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> user.User{}, fmt.<span style="color:#447fcf">Errorf</span>(<span style="color:#ed9d13">&#34;not found&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> <span style="color:#447fcf">TestRegister_DuplicateEmail</span>(t *testing.T) {
+</span></span><span style="display:flex;"><span>    repo := &amp;fakeRepo{users: <span style="color:#24909d">make</span>(<span style="color:#6ab825;font-weight:bold">map</span>[<span style="color:#6ab825;font-weight:bold">string</span>]user.User)}
+</span></span><span style="display:flex;"><span>    svc := user.<span style="color:#447fcf">NewService</span>(repo)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    ctx := context.<span style="color:#447fcf">Background</span>()
+</span></span><span style="display:flex;"><span>    svc.<span style="color:#447fcf">Register</span>(ctx, <span style="color:#ed9d13">&#34;mike@example.com&#34;</span>, <span style="color:#ed9d13">&#34;Mike&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    _, err := svc.<span style="color:#447fcf">Register</span>(ctx, <span style="color:#ed9d13">&#34;mike@example.com&#34;</span>, <span style="color:#ed9d13">&#34;Mike Again&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> err == <span style="color:#6ab825;font-weight:bold">nil</span> {
+</span></span><span style="display:flex;"><span>        t.<span style="color:#447fcf">Fatal</span>(<span style="color:#ed9d13">&#34;expected error for duplicate email, got nil&#34;</span>)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>No Docker. No test database. No slow setup. The test runs in milliseconds and is deterministic.</p>
+<hr>
+<h2 id="the-folder-structure">The Folder Structure<a href="#the-folder-structure" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>myblog/
+</span></span><span style="display:flex;"><span>├── cmd/
+</span></span><span style="display:flex;"><span>│   └── api/
+</span></span><span style="display:flex;"><span>│       └── main.go          ← wiring only
+</span></span><span style="display:flex;"><span>├── internal/
+</span></span><span style="display:flex;"><span>│   └── user/
+</span></span><span style="display:flex;"><span>│       ├── user.go          ← domain types
+</span></span><span style="display:flex;"><span>│       ├── port.go          ← interfaces (ports)
+</span></span><span style="display:flex;"><span>│       ├── service.go       ← use cases (core)
+</span></span><span style="display:flex;"><span>│       ├── service_test.go  ← unit tests
+</span></span><span style="display:flex;"><span>│       ├── postgres.go      ← driven adapter
+</span></span><span style="display:flex;"><span>│       └── handler.go       ← driving adapter
+</span></span></code></pre></div><p>Each package owns its domain. <code>internal/</code> ensures nothing outside this module imports these packages directly.</p>
+
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright copyright--user">
+        <span>© 2026 Mike Mwita</span>
+    
+      <span>:: <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

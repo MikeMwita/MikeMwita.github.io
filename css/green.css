@@ -92,6 +92,79 @@ footer, .footer, .footer__inner {
 }
 footer a { color: #00ff99 !important; }
 
+/* ─── Medium-style article formatting ──────────────────── */
+
+/* Better body typography for posts */
+.post__content {
+  font-size: 1.1rem !important;
+  line-height: 1.85 !important;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.post__content p {
+  margin-bottom: 1.6em !important;
+}
+
+/* Block quote — Medium style */
+.post__content blockquote {
+  border-left: 3px solid #00ff99 !important;
+  margin: 2em 0 !important;
+  padding: 0.5em 1.5em !important;
+  font-style: italic;
+  color: rgba(200, 240, 200, 0.75) !important;
+  background: transparent !important;
+}
+
+/* Pull quote — Medium pull quote style */
+.pullquote {
+  font-size: 1.4rem !important;
+  font-style: italic;
+  color: #00ff99 !important;
+  border-top: 2px solid rgba(0, 255, 153, 0.4) !important;
+  border-bottom: 2px solid rgba(0, 255, 153, 0.4) !important;
+  padding: 1.2em 0 !important;
+  margin: 2em 0 !important;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* Drop cap */
+.dropcap {
+  float: left;
+  font-size: 4.5rem;
+  line-height: 0.75;
+  margin: 0.1em 0.12em 0 0;
+  color: #00ff99 !important;
+  font-weight: bold;
+}
+
+/* Image with caption */
+.post-figure {
+  margin: 2em 0 !important;
+  text-align: center;
+}
+.post-figure img {
+  max-width: 100%;
+  border: 1px solid rgba(0, 255, 153, 0.15);
+}
+.post-figure figcaption {
+  font-size: 0.85rem;
+  color: rgba(200, 240, 200, 0.55) !important;
+  margin-top: 0.5em;
+  font-style: italic;
+}
+
+/* Wide / full-bleed image */
+.post-figure--wide {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw !important;
+  margin-right: -50vw !important;
+}
+
 /* ─── Kill the wasted space on list pages ──────────────── */
 
 .index-content {
