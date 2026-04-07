@@ -105,7 +105,33 @@
 
 <link rel="stylesheet" href="/css/green.css">
 
-<script data-goatcounter="https://YOURSITE.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+
+<style>
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-roman-line-figures/et-book-roman-line-figures.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-display-italic-old-style-figures/et-book-display-italic-old-style-figures.woff') format('woff');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-bold-line-figures/et-book-bold-line-figures.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+</style>
+
+<script data-goatcounter="https://mikemwita.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
 
 
 </head>
@@ -258,12 +284,11 @@
 })();
 
  
- 
 (function () {
   var el = document.getElementById('article-view-count');
   if (!el) return;
   var path = encodeURIComponent(window.location.pathname);
-  fetch('https://YOURSITE.goatcounter.com/api/v0/stats/hits?path=' + path, {
+  fetch('https://mikemwita.goatcounter.com/api/v0/stats/hits?path=' + path, {
     headers: { 'Content-Type': 'application/json' }
   })
   .then(function (r) { return r.json(); })
@@ -272,6 +297,64 @@
     if (total) el.textContent = total.toLocaleString() + ' views';
   })
   .catch(function () {});
+})();
+
+ 
+(function () {
+  var content = document.querySelector('.post-content, .post__content');
+  if (!content) return;
+
+  var headings = Array.from(content.querySelectorAll('h2, h3'));
+  if (headings.length < 2) return;
+
+   
+  var toc = document.createElement('nav');
+  toc.id = 'toc-sidebar';
+  toc.innerHTML = '<p class="toc-title">Contents</p>';
+
+  var ul = document.createElement('ul');
+  headings.forEach(function (h) {
+     
+    if (!h.id) {
+      h.id = h.textContent.trim().toLowerCase().replace(/[^\w]+/g, '-');
+    }
+    var li = document.createElement('li');
+    li.className = 'toc-item toc-' + h.tagName.toLowerCase();
+    var a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.textContent = h.textContent.replace(/#$/, '').trim();
+    a.className = 'toc-link';
+    li.appendChild(a);
+    ul.appendChild(li);
+  });
+  toc.appendChild(ul);
+  document.body.appendChild(toc);
+
+   
+  var links = toc.querySelectorAll('.toc-link');
+
+  var setActive = function (id) {
+    links.forEach(function (a) {
+      a.classList.toggle('toc-link--active', a.getAttribute('href') === '#' + id);
+    });
+  };
+
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) setActive(entry.target.id);
+    });
+  }, { rootMargin: '0px 0px -70% 0px', threshold: 0 });
+
+  headings.forEach(function (h) { observer.observe(h); });
+
+   
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var target = document.getElementById(a.getAttribute('href').slice(1));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
 })();
 </script>
 

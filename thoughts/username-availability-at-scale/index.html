@@ -100,6 +100,32 @@
 
 
 <link rel="stylesheet" href="/css/green.css">
+
+
+<style>
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-roman-line-figures/et-book-roman-line-figures.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-display-italic-old-style-figures/et-book-display-italic-old-style-figures.woff') format('woff');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-bold-line-figures/et-book-bold-line-figures.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+</style>
+
 <script data-goatcounter="https://mikemwita.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 
@@ -212,12 +238,21 @@
       
     </span>
   
-  
-
 
   
-
-  <div class="post-content"><div>
+<nav class="article-toc">
+    <p class="article-toc__title">Contents</p>
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#two-problems-not-one">Two Problems, Not One</a></li>
+    <li><a href="#the-classy-approach-in-memory-trie">The Classy Approach: In-Memory Trie</a></li>
+    <li><a href="#where-the-trie-does-double-duty-suggestions">Where the Trie Does Double Duty: Suggestions</a></li>
+    <li><a href="#what-most-people-actually-ship">What Most People Actually Ship</a></li>
+    <li><a href="#the-consistency-layer-only-the-database-counts">The Consistency Layer: Only the Database Counts</a></li>
+    <li><a href="#the-full-picture">The Full Picture</a></li>
+  </ul>
+</nav>
+  </nav><div class="post-content"><div>
         <p><img alt="Gmail username availability check — &ldquo;newuser&rdquo; is taken, n12205707 is suggested" src="/images/gmail-username-check.png"></p>
 <p>You type &ldquo;newuser&rdquo; into the Gmail signup screen. Already taken. The UI suggests &ldquo;n12205707&rdquo; before you have even stopped typing. No spinner. No network flicker. Just instant.</p>
 <p>You are not doing an Elasticsearch query on every keypress. That would be a crime.</p>
@@ -545,7 +580,6 @@ flowchart TD
   });
 })();
 
- 
  
 (function () {
   var el = document.getElementById('article-view-count');

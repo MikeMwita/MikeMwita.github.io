@@ -102,6 +102,32 @@
 
 
 <link rel="stylesheet" href="/css/green.css">
+
+
+<style>
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-roman-line-figures/et-book-roman-line-figures.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-display-italic-old-style-figures/et-book-display-italic-old-style-figures.woff') format('woff');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-bold-line-figures/et-book-bold-line-figures.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+</style>
+
 <script data-goatcounter="https://mikemwita.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 
@@ -214,12 +240,17 @@
       
     </span>
   
-  
-
 
   
-
-  <div class="post-content"><div>
+<nav class="article-toc">
+    <p class="article-toc__title">Contents</p>
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#motivation">Motivation</a></li>
+    <li><a href="#results">Results</a></li>
+  </ul>
+</nav>
+  </nav><div class="post-content"><div>
         <h2 id="motivation">Motivation<a href="#motivation" class="hanchor" ariaLabel="Anchor">#</a> </h2>
 <p>Financial systems often rely on documents like invoices and receipts that arrive in inconsistent formats and qualities. Many OCR solutions extract raw text but stop short of producing reliable, structured domain data that can be consumed by ERP or accounting systems.</p>
 <p>FinDocParserPro was built to bridge this gap by combining OCR, deterministic extraction rules, and a clean, testable architecture that scales with complexity instead of collapsing under it.</p>
@@ -286,7 +317,6 @@
   });
 })();
 
- 
  
 (function () {
   var el = document.getElementById('article-view-count');

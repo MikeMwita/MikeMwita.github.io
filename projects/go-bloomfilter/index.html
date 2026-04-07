@@ -102,6 +102,32 @@
 
 
 <link rel="stylesheet" href="/css/green.css">
+
+
+<style>
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-roman-line-figures/et-book-roman-line-figures.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-display-italic-old-style-figures/et-book-display-italic-old-style-figures.woff') format('woff');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-bold-line-figures/et-book-bold-line-figures.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+</style>
+
 <script data-goatcounter="https://mikemwita.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 
@@ -212,12 +238,17 @@
       
     </span>
   
-  
-
 
   
-
-  <div class="post-content"><div>
+<nav class="article-toc">
+    <p class="article-toc__title">Contents</p>
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#motivation">Motivation</a></li>
+    <li><a href="#results">Results</a></li>
+  </ul>
+</nav>
+  </nav><div class="post-content"><div>
         <h2 id="motivation">Motivation<a href="#motivation" class="hanchor" ariaLabel="Anchor">#</a> </h2>
 <p>Many backend systems need to answer one question extremely fast: <em>have I seen this before?</em> Traditional data structures often trade memory for speed, which becomes expensive at scale.</p>
 <p>This project was created to explore probabilistic data structures in Go while gaining hands-on experience with bitwise operations, hashing strategies, and memory-efficient design.</p>
@@ -284,7 +315,6 @@
   });
 })();
 
- 
  
 (function () {
   var el = document.getElementById('article-view-count');

@@ -102,6 +102,32 @@
 
 
 <link rel="stylesheet" href="/css/green.css">
+
+
+<style>
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-roman-line-figures/et-book-roman-line-figures.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-display-italic-old-style-figures/et-book-display-italic-old-style-figures.woff') format('woff');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-bold-line-figures/et-book-bold-line-figures.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+</style>
+
 <script data-goatcounter="https://mikemwita.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 
@@ -212,12 +238,24 @@
       
     </span>
   
-  
-
 
   
-
-  <div class="post-content"><div>
+<nav class="article-toc">
+    <p class="article-toc__title">Contents</p>
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#setting-the-stage">Setting the Stage</a></li>
+        <li><a href="#the-base-class-and-del-trick">The base class and del trick</a></li>
+        <li><a href="#a-mixin-approach">A mixin approach</a></li>
+        <li><a href="#hybrid-pytest-using-__test__--false">Hybrid pytest using <strong>test</strong> = False</a></li>
+      </ul>
+    </li>
+    <li><a href="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+  </nav><div class="post-content"><div>
         <p>A while back, I was writing tests for a  project using Python’s unittest.
 Nothing dramatic — just the usual rhythm: write a class, test it, move to the next one.
 After a few classes, though, the déjà vu hit.</p>
@@ -399,7 +437,6 @@ Write them once, share them widely, and let unittest do the heavy lifting.</p>
   });
 })();
 
- 
  
 (function () {
   var el = document.getElementById('article-view-count');

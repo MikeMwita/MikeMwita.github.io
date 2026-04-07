@@ -100,6 +100,32 @@
 
 
 <link rel="stylesheet" href="/css/green.css">
+
+
+<style>
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-roman-line-figures/et-book-roman-line-figures.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-display-italic-old-style-figures/et-book-display-italic-old-style-figures.woff') format('woff');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-bold-line-figures/et-book-bold-line-figures.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+</style>
+
 <script data-goatcounter="https://mikemwita.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 
@@ -212,12 +238,22 @@
       
     </span>
   
-  
-
 
   
-
-  <div class="post-content"><div>
+<nav class="article-toc">
+    <p class="article-toc__title">Contents</p>
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#why-it-happens">Why It Happens</a></li>
+    <li><a href="#fix-1-single-flight--request-coalescing">Fix 1: Single Flight / Request Coalescing</a></li>
+    <li><a href="#fix-2-serve-stale-while-revalidate">Fix 2: Serve Stale While Revalidate</a></li>
+    <li><a href="#fix-3-distributed-lock-with-jitter">Fix 3: Distributed Lock with Jitter</a></li>
+    <li><a href="#fix-4-proactive-refresh">Fix 4: Proactive Refresh</a></li>
+    <li><a href="#fix-5-circuit-breakers-on-the-rebuild-path">Fix 5: Circuit Breakers on the Rebuild Path</a></li>
+    <li><a href="#putting-it-together">Putting It Together</a></li>
+  </ul>
+</nav>
+  </nav><div class="post-content"><div>
         <h1 id="the-thundering-herd-problem">The Thundering Herd Problem<a href="#the-thundering-herd-problem" class="hanchor" ariaLabel="Anchor">#</a> </h1>
 <p>Your site&rsquo;s homepage is heavily cached. The cache key expires every 60 seconds. At 12:00 PM, the cache expires. At 12:00:01 PM, 10,000 concurrent user requests come in. None of them find anything in cache. All 10,000 hit your database simultaneously to regenerate the exact same content.</p>
 <p>Your database crashes. The site goes down.</p>
@@ -458,7 +494,6 @@ On publish event: immediately invalidate and refresh affected keys
   });
 })();
 
- 
  
 (function () {
   var el = document.getElementById('article-view-count');

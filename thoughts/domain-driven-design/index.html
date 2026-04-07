@@ -100,6 +100,32 @@
 
 
 <link rel="stylesheet" href="/css/green.css">
+
+
+<style>
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-roman-line-figures/et-book-roman-line-figures.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-display-italic-old-style-figures/et-book-display-italic-old-style-figures.woff') format('woff');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-bold-line-figures/et-book-bold-line-figures.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+</style>
+
 <script data-goatcounter="https://mikemwita.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 
@@ -212,12 +238,20 @@
       
     </span>
   
-  
-
 
   
-
-  <div class="post-content"><div>
+<nav class="article-toc">
+    <p class="article-toc__title">Contents</p>
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#what-ddd-actually-sells">What DDD Actually Sells</a></li>
+    <li><a href="#what-actually-goes-wrong">What Actually Goes Wrong</a></li>
+    <li><a href="#a-practical-structure-that-works">A Practical Structure That Works</a></li>
+    <li><a href="#the-onion--hexagonal-framing">The Onion / Hexagonal Framing</a></li>
+    <li><a href="#my-opinion">My Opinion</a></li>
+  </ul>
+</nav>
+  </nav><div class="post-content"><div>
         <h1 id="my-thoughts-on-domain-driven-design-in-golang">My Thoughts on Domain-Driven Design in Golang<a href="#my-thoughts-on-domain-driven-design-in-golang" class="hanchor" ariaLabel="Anchor">#</a> </h1>
 <p>Contrary to what most people think, DDD is not about folder naming. It is not about having directories called <code>domain</code> and <code>infrastructure</code> and calling it a day.</p>
 <p>Here is my lightweight approach that helps you think about what your app domain actually is.</p>
@@ -338,7 +372,6 @@ Services / Repository     →  gets data from DB, all the way back to controller
   });
 })();
 
- 
  
 (function () {
   var el = document.getElementById('article-view-count');

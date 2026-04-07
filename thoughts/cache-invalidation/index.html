@@ -100,6 +100,32 @@
 
 
 <link rel="stylesheet" href="/css/green.css">
+
+
+<style>
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-roman-line-figures/et-book-roman-line-figures.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-display-italic-old-style-figures/et-book-display-italic-old-style-figures.woff') format('woff');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-bold-line-figures/et-book-bold-line-figures.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+</style>
+
 <script data-goatcounter="https://mikemwita.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 
@@ -212,12 +238,22 @@
       
     </span>
   
-  
-
 
   
-
-  <div class="post-content"><div>
+<nav class="article-toc">
+    <p class="article-toc__title">Contents</p>
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#1-pick-the-right-cache-layer-first">1. Pick the Right Cache Layer First</a></li>
+    <li><a href="#2-ttls-are-a-safety-net-not-a-strategy">2. TTLs Are a Safety Net, Not a Strategy</a></li>
+    <li><a href="#3-versioned-keys-beat-delete-in-distributed-systems">3. Versioned Keys Beat Delete in Distributed Systems</a></li>
+    <li><a href="#4-invalidate-by-event-not-by-guessing">4. Invalidate by Event, Not by Guessing</a></li>
+    <li><a href="#5-stale-while-revalidate-for-correctness-on-hot-paths">5. Stale-While-Revalidate for Correctness on Hot Paths</a></li>
+    <li><a href="#6-negative-caching-and-stampede-guards">6. Negative Caching and Stampede Guards</a></li>
+    <li><a href="#write-down-your-invalidation-strategy-before-you-ship">Write Down Your Invalidation Strategy Before You Ship</a></li>
+  </ul>
+</nav>
+  </nav><div class="post-content"><div>
         <h1 id="caching-is-easy-invalidation-is-where-systems-falter">Caching Is Easy. Invalidation Is Where Systems Falter.<a href="#caching-is-easy-invalidation-is-where-systems-falter" class="hanchor" ariaLabel="Anchor">#</a> </h1>
 <p>Adding a cache is a one-afternoon task. You pick a layer, set a TTL, watch your database load drop. It feels like engineering.</p>
 <p>Invalidation is the part nobody writes down. It is also the part that wakes you up at 3am. Users seeing stale data after an update. A rollback that leaves garbage in cache for 24 hours. A race condition where two services update the same key in the wrong order and nobody notices for a week.</p>
@@ -551,7 +587,6 @@ flowchart LR
   });
 })();
 
- 
  
 (function () {
   var el = document.getElementById('article-view-count');

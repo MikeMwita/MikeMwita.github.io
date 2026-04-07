@@ -100,6 +100,32 @@
 
 
 <link rel="stylesheet" href="/css/green.css">
+
+
+<style>
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-roman-line-figures/et-book-roman-line-figures.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-display-italic-old-style-figures/et-book-display-italic-old-style-figures.woff') format('woff');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-bold-line-figures/et-book-bold-line-figures.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+</style>
+
 <script data-goatcounter="https://mikemwita.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 
@@ -210,15 +236,34 @@
       
     </span>
   
-  
-
 
   
-
-  <div class="post-content"><div>
+<nav class="article-toc">
+    <p class="article-toc__title">Contents</p>
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#what-hexagonal-architecture-actually-says">What Hexagonal Architecture Actually Says</a></li>
+    <li><a href="#the-three-zones">The Three Zones</a></li>
+    <li><a href="#what-it-looks-like-in-go">What It Looks Like in Go</a>
+      <ul>
+        <li><a href="#the-core-define-the-port">The Core: Define the Port</a></li>
+        <li><a href="#the-core-the-use-case">The Core: The Use Case</a></li>
+        <li><a href="#the-driven-adapter-postgres">The Driven Adapter: Postgres</a></li>
+        <li><a href="#the-driving-adapter-http-handler">The Driving Adapter: HTTP Handler</a></li>
+      </ul>
+    </li>
+    <li><a href="#wiring-it-together">Wiring It Together</a></li>
+    <li><a href="#why-testing-becomes-trivial">Why Testing Becomes Trivial</a></li>
+    <li><a href="#the-folder-structure">The Folder Structure</a></li>
+    <li><a href="#when-not-to-use-it">When Not to Use It</a></li>
+    <li><a href="#the-one-rule-to-remember">The One Rule to Remember</a></li>
+  </ul>
+</nav>
+  </nav><div class="post-content"><div>
         <p><span class="dropcap">M</span>
 ost Go services start out reasonable. A handler calls a database. A function returns a struct. Six months later, your HTTP handler is importing your database package, your database package is calling an external API, and your tests require a live Postgres instance to run a single unit.</p>
-<p>This is not a Go problem. It is an architecture problem — and hexagonal architecture is the structural answer.</p>
+<p>This is not a Go problem. It is an architecture problem — and hexagonal architecture is the structural answer.<aside class="sidenote">Also called <strong>ports and adapters</strong>, coined by Alistair Cockburn in 2005. The hexagon shape has no special meaning — it just illustrates that an application has multiple sides to connect.</aside>
+</p>
 <div class="section-divider">
   <span></span><span></span><span></span>
 </div>
@@ -231,7 +276,8 @@ Your application should not know what drives it or what it talks to. It should o
 
 </aside>
 
-<p>The <strong>hexagon</strong> is your application core: pure business logic, no imports of HTTP, SQL, or gRPC packages. It exposes <strong>ports</strong> — interfaces that describe what the core needs from the outside world. <strong>Adapters</strong> sit outside and implement those ports.</p>
+<p>The <strong>hexagon</strong> is your application core: pure business logic, no imports of HTTP, SQL, or gRPC packages. It exposes <strong>ports</strong> — interfaces that describe what the core needs from the outside world. <strong>Adapters</strong> sit outside and implement those ports.<aside class="sidenote">A <strong>port</strong> is just a Go <code>interface</code>. It lives in the core package. The core defines what it needs; the adapter delivers it.</aside>
+</p>
 <figure class="attributed-quote">
   <blockquote>Make it work, make it right, make it fast. In that order.</blockquote>
   <figcaption>— Kent Beck</figcaption>
@@ -289,7 +335,8 @@ Your application should not know what drives it or what it talks to. It should o
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">ID</span>    <span style="color:#66d9ef">string</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Email</span> <span style="color:#66d9ef">string</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Name</span>  <span style="color:#66d9ef">string</span>
-</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>}<span style="color:#a6e22e"><aside class="sidenote">No <code>db:</code> struct tags, no <code>json:</code> tags. This is a <strong>domain object</strong> — it belongs to the core and knows nothing about how it is persisted or transported.</aside>
+</span>
 </span></span></code></pre></div><h3 id="the-core-the-use-case">The Core: The Use Case<a href="#the-core-the-use-case" class="hanchor" ariaLabel="Anchor">#</a> </h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// internal/user/service.go
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
@@ -326,12 +373,8 @@ Your application should not know what drives it or what it talks to. It should o
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">u</span>, <span style="color:#66d9ef">nil</span>
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>No <code>database/sql</code>. No <code>net/http</code>. The core imports nothing from infrastructure.</p>
-
-<div class="callout callout--note">
-  <div class="callout__body"><code>newID()</code> is a small helper — <code>uuid.New().String()</code> or similar. Keep it in the same package. Do not over-engineer it.</div>
-</div>
-
+</span></span></code></pre></div><p>No <code>database/sql</code>. No <code>net/http</code>. The core imports nothing from infrastructure.<aside class="sidenote"><code>newID()</code> is a small helper — <code>uuid.New().String()</code> or similar. Keep it in the <code>user</code> package. Do not over-engineer it.</aside>
+</p>
 <h3 id="the-driven-adapter-postgres">The Driven Adapter: Postgres<a href="#the-driven-adapter-postgres" class="hanchor" ariaLabel="Anchor">#</a> </h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// internal/user/postgres.go
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
@@ -369,7 +412,8 @@ Your application should not know what drives it or what it talks to. It should o
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">u</span>, <span style="color:#66d9ef">nil</span>
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p><code>PostgresRepository</code> implements <code>Repository</code>. The core never imports this file.</p>
+</span></span></code></pre></div><p><code>PostgresRepository</code> implements <code>Repository</code>. The core never imports this file.<aside class="sidenote">The dependency arrow points <strong>inward</strong>: <code>postgres.go</code> imports <code>user.go</code> (for the <code>Repository</code> interface and <code>User</code> type), never the other way around.</aside>
+</p>
 <h3 id="the-driving-adapter-http-handler">The Driving Adapter: HTTP Handler<a href="#the-driving-adapter-http-handler" class="hanchor" ariaLabel="Anchor">#</a> </h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// internal/user/handler.go
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
@@ -435,7 +479,8 @@ Your application should not know what drives it or what it talks to. It should o
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">HandleFunc</span>(<span style="color:#e6db74">&#34;/users&#34;</span>, <span style="color:#a6e22e">h</span>.<span style="color:#a6e22e">Register</span>)
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">ListenAndServe</span>(<span style="color:#e6db74">&#34;:8080&#34;</span>, <span style="color:#66d9ef">nil</span>)
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>The wiring happens at the outermost layer. Only <code>main</code> knows how all the pieces connect. This is the <a href="https://blog.ploeh.dk/2011/07/28/CompositionRoot/">composition root</a> pattern — one place in the entire codebase where concrete types are assembled.</p>
+</span></span></code></pre></div><p>The wiring happens at the outermost layer. Only <code>main</code> knows how all the pieces connect.<aside class="sidenote">This is the <strong>composition root</strong> pattern — one place in the entire codebase where concrete types are assembled. Everything else works through interfaces.</aside>
+</p>
 <div class="section-divider">
   <span></span><span></span><span></span>
 </div>
@@ -482,11 +527,8 @@ Your application should not know what drives it or what it talks to. It should o
 </span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Fatal</span>(<span style="color:#e6db74">&#34;expected error for duplicate email, got nil&#34;</span>)
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div>
-<div class="callout callout--tip">
-  <div class="callout__body"><strong>No Docker. No test database. No slow setup.</strong> The test runs in milliseconds and is deterministic. This is the biggest practical payoff of the pattern.</div>
-</div>
-
+</span></span></code></pre></div><p>The test runs in milliseconds and is fully deterministic.<aside class="sidenote">No Docker. No test database. No slow setup. This is the biggest practical payoff of the pattern — your core business logic tests never touch a network or a disk.</aside>
+</p>
 <div class="section-divider">
   <span></span><span></span><span></span>
 </div>
@@ -637,7 +679,6 @@ Dependencies point inward. The core knows nothing about the outside world — on
   });
 })();
 
- 
  
 (function () {
   var el = document.getElementById('article-view-count');

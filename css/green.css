@@ -68,10 +68,21 @@ footer a { color: #00ff99 !important; }
 }
 
 
+/* ─── ET Book font — body prose ─────────────────────────── */
+
+.post__content,
+.post__content p,
+.post__content li,
+.post__content blockquote,
+.post__content td {
+  font-family: 'et-book', Palatino, 'Palatino Linotype', 'Book Antiqua', Georgia, serif !important;
+}
+
+
 /* ─── Post typography ───────────────────────────────────── */
 
 .post__content {
-  font-size: 1.08rem;
+  font-size: 1.12rem;
   line-height: 1.9;
 }
 
@@ -385,6 +396,122 @@ pre, pre code {
 
 .post__content tbody tr:hover {
   background: rgba(0, 255, 153, 0.03);
+}
+
+
+/* ─── Inline TOC block ──────────────────────────────────── */
+
+.article-toc {
+  margin: 2em 0 2.5em;
+  padding: 1.2em 1.5em;
+  border: 1px solid rgba(0, 255, 153, 0.15);
+  background: rgba(0, 255, 153, 0.03);
+  border-radius: 4px;
+  font-family: 'et-book', Palatino, Georgia, serif;
+  font-size: 0.92rem;
+}
+
+.article-toc__title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(0, 255, 153, 0.5);
+  margin: 0 0 0.8em 0;
+}
+
+.article-toc #TableOfContents ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.article-toc #TableOfContents > ul > li {
+  margin: 0.3em 0;
+}
+
+.article-toc #TableOfContents > ul > li > ul {
+  padding-left: 1.2em;
+  margin-top: 0.2em;
+}
+
+.article-toc #TableOfContents > ul > li > ul > li {
+  margin: 0.2em 0;
+  font-size: 0.88rem;
+  color: rgba(200, 240, 200, 0.7);
+}
+
+.article-toc #TableOfContents a {
+  color: rgba(200, 240, 200, 0.75) !important;
+  text-decoration: none !important;
+  transition: color 0.15s;
+}
+
+.article-toc #TableOfContents a:hover {
+  color: #00ff99 !important;
+}
+
+
+/* ─── Margin sidenotes ──────────────────────────────────── */
+
+/* On wide screens: float into the right margin */
+@media (min-width: 1200px) {
+  .post-content {
+    overflow: visible;
+  }
+
+  .sidenote {
+    float: right;
+    clear: right;
+    width: 200px;
+    margin-right: -228px;
+    margin-top: 0.15em;
+    margin-bottom: 1.2em;
+    padding: 0.6em 0 0.6em 1em;
+    border-left: 2px solid rgba(0, 255, 153, 0.35);
+    font-family: 'et-book', Palatino, Georgia, serif;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: rgba(200, 240, 200, 0.8);
+    font-style: italic;
+  }
+
+  .sidenote p { margin: 0 0 0.4em; }
+  .sidenote p:last-child { margin-bottom: 0; }
+
+  .sidenote strong { color: #00ff99; font-style: normal; }
+  .sidenote a      { color: rgba(0, 255, 153, 0.85) !important; font-style: normal; }
+
+  .sidenote code {
+    font-size: 0.8rem;
+    background: rgba(0, 255, 153, 0.08) !important;
+    border: 1px solid rgba(0, 255, 153, 0.18) !important;
+    border-radius: 3px;
+    padding: 0.05em 0.35em;
+    color: #00ff99 !important;
+    font-style: normal;
+    white-space: nowrap;
+  }
+}
+
+/* On smaller screens: inline note */
+@media (max-width: 1199px) {
+  .sidenote {
+    display: block;
+    margin: 0.8em 0 1.4em 0;
+    padding: 0.7em 1.1em;
+    border-left: 2px solid rgba(0, 255, 153, 0.3);
+    background: rgba(0, 255, 153, 0.03);
+    border-radius: 0 3px 3px 0;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: rgba(200, 240, 200, 0.75);
+    font-style: italic;
+    font-family: 'et-book', Palatino, Georgia, serif;
+  }
+
+  .sidenote p { margin: 0 0 0.3em; }
+  .sidenote p:last-child { margin-bottom: 0; }
+  .sidenote strong { color: #00ff99; font-style: normal; }
 }
 
 
