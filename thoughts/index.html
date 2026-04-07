@@ -603,7 +603,33 @@
 <script type="text/javascript" src="/bundle.min.js"></script>
 
 
+<script>
+ 
+(function () {
+  if (!document.querySelector('.post__content')) return;
+  var bar = document.createElement('div');
+  bar.id = 'reading-progress';
+  document.body.prepend(bar);
 
+  window.addEventListener('scroll', function () {
+    var scrollTop = window.scrollY || window.pageYOffset;
+    var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = docHeight > 0 ? (scrollTop / docHeight * 100) + '%' : '0%';
+  }, { passive: true });
+})();
+
+ 
+(function () {
+  document.querySelectorAll('pre > code').forEach(function (codeEl) {
+    var langClass = Array.from(codeEl.classList).find(function (c) {
+      return c.startsWith('language-');
+    });
+    if (langClass) {
+      codeEl.parentElement.setAttribute('data-lang', langClass.replace('language-', ''));
+    }
+  });
+})();
+</script>
 
 
   
