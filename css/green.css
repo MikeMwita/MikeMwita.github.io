@@ -1,6 +1,5 @@
 /* ─── Terminal Green Override ──────────────────────────── */
 
-/* CSS variables — override the theme's orange/yellow defaults */
 :root,
 body,
 .theme-orange,
@@ -14,148 +13,258 @@ body,
   --header-background: #0a0f0a !important;
 }
 
-/* Base */
 html, body {
   background-color: #0a0f0a !important;
   color: #c8f0c8 !important;
 }
 
-/* All links */
-a, a:visited, a:link {
-  color: #00ff99 !important;
-}
-a:hover, a:focus {
-  color: #00cc7a !important;
-}
+a, a:visited, a:link { color: #00ff99 !important; }
+a:hover, a:focus     { color: #00cc7a !important; }
 
-/* Logo */
 .logo, .logo a, .logo__text, a.logo__text {
   color: #00ff99 !important;
   border-color: #00ff99 !important;
   background-color: transparent !important;
 }
-.logo__cursor {
-  background-color: #00ff99 !important;
-}
+.logo__cursor { background-color: #00ff99 !important; }
 
-/* Nav */
-.menu a, .menu__inner a, .menu__sub-inner a {
-  color: #00ff99 !important;
-}
+.menu a, .menu__inner a, .menu__sub-inner a { color: #00ff99 !important; }
 
-/* Headings */
-h1, h2, h3, h4, h5, h6 {
-  color: #00ff99 !important;
-}
+h1, h2, h3, h4, h5, h6 { color: #00ff99 !important; }
 
-/* Post list separators (the ::::: lines) */
 .post-list__separator, hr {
   border-color: rgba(0, 255, 153, 0.25) !important;
-  color: rgba(0, 255, 153, 0.25) !important;
+  color:        rgba(0, 255, 153, 0.25) !important;
 }
 
-/* Tags */
 .tags li, .tags a, .tag, .post-tags a, .tags__tag {
-  color: #00ff99 !important;
+  color:        #00ff99 !important;
   border-color: rgba(0, 255, 153, 0.3) !important;
 }
 
-/* Read more link */
-.read-more, .read-more a {
-  color: #00ff99 !important;
-}
+.read-more, .read-more a { color: #00ff99 !important; }
 
-/* Pagination */
 .pagination, .pagination a, .posts-nav a,
-[rel="next"], [rel="prev"] {
-  color: #00ff99 !important;
-}
+[rel="next"], [rel="prev"] { color: #00ff99 !important; }
 
-/* Date */
-.post-meta, .post-date, time {
-  color: rgba(0, 255, 153, 0.6) !important;
-}
+.post-meta, .post-date, time { color: rgba(0, 255, 153, 0.6) !important; }
 
-/* Code */
 pre, code {
   background-color: #0d1a0d !important;
   border: 1px solid rgba(0, 255, 153, 0.15) !important;
 }
-p code, li code, td code {
-  color: #00ff99 !important;
-}
+p code, li code, td code { color: #00ff99 !important; }
 
-/* Footer */
 footer, .footer, .footer__inner {
   color: rgba(200, 240, 200, 0.45) !important;
   border-top-color: rgba(0, 255, 153, 0.2) !important;
 }
 footer a { color: #00ff99 !important; }
 
-/* ─── Medium-style article formatting ──────────────────── */
 
-/* Better body typography for posts */
+/* ─── Post typography ───────────────────────────────────── */
+
 .post__content {
-  font-size: 1.1rem !important;
-  line-height: 1.85 !important;
-  max-width: 680px;
-  margin: 0 auto;
+  font-size: 1.08rem;
+  line-height: 1.9;
 }
 
 .post__content p {
-  margin-bottom: 1.6em !important;
+  margin-bottom: 1.7em;
 }
 
-/* Block quote — Medium style */
-.post__content blockquote {
-  border-left: 3px solid #00ff99 !important;
-  margin: 2em 0 !important;
-  padding: 0.5em 1.5em !important;
-  font-style: italic;
-  color: rgba(200, 240, 200, 0.75) !important;
-  background: transparent !important;
+.post__content h2 {
+  margin-top: 2.5em;
+  margin-bottom: 0.6em;
+  padding-bottom: 0.25em;
+  border-bottom: 1px solid rgba(0, 255, 153, 0.15);
 }
 
-/* Pull quote — Medium pull quote style */
-.pullquote {
-  font-size: 1.4rem !important;
-  font-style: italic;
-  color: #00ff99 !important;
-  border-top: 2px solid rgba(0, 255, 153, 0.4) !important;
-  border-bottom: 2px solid rgba(0, 255, 153, 0.4) !important;
-  padding: 1.2em 0 !important;
-  margin: 2em 0 !important;
-  text-align: center;
-  line-height: 1.5;
+.post__content h3 {
+  margin-top: 2em;
+  margin-bottom: 0.4em;
+  color: rgba(0, 255, 153, 0.85) !important;
 }
 
-/* Drop cap */
+
+/* ─── Drop cap ──────────────────────────────────────────── */
+
 .dropcap {
   float: left;
-  font-size: 4.5rem;
-  line-height: 0.75;
-  margin: 0.1em 0.12em 0 0;
-  color: #00ff99 !important;
-  font-weight: bold;
+  font-size: 4.8rem;
+  line-height: 0.72;
+  margin: 0.08em 0.1em 0 0;
+  color: #00ff99;
+  font-weight: 700;
+  text-shadow: 0 0 18px rgba(0, 255, 153, 0.4);
 }
 
-/* Image with caption */
-.post-figure {
-  margin: 2em 0 !important;
+
+/* ─── Block quote (standard Markdown >) ────────────────── */
+
+.post__content blockquote {
+  position: relative;
+  margin: 2.2em 0;
+  padding: 1em 1.5em 1em 2em;
+  border-left: 3px solid #00ff99;
+  background: rgba(0, 255, 153, 0.04);
+  color: rgba(200, 240, 200, 0.8) !important;
+  font-style: italic;
+  font-size: 1.05rem;
+}
+
+.post__content blockquote::before {
+  content: '\201C';
+  position: absolute;
+  top: -0.1em;
+  left: 0.35em;
+  font-size: 3rem;
+  line-height: 1;
+  color: rgba(0, 255, 153, 0.3);
+  font-style: normal;
+}
+
+.post__content blockquote p {
+  margin: 0;
+}
+
+
+/* ─── Pull quote ({{< pullquote >}}) ───────────────────── */
+
+.pullquote {
+  margin: 2.8em auto;
+  max-width: 580px;
+  padding: 1.4em 0;
+  border-top: 2px solid rgba(0, 255, 153, 0.5);
+  border-bottom: 2px solid rgba(0, 255, 153, 0.5);
   text-align: center;
+  font-size: 1.35rem;
+  font-style: italic;
+  line-height: 1.55;
+  color: #00ff99;
+  text-shadow: 0 0 20px rgba(0, 255, 153, 0.25);
+  letter-spacing: 0.01em;
 }
-.post-figure img {
-  max-width: 100%;
-  border: 1px solid rgba(0, 255, 153, 0.15);
+
+
+/* ─── Attributed quote ({{< quote >}}) ─────────────────── */
+
+.attributed-quote {
+  margin: 2.4em 0;
+  padding: 0;
 }
-.post-figure figcaption {
+
+.attributed-quote blockquote {
+  font-size: 1.25rem;
+  font-style: italic;
+  color: rgba(200, 240, 200, 0.9) !important;
+  border-left: 3px solid #00ff99;
+  padding: 0.8em 1.4em;
+  margin: 0;
+  background: rgba(0, 255, 153, 0.04);
+}
+
+.attributed-quote blockquote::before { content: none; }
+
+.attributed-quote figcaption {
+  text-align: right;
   font-size: 0.85rem;
-  color: rgba(200, 240, 200, 0.55) !important;
-  margin-top: 0.5em;
+  color: rgba(0, 255, 153, 0.6);
+  margin-top: 0.6em;
+  padding-right: 0.4em;
+  font-style: normal;
+  letter-spacing: 0.03em;
+}
+
+
+/* ─── Callout boxes ({{< callout >}}) ──────────────────── */
+
+.callout {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  margin: 2em 0;
+  padding: 1.1em 1.4em;
+  border-radius: 3px;
+  border-left: 3px solid rgba(0, 255, 153, 0.5);
+  background: rgba(0, 255, 153, 0.05);
+  font-size: 0.97rem;
+  line-height: 1.7;
+}
+
+.callout--tip {
+  border-left-color: #00ff99;
+  background: rgba(0, 255, 153, 0.07);
+}
+
+.callout--warning {
+  border-left-color: #ffcc00;
+  background: rgba(255, 204, 0, 0.06);
+}
+.callout--warning .callout__icon { color: #ffcc00; }
+
+.callout--quote {
+  border-left-color: rgba(0, 255, 153, 0.35);
+  background: rgba(0, 255, 153, 0.03);
   font-style: italic;
 }
 
-/* Wide / full-bleed image */
+.callout__icon {
+  font-style: normal;
+  font-size: 1.1rem;
+  color: #00ff99;
+  flex-shrink: 0;
+  margin-top: 0.05em;
+}
+
+.callout__body p:last-child { margin-bottom: 0; }
+.callout__body p:first-child { margin-top: 0; }
+.callout__body strong { color: #00ff99; }
+
+
+/* ─── Section divider ({{< divider >}}) ────────────────── */
+
+.section-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7em;
+  margin: 3em 0;
+}
+
+.section-divider span {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(0, 255, 153, 0.45);
+}
+
+.section-divider span:nth-child(2) {
+  background: #00ff99;
+  box-shadow: 0 0 8px rgba(0, 255, 153, 0.6);
+}
+
+
+/* ─── Figure / image with caption ──────────────────────── */
+
+.post-figure {
+  margin: 2.2em 0;
+  text-align: center;
+}
+
+.post-figure img {
+  max-width: 100%;
+  border: 1px solid rgba(0, 255, 153, 0.12);
+}
+
+.post-figure figcaption {
+  font-size: 0.82rem;
+  color: rgba(200, 240, 200, 0.5);
+  margin-top: 0.55em;
+  font-style: italic;
+}
+
 .post-figure--wide {
   width: 100vw;
   position: relative;
@@ -165,20 +274,58 @@ footer a { color: #00ff99 !important; }
   margin-right: -50vw !important;
 }
 
-/* ─── Kill the wasted space on list pages ──────────────── */
 
-.index-content {
-  margin: 8px 0 !important;
+/* ─── Code blocks ───────────────────────────────────────── */
+
+.post__content pre {
+  border: 1px solid rgba(0, 255, 153, 0.15) !important;
+  border-radius: 4px;
+  padding: 1.2em 1.4em !important;
+  overflow-x: auto;
+  margin: 1.8em 0;
+  position: relative;
 }
 
-.index-content p {
-  margin-bottom: 4px !important;
+.post__content pre::before {
+  content: attr(data-lang);
+  position: absolute;
+  top: 0.45em;
+  right: 0.9em;
+  font-size: 0.7rem;
+  color: rgba(0, 255, 153, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
-/* Tighten between posts */
-.posts-group {
-  margin-bottom: 0.5rem !important;
+
+/* ─── Tables ────────────────────────────────────────────── */
+
+.post__content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.8em 0;
+  font-size: 0.95rem;
 }
-.posts-group__year {
-  margin-bottom: 0.25rem !important;
+
+.post__content th {
+  color: #00ff99 !important;
+  border-bottom: 2px solid rgba(0, 255, 153, 0.3) !important;
+  padding: 0.55em 0.8em;
+  text-align: left;
 }
+
+.post__content td {
+  padding: 0.5em 0.8em;
+  border-bottom: 1px solid rgba(0, 255, 153, 0.1) !important;
+  vertical-align: top;
+}
+
+.post__content tr:last-child td { border-bottom: none !important; }
+
+
+/* ─── List pages — reduce wasted space ─────────────────── */
+
+.index-content       { margin: 8px 0 !important; }
+.index-content p     { margin-bottom: 4px !important; }
+.posts-group         { margin-bottom: 0.5rem !important; }
+.posts-group__year   { margin-bottom: 0.25rem !important; }

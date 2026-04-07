@@ -263,13 +263,13 @@ flowchart LR
 <h2 id="fix-1-single-flight--request-coalescing">Fix 1: Single Flight / Request Coalescing<a href="#fix-1-single-flight--request-coalescing" class="hanchor" ariaLabel="Anchor">#</a> </h2>
 <p>The cleanest solution is to allow only one request to rebuild the value. Everyone else either waits for that result or gets a stale copy.</p>
 <p>In Go, the standard library has <code>singleflight</code> for exactly this:</p>
-<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">var</span> group singleflight.Group
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">group</span> <span style="color:#a6e22e">singleflight</span>.<span style="color:#a6e22e">Group</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> <span style="color:#447fcf">getHomepage</span>(ctx context.Context) ([]<span style="color:#6ab825;font-weight:bold">byte</span>, <span style="color:#6ab825;font-weight:bold">error</span>) {
-</span></span><span style="display:flex;"><span>    result, err, _ := group.<span style="color:#447fcf">Do</span>(<span style="color:#ed9d13">&#34;homepage&#34;</span>, <span style="color:#6ab825;font-weight:bold">func</span>() (<span style="color:#6ab825;font-weight:bold">interface</span>{}, <span style="color:#6ab825;font-weight:bold">error</span>) {
-</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#447fcf">fetchFromDB</span>(ctx)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">getHomepage</span>(<span style="color:#a6e22e">ctx</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>) ([]<span style="color:#66d9ef">byte</span>, <span style="color:#66d9ef">error</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">result</span>, <span style="color:#a6e22e">err</span>, <span style="color:#a6e22e">_</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">group</span>.<span style="color:#a6e22e">Do</span>(<span style="color:#e6db74">&#34;homepage&#34;</span>, <span style="color:#66d9ef">func</span>() (<span style="color:#66d9ef">interface</span>{}, <span style="color:#66d9ef">error</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">fetchFromDB</span>(<span style="color:#a6e22e">ctx</span>)
 </span></span><span style="display:flex;"><span>    })
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> result.([]<span style="color:#6ab825;font-weight:bold">byte</span>), err
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">result</span>.([]<span style="color:#66d9ef">byte</span>), <span style="color:#a6e22e">err</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>The <code>Do</code> call deduplicates: if 10,000 goroutines call it concurrently, only one actually runs the function. The other 9,999 block and share the result when it arrives.</p>
 <p>In a distributed setup across multiple servers, <code>singleflight</code> alone is not enough — each server will deduplicate within itself but not across the fleet. For that you need a <strong>distributed lock</strong> in Redis or a coordination layer, with losers either waiting or serving stale.</p>
@@ -313,13 +313,13 @@ flowchart TD
 <li><strong>Soft TTL</strong>: when this expires, the value is &ldquo;stale but still usable.&rdquo; Serve it immediately, but trigger a background job to refresh it.</li>
 <li><strong>Hard TTL</strong>: when this expires, the value is gone. Only used as a fallback floor.</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>Store: { value, soft_ttl: now+55s, hard_ttl: now+120s }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>On read:
-</span></span><span style="display:flex;"><span>  if age &lt; soft_ttl  → serve fresh
-</span></span><span style="display:flex;"><span>  if soft_ttl &lt; age &lt; hard_ttl → serve stale, kick off background refresh
-</span></span><span style="display:flex;"><span>  if age &gt; hard_ttl  → must block and recompute (last resort)
-</span></span></code></pre></div><p>Users never wait because there is always something to serve. The database never sees a stampede because refreshes happen in the background, one at a time, before the hard TTL hits. This is how CDNs like Cloudflare implement <code>stale-while-revalidate</code> at the HTTP layer — you can apply the same pattern at the application cache level.</p>
+<pre tabindex="0"><code>Store: { value, soft_ttl: now+55s, hard_ttl: now+120s }
+
+On read:
+  if age &lt; soft_ttl  → serve fresh
+  if soft_ttl &lt; age &lt; hard_ttl → serve stale, kick off background refresh
+  if age &gt; hard_ttl  → must block and recompute (last resort)
+</code></pre><p>Users never wait because there is always something to serve. The database never sees a stampede because refreshes happen in the background, one at a time, before the hard TTL hits. This is how CDNs like Cloudflare implement <code>stale-while-revalidate</code> at the HTTP layer — you can apply the same pattern at the application cache level.</p>
 <div class="mermaid">
 flowchart LR
     W["Cache Write\nt = 0"]
@@ -352,20 +352,20 @@ flowchart LR
 <h2 id="fix-3-distributed-lock-with-jitter">Fix 3: Distributed Lock with Jitter<a href="#fix-3-distributed-lock-with-jitter" class="hanchor" ariaLabel="Anchor">#</a> </h2>
 <p>If you cannot serve stale, the next best option is a lock with short lease.</p>
 <p>In Redis:</p>
-<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>SET lock:homepage &lt;worker-id&gt; NX PX 5000
-</span></span></code></pre></div><p><code>NX</code> means &ldquo;only set if not exists.&rdquo; <code>PX 5000</code> is a 5-second expiry so the lock cannot be held forever if the worker crashes.</p>
+<pre tabindex="0"><code>SET lock:homepage &lt;worker-id&gt; NX PX 5000
+</code></pre><p><code>NX</code> means &ldquo;only set if not exists.&rdquo; <code>PX 5000</code> is a 5-second expiry so the lock cannot be held forever if the worker crashes.</p>
 <p>The worker that wins the lock recomputes and populates the cache. Losers poll cache with a small sleep until the value appears, then serve it.</p>
 <p>The equally important part is <strong>jitter on expiry times</strong>. If you set every homepage cache key to expire at exactly 60 seconds, all of them expire together. Randomise the TTL by ±10% so keys are staggered:</p>
-<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>ttl := <span style="color:#3677a9">60</span>*time.Second + time.<span style="color:#447fcf">Duration</span>(rand.<span style="color:#447fcf">Intn</span>(<span style="color:#3677a9">12</span>))*time.Second
-</span></span><span style="display:flex;"><span>cache.<span style="color:#447fcf">Set</span>(<span style="color:#ed9d13">&#34;homepage&#34;</span>, value, ttl)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">ttl</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">60</span><span style="color:#f92672">*</span><span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Duration</span>(<span style="color:#a6e22e">rand</span>.<span style="color:#a6e22e">Intn</span>(<span style="color:#ae81ff">12</span>))<span style="color:#f92672">*</span><span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">cache</span>.<span style="color:#a6e22e">Set</span>(<span style="color:#e6db74">&#34;homepage&#34;</span>, <span style="color:#a6e22e">value</span>, <span style="color:#a6e22e">ttl</span>)
 </span></span></code></pre></div><p>Jitter is cheap and eliminates a whole class of correlated failures. Use it everywhere you set expiry times.</p>
 <hr>
 <h2 id="fix-4-proactive-refresh">Fix 4: Proactive Refresh<a href="#fix-4-proactive-refresh" class="hanchor" ariaLabel="Anchor">#</a> </h2>
 <p>The most reliable protection is to never let a hot key expire under load in the first place.</p>
 <p>If you know a key is hot — homepage, trending content, featured product — refresh it on a schedule before users become your cron job:</p>
-<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>Every 55 seconds: refresh homepage cache
-</span></span><span style="display:flex;"><span>On publish event: immediately invalidate and refresh affected keys
-</span></span></code></pre></div><p>This decouples cache population from user requests entirely. No miss, no stampede, no problem. The downside is that you need to know which keys are hot in advance, which requires either instrumentation or heuristics. For predictable hot keys like a homepage this is a no-brainer. For long-tail content it is less practical.</p>
+<pre tabindex="0"><code>Every 55 seconds: refresh homepage cache
+On publish event: immediately invalidate and refresh affected keys
+</code></pre><p>This decouples cache population from user requests entirely. No miss, no stampede, no problem. The downside is that you need to know which keys are hot in advance, which requires either instrumentation or heuristics. For predictable hot keys like a homepage this is a no-brainer. For long-tail content it is less practical.</p>
 <hr>
 <h2 id="fix-5-circuit-breakers-on-the-rebuild-path">Fix 5: Circuit Breakers on the Rebuild Path<a href="#fix-5-circuit-breakers-on-the-rebuild-path" class="hanchor" ariaLabel="Anchor">#</a> </h2>
 <p>Even with all the above, assume that sometimes a rebuild will fail. The database has a bad moment. The downstream service is slow. The lock winner times out.</p>
@@ -376,12 +376,12 @@ flowchart LR
 <li><strong>Timeout</strong>: rebuild attempts have a strict deadline. A slow rebuild is worse than a fast failure because it holds the lock and blocks everyone waiting.</li>
 <li><strong>Degraded mode</strong>: if rebuild fails, serve the last known stale value with a flag rather than returning an error. An outdated homepage is far better than a 500.</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">if</span> rebuildErr != <span style="color:#6ab825;font-weight:bold">nil</span> {
-</span></span><span style="display:flex;"><span>    stale, exists := cache.<span style="color:#447fcf">GetStale</span>(<span style="color:#ed9d13">&#34;homepage&#34;</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> exists {
-</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> stale, <span style="color:#6ab825;font-weight:bold">nil</span>  <span style="color:#999;font-style:italic">// serve stale silently
-</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#6ab825;font-weight:bold">nil</span>, rebuildErr
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#a6e22e">rebuildErr</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">stale</span>, <span style="color:#a6e22e">exists</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">cache</span>.<span style="color:#a6e22e">GetStale</span>(<span style="color:#e6db74">&#34;homepage&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">exists</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">stale</span>, <span style="color:#66d9ef">nil</span>  <span style="color:#75715e">// serve stale silently
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>, <span style="color:#a6e22e">rebuildErr</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><hr>
 <h2 id="putting-it-together">Putting It Together<a href="#putting-it-together" class="hanchor" ariaLabel="Anchor">#</a> </h2>

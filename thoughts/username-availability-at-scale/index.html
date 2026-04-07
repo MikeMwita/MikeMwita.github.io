@@ -254,53 +254,53 @@
 </ul>
 <p>123MB fits comfortably in memory on any front-end pod or edge POP. You assign shards to pods, each pod owns its slice of the trie, and the UI routes the check to the right pod based on the first two characters of the username.</p>
 <p>Suddenly &ldquo;instant check&rdquo; is just a local memory read.</p>
-<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">type</span> TrieNode <span style="color:#6ab825;font-weight:bold">struct</span> {
-</span></span><span style="display:flex;"><span>    children [<span style="color:#3677a9">36</span>]*TrieNode <span style="color:#999;font-style:italic">// a-z (0-25), 0-9 (26-35)
-</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>    isEnd    <span style="color:#6ab825;font-weight:bold">bool</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">TrieNode</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">children</span> [<span style="color:#ae81ff">36</span>]<span style="color:#f92672">*</span><span style="color:#a6e22e">TrieNode</span> <span style="color:#75715e">// a-z (0-25), 0-9 (26-35)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">isEnd</span>    <span style="color:#66d9ef">bool</span>
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">type</span> Trie <span style="color:#6ab825;font-weight:bold">struct</span> {
-</span></span><span style="display:flex;"><span>    root *TrieNode
-</span></span><span style="display:flex;"><span>    mu   sync.RWMutex
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Trie</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">root</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">TrieNode</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">mu</span>   <span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">RWMutex</span>
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> <span style="color:#447fcf">charIndex</span>(c <span style="color:#6ab825;font-weight:bold">byte</span>) <span style="color:#6ab825;font-weight:bold">int</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> c &gt;= <span style="color:#ed9d13">&#39;a&#39;</span> &amp;&amp; c &lt;= <span style="color:#ed9d13">&#39;z&#39;</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#24909d">int</span>(c - <span style="color:#ed9d13">&#39;a&#39;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">charIndex</span>(<span style="color:#a6e22e">c</span> <span style="color:#66d9ef">byte</span>) <span style="color:#66d9ef">int</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">c</span> <span style="color:#f92672">&gt;=</span> <span style="color:#e6db74">&#39;a&#39;</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;=</span> <span style="color:#e6db74">&#39;z&#39;</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> int(<span style="color:#a6e22e">c</span> <span style="color:#f92672">-</span> <span style="color:#e6db74">&#39;a&#39;</span>)
 </span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#24909d">int</span>(c-<span style="color:#ed9d13">&#39;0&#39;</span>) + <span style="color:#3677a9">26</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> int(<span style="color:#a6e22e">c</span><span style="color:#f92672">-</span><span style="color:#e6db74">&#39;0&#39;</span>) <span style="color:#f92672">+</span> <span style="color:#ae81ff">26</span>
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic">// IsTaken checks if a username exists in O(k).
-</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span><span style="color:#6ab825;font-weight:bold">func</span> (t *Trie) <span style="color:#447fcf">IsTaken</span>(username <span style="color:#6ab825;font-weight:bold">string</span>) <span style="color:#6ab825;font-weight:bold">bool</span> {
-</span></span><span style="display:flex;"><span>    t.mu.<span style="color:#447fcf">RLock</span>()
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">defer</span> t.mu.<span style="color:#447fcf">RUnlock</span>()
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// IsTaken checks if a username exists in O(k).
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Trie</span>) <span style="color:#a6e22e">IsTaken</span>(<span style="color:#a6e22e">username</span> <span style="color:#66d9ef">string</span>) <span style="color:#66d9ef">bool</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">mu</span>.<span style="color:#a6e22e">RLock</span>()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">mu</span>.<span style="color:#a6e22e">RUnlock</span>()
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    node := t.root
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">for</span> i := <span style="color:#3677a9">0</span>; i &lt; <span style="color:#24909d">len</span>(username); i++ {
-</span></span><span style="display:flex;"><span>        idx := <span style="color:#447fcf">charIndex</span>(username[i])
-</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">if</span> node.children[idx] == <span style="color:#6ab825;font-weight:bold">nil</span> {
-</span></span><span style="display:flex;"><span>            <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#6ab825;font-weight:bold">false</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">node</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">root</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; len(<span style="color:#a6e22e">username</span>); <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">idx</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">charIndex</span>(<span style="color:#a6e22e">username</span>[<span style="color:#a6e22e">i</span>])
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">node</span>.<span style="color:#a6e22e">children</span>[<span style="color:#a6e22e">idx</span>] <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>
 </span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>        node = node.children[idx]
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">node</span> = <span style="color:#a6e22e">node</span>.<span style="color:#a6e22e">children</span>[<span style="color:#a6e22e">idx</span>]
 </span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> node.isEnd
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">node</span>.<span style="color:#a6e22e">isEnd</span>
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic">// Add inserts a username — called on delta push from the reservation stream.
-</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span><span style="color:#6ab825;font-weight:bold">func</span> (t *Trie) <span style="color:#447fcf">Add</span>(username <span style="color:#6ab825;font-weight:bold">string</span>) {
-</span></span><span style="display:flex;"><span>    t.mu.<span style="color:#447fcf">Lock</span>()
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">defer</span> t.mu.<span style="color:#447fcf">Unlock</span>()
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Add inserts a username — called on delta push from the reservation stream.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Trie</span>) <span style="color:#a6e22e">Add</span>(<span style="color:#a6e22e">username</span> <span style="color:#66d9ef">string</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">mu</span>.<span style="color:#a6e22e">Lock</span>()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">mu</span>.<span style="color:#a6e22e">Unlock</span>()
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    node := t.root
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">for</span> i := <span style="color:#3677a9">0</span>; i &lt; <span style="color:#24909d">len</span>(username); i++ {
-</span></span><span style="display:flex;"><span>        idx := <span style="color:#447fcf">charIndex</span>(username[i])
-</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">if</span> node.children[idx] == <span style="color:#6ab825;font-weight:bold">nil</span> {
-</span></span><span style="display:flex;"><span>            node.children[idx] = &amp;TrieNode{}
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">node</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">root</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; len(<span style="color:#a6e22e">username</span>); <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">idx</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">charIndex</span>(<span style="color:#a6e22e">username</span>[<span style="color:#a6e22e">i</span>])
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">node</span>.<span style="color:#a6e22e">children</span>[<span style="color:#a6e22e">idx</span>] <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">node</span>.<span style="color:#a6e22e">children</span>[<span style="color:#a6e22e">idx</span>] = <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">TrieNode</span>{}
 </span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>        node = node.children[idx]
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">node</span> = <span style="color:#a6e22e">node</span>.<span style="color:#a6e22e">children</span>[<span style="color:#a6e22e">idx</span>]
 </span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    node.isEnd = <span style="color:#6ab825;font-weight:bold">true</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">node</span>.<span style="color:#a6e22e">isEnd</span> = <span style="color:#66d9ef">true</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>The trie is updated asynchronously — delta pushes from a Kafka topic or Redis pub/sub stream whenever a username is reserved. Individual pods do not need to be perfectly in sync; a few seconds of lag is acceptable for a UI hint.</p>
 <div class="mermaid">
@@ -351,63 +351,63 @@ flowchart LR
 <p>The trie is a hint system. It improves UX. It does not guarantee uniqueness.</p>
 <p>Two users can both type &ldquo;mikemwita&rdquo;, both get &ldquo;available&rdquo; from the trie, and both click submit simultaneously. You cannot solve that with any local data structure — trie, Bloom filter, or otherwise.</p>
 <p>The guarantee comes from one place: <strong>a unique constraint in the database</strong>, enforced at write time with a distributed lock.</p>
-<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">import</span> (
-</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;context&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;database/sql&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;fmt&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;strings&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;time&#34;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">import</span> (
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;context&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;database/sql&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;strings&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;time&#34;</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;github.com/google/uuid&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;github.com/redis/go-redis/v9&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;github.com/google/uuid&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;github.com/redis/go-redis/v9&#34;</span>
 </span></span><span style="display:flex;"><span>)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">const</span> lockTTL = <span style="color:#3677a9">5</span> * time.Second
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">lockTTL</span> = <span style="color:#ae81ff">5</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic">// releaseLock releases the Redis lock only if we still own it.
-</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span><span style="color:#6ab825;font-weight:bold">var</span> releaseLock = redis.<span style="color:#447fcf">NewScript</span>(<span style="color:#ed9d13">`
-</span></span></span><span style="display:flex;"><span><span style="color:#ed9d13">    if redis.call(&#34;get&#34;, KEYS[1]) == ARGV[1] then
-</span></span></span><span style="display:flex;"><span><span style="color:#ed9d13">        return redis.call(&#34;del&#34;, KEYS[1])
-</span></span></span><span style="display:flex;"><span><span style="color:#ed9d13">    else
-</span></span></span><span style="display:flex;"><span><span style="color:#ed9d13">        return 0
-</span></span></span><span style="display:flex;"><span><span style="color:#ed9d13">    end
-</span></span></span><span style="display:flex;"><span><span style="color:#ed9d13">`</span>)
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// releaseLock releases the Redis lock only if we still own it.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">releaseLock</span> = <span style="color:#a6e22e">redis</span>.<span style="color:#a6e22e">NewScript</span>(<span style="color:#e6db74">`
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    if redis.call(&#34;get&#34;, KEYS[1]) == ARGV[1] then
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        return redis.call(&#34;del&#34;, KEYS[1])
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    else
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        return 0
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    end
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">`</span>)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic">// ReserveUsername atomically claims a username for userID.
-</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic">// Returns false if taken or if another reservation is in flight.
-</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span><span style="color:#6ab825;font-weight:bold">func</span> <span style="color:#447fcf">ReserveUsername</span>(ctx context.Context, db *sql.DB, rdb *redis.Client, username <span style="color:#6ab825;font-weight:bold">string</span>, userID <span style="color:#6ab825;font-weight:bold">int64</span>) (<span style="color:#6ab825;font-weight:bold">bool</span>, <span style="color:#6ab825;font-weight:bold">error</span>) {
-</span></span><span style="display:flex;"><span>    username = strings.<span style="color:#447fcf">ToLower</span>(username)
-</span></span><span style="display:flex;"><span>    lockKey := fmt.<span style="color:#447fcf">Sprintf</span>(<span style="color:#ed9d13">&#34;lock:username:%s&#34;</span>, username)
-</span></span><span style="display:flex;"><span>    lockValue := uuid.<span style="color:#447fcf">New</span>().<span style="color:#447fcf">String</span>()
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// ReserveUsername atomically claims a username for userID.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// Returns false if taken or if another reservation is in flight.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">ReserveUsername</span>(<span style="color:#a6e22e">ctx</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>, <span style="color:#a6e22e">db</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">sql</span>.<span style="color:#a6e22e">DB</span>, <span style="color:#a6e22e">rdb</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">redis</span>.<span style="color:#a6e22e">Client</span>, <span style="color:#a6e22e">username</span> <span style="color:#66d9ef">string</span>, <span style="color:#a6e22e">userID</span> <span style="color:#66d9ef">int64</span>) (<span style="color:#66d9ef">bool</span>, <span style="color:#66d9ef">error</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">username</span> = <span style="color:#a6e22e">strings</span>.<span style="color:#a6e22e">ToLower</span>(<span style="color:#a6e22e">username</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">lockKey</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;lock:username:%s&#34;</span>, <span style="color:#a6e22e">username</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">lockValue</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">uuid</span>.<span style="color:#a6e22e">New</span>().<span style="color:#a6e22e">String</span>()
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#999;font-style:italic">// Acquire distributed lock — only one writer at a time
-</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>    ok, err := rdb.<span style="color:#447fcf">SetNX</span>(ctx, lockKey, lockValue, lockTTL).<span style="color:#447fcf">Result</span>()
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> err != <span style="color:#6ab825;font-weight:bold">nil</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#6ab825;font-weight:bold">false</span>, err
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Acquire distributed lock — only one writer at a time
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">ok</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">rdb</span>.<span style="color:#a6e22e">SetNX</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#a6e22e">lockKey</span>, <span style="color:#a6e22e">lockValue</span>, <span style="color:#a6e22e">lockTTL</span>).<span style="color:#a6e22e">Result</span>()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>, <span style="color:#a6e22e">err</span>
 </span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> !ok {
-</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#6ab825;font-weight:bold">false</span>, <span style="color:#6ab825;font-weight:bold">nil</span> <span style="color:#999;font-style:italic">// another reservation is in flight
-</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">defer</span> releaseLock.<span style="color:#447fcf">Run</span>(ctx, rdb, []<span style="color:#6ab825;font-weight:bold">string</span>{lockKey}, lockValue)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> !<span style="color:#a6e22e">ok</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>, <span style="color:#66d9ef">nil</span> <span style="color:#75715e">// another reservation is in flight
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">releaseLock</span>.<span style="color:#a6e22e">Run</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#a6e22e">rdb</span>, []<span style="color:#66d9ef">string</span>{<span style="color:#a6e22e">lockKey</span>}, <span style="color:#a6e22e">lockValue</span>)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#999;font-style:italic">// Final check against the DB — the only source of truth
-</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>    <span style="color:#6ab825;font-weight:bold">var</span> exists <span style="color:#6ab825;font-weight:bold">int</span>
-</span></span><span style="display:flex;"><span>    err = db.<span style="color:#447fcf">QueryRowContext</span>(ctx,
-</span></span><span style="display:flex;"><span>        <span style="color:#ed9d13">&#34;SELECT 1 FROM usernames WHERE username = $1&#34;</span>, username,
-</span></span><span style="display:flex;"><span>    ).<span style="color:#447fcf">Scan</span>(&amp;exists)
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Final check against the DB — the only source of truth
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">exists</span> <span style="color:#66d9ef">int</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">QueryRowContext</span>(<span style="color:#a6e22e">ctx</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;SELECT 1 FROM usernames WHERE username = $1&#34;</span>, <span style="color:#a6e22e">username</span>,
+</span></span><span style="display:flex;"><span>    ).<span style="color:#a6e22e">Scan</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">exists</span>)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> err != <span style="color:#6ab825;font-weight:bold">nil</span> &amp;&amp; err != sql.ErrNoRows {
-</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#6ab825;font-weight:bold">false</span>, err
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#a6e22e">sql</span>.<span style="color:#a6e22e">ErrNoRows</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>, <span style="color:#a6e22e">err</span>
 </span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> err == <span style="color:#6ab825;font-weight:bold">nil</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#6ab825;font-weight:bold">false</span>, <span style="color:#6ab825;font-weight:bold">nil</span> <span style="color:#999;font-style:italic">// already taken
-</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>, <span style="color:#66d9ef">nil</span> <span style="color:#75715e">// already taken
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    _, err = db.<span style="color:#447fcf">ExecContext</span>(ctx,
-</span></span><span style="display:flex;"><span>        <span style="color:#ed9d13">&#34;INSERT INTO usernames (username, user_id) VALUES ($1, $2)&#34;</span>,
-</span></span><span style="display:flex;"><span>        username, userID,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">ExecContext</span>(<span style="color:#a6e22e">ctx</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;INSERT INTO usernames (username, user_id) VALUES ($1, $2)&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">username</span>, <span style="color:#a6e22e">userID</span>,
 </span></span><span style="display:flex;"><span>    )
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> err == <span style="color:#6ab825;font-weight:bold">nil</span>, err
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span>, <span style="color:#a6e22e">err</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>The database has a unique index on <code>username</code>. Even without the lock, a concurrent write fails with a constraint violation. The lock makes the failure clean — a clear &ldquo;taken&rdquo; response instead of a caught exception. After a successful reservation, a delta event is pushed to the trie update stream so pods stay current.</p>
 <div class="mermaid">

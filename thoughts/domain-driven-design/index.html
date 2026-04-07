@@ -239,11 +239,11 @@
 <hr>
 <h2 id="a-practical-structure-that-works">A Practical Structure That Works<a href="#a-practical-structure-that-works" class="hanchor" ariaLabel="Anchor">#</a> </h2>
 <p>If you want to try it without going overboard, here is a structure that makes sense:</p>
-<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>/infrastructure   — config, database connections, cache setup, bootstrap
-</span></span><span style="display:flex;"><span>/interfaces       — controllers, presenters (HTML/JSON)
-</span></span><span style="display:flex;"><span>/services         — use cases and repositories
-</span></span><span style="display:flex;"><span>/datamodels       — aggregates and domain types, close to their use
-</span></span></code></pre></div><ul>
+<pre tabindex="0"><code>/infrastructure   — config, database connections, cache setup, bootstrap
+/interfaces       — controllers, presenters (HTML/JSON)
+/services         — use cases and repositories
+/datamodels       — aggregates and domain types, close to their use
+</code></pre><ul>
 <li><code>infrastructure</code> holds anything that touches the outside world: config readers, DB connections, cache clients, the router setup, main bootstrap. One-time initialization.</li>
 <li><code>interfaces</code> holds controllers and presenters. It routes requests to the right service method and presents the output.</li>
 <li><code>services</code> holds use cases and repository interfaces. Business logic lives here.</li>
@@ -255,16 +255,16 @@
 <h2 id="the-onion--hexagonal-framing">The Onion / Hexagonal Framing<a href="#the-onion--hexagonal-framing" class="hanchor" ariaLabel="Anchor">#</a> </h2>
 <p>What I described above is essentially what people call onion architecture or hexagonal architecture. DDD, applied practically, tends to land in the same place.</p>
 <p>The flow looks like this:</p>
-<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>Infrastructure / Initialise
-</span></span><span style="display:flex;"><span>    ↓
-</span></span><span style="display:flex;"><span>Infrastructure / Web hit  →  routes to controller method
-</span></span><span style="display:flex;"><span>    ↓
-</span></span><span style="display:flex;"><span>Interfaces / Controller   →  points to use case method
-</span></span><span style="display:flex;"><span>    ↓
-</span></span><span style="display:flex;"><span>Services / Use Case       →  gets data from repository method
-</span></span><span style="display:flex;"><span>    ↓
-</span></span><span style="display:flex;"><span>Services / Repository     →  gets data from DB, all the way back to controller
-</span></span></code></pre></div><p>The domain provides business logic and uses abstractions. Infrastructure implements those abstractions. The application layer (interfaces) combines them and exposes the result to the user.</p>
+<pre tabindex="0"><code>Infrastructure / Initialise
+    ↓
+Infrastructure / Web hit  →  routes to controller method
+    ↓
+Interfaces / Controller   →  points to use case method
+    ↓
+Services / Use Case       →  gets data from repository method
+    ↓
+Services / Repository     →  gets data from DB, all the way back to controller
+</code></pre><p>The domain provides business logic and uses abstractions. Infrastructure implements those abstractions. The application layer (interfaces) combines them and exposes the result to the user.</p>
 <p>You are probably already doing something close to this. Most engineers are. The DDD label is just a name for the instinct that says &ldquo;keep business rules away from database queries.&rdquo;</p>
 <hr>
 <h2 id="my-opinion">My Opinion<a href="#my-opinion" class="hanchor" ariaLabel="Anchor">#</a> </h2>

@@ -216,254 +216,376 @@
         <p><span class="dropcap">M</span>
 ost Go services start out reasonable. A handler calls a database. A function returns a struct. Six months later, your HTTP handler is importing your database package, your database package is calling an external API, and your tests require a live Postgres instance to run a single unit.</p>
 <p>This is not a Go problem. It is an architecture problem — and hexagonal architecture is the structural answer.</p>
-<hr>
+<div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
 <h2 id="what-hexagonal-architecture-actually-says">What Hexagonal Architecture Actually Says<a href="#what-hexagonal-architecture-actually-says" class="hanchor" ariaLabel="Anchor">#</a> </h2>
-<p>Ports and adapters — the original name — was coined by Alistair Cockburn in 2005. The idea is simple:</p>
+<p>Ports and adapters — the original name — was coined by Alistair Cockburn in 2005. The core insight is deceptively simple:</p>
 <aside class="pullquote">
   
 Your application should not know what drives it or what it talks to. It should only know what it does.
 
 </aside>
 
-<p>The <strong>hexagon</strong> is your application core: pure business logic, no imports of HTTP, SQL, or gRPC packages. It exposes <strong>ports</strong> — interfaces that describe what the core needs from the outside world.</p>
-<p><strong>Adapters</strong> sit outside the hexagon and implement those ports. An HTTP handler is an adapter. A Postgres repository is an adapter. A Kafka consumer is an adapter. They are interchangeable. The core does not care.</p>
-<hr>
+<p>The <strong>hexagon</strong> is your application core: pure business logic, no imports of HTTP, SQL, or gRPC packages. It exposes <strong>ports</strong> — interfaces that describe what the core needs from the outside world. <strong>Adapters</strong> sit outside and implement those ports.</p>
+<figure class="attributed-quote">
+  <blockquote>Make it work, make it right, make it fast. In that order.</blockquote>
+  <figcaption>— Kent Beck</figcaption>
+</figure>
+
+<p>An HTTP handler is an adapter. A Postgres repository is an adapter. A Kafka consumer is an adapter. They are interchangeable. The core does not care which one is plugged in.</p>
+
+<div class="callout callout--tip">
+  <span class="callout__icon">
+    💡
+  </span>
+  <div class="callout__body"><strong>The one rule:</strong> Dependencies point inward. The core knows nothing about the outside world — only the outside world knows about the core.</div>
+</div>
+
+<div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
 <h2 id="the-three-zones">The Three Zones<a href="#the-three-zones" class="hanchor" ariaLabel="Anchor">#</a> </h2>
-<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>┌─────────────────────────────────────────┐
-</span></span><span style="display:flex;"><span>│               Adapters (In)             │
-</span></span><span style="display:flex;"><span>│    HTTP handlers · gRPC · CLI · Kafka   │
-</span></span><span style="display:flex;"><span>│                    │                    │
-</span></span><span style="display:flex;"><span>│            ┌───────▼───────┐            │
-</span></span><span style="display:flex;"><span>│            │  Application  │            │
-</span></span><span style="display:flex;"><span>│            │     Core      │            │
-</span></span><span style="display:flex;"><span>│            │  (use cases)  │            │
-</span></span><span style="display:flex;"><span>│            └───────┬───────┘            │
-</span></span><span style="display:flex;"><span>│                    │                    │
-</span></span><span style="display:flex;"><span>│               Adapters (Out)            │
-</span></span><span style="display:flex;"><span>│    Postgres · Redis · S3 · HTTP client  │
-</span></span><span style="display:flex;"><span>└─────────────────────────────────────────┘
-</span></span></code></pre></div><p><strong>Driving adapters</strong> (in) call your core. They translate external signals — an HTTP request, a CLI flag, a message from a queue — into calls your application understands.</p>
+<pre tabindex="0"><code>┌─────────────────────────────────────────┐
+│               Adapters (In)             │
+│    HTTP handlers · gRPC · CLI · Kafka   │
+│                    │                    │
+│            ┌───────▼───────┐            │
+│            │  Application  │            │
+│            │     Core      │            │
+│            │  (use cases)  │            │
+│            └───────┬───────┘            │
+│                    │                    │
+│               Adapters (Out)            │
+│    Postgres · Redis · S3 · HTTP client  │
+└─────────────────────────────────────────┘
+</code></pre><p><strong>Driving adapters</strong> (in) call your core. They translate external signals — an HTTP request, a CLI flag, a queue message — into calls your application understands.</p>
 <p><strong>Driven adapters</strong> (out) are called by your core. They translate your application&rsquo;s needs into external actions — a SQL query, a Redis write, an outbound API call.</p>
-<p><strong>Ports</strong> are the interfaces between them. The core defines the interface. The adapter implements it. The dependency arrow always points inward.</p>
-<hr>
+<p><strong>Ports</strong> are the interfaces between them. The core defines the interface. The adapter implements it.</p>
+<div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
 <h2 id="what-it-looks-like-in-go">What It Looks Like in Go<a href="#what-it-looks-like-in-go" class="hanchor" ariaLabel="Anchor">#</a> </h2>
-<p>Let us build a minimal user registration service.</p>
+<p>Let us build a minimal user registration service to make this concrete.</p>
 <h3 id="the-core-define-the-port">The Core: Define the Port<a href="#the-core-define-the-port" class="hanchor" ariaLabel="Anchor">#</a> </h3>
-<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#999;font-style:italic">// internal/user/port.go
-</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">package</span> user
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// internal/user/port.go
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">user</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">import</span> <span style="color:#ed9d13">&#34;context&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> <span style="color:#e6db74">&#34;context&#34;</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic">// Repository is a driven port — the core defines what it needs,
-</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic">// not how it is implemented.
-</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span><span style="color:#6ab825;font-weight:bold">type</span> Repository <span style="color:#6ab825;font-weight:bold">interface</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#447fcf">Save</span>(ctx context.Context, u User) <span style="color:#6ab825;font-weight:bold">error</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#447fcf">FindByEmail</span>(ctx context.Context, email <span style="color:#6ab825;font-weight:bold">string</span>) (User, <span style="color:#6ab825;font-weight:bold">error</span>)
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Repository is a driven port — the core defines what it needs,
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// not how it is implemented.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Repository</span> <span style="color:#66d9ef">interface</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Save</span>(<span style="color:#a6e22e">ctx</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>, <span style="color:#a6e22e">u</span> <span style="color:#a6e22e">User</span>) <span style="color:#66d9ef">error</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">FindByEmail</span>(<span style="color:#a6e22e">ctx</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>, <span style="color:#a6e22e">email</span> <span style="color:#66d9ef">string</span>) (<span style="color:#a6e22e">User</span>, <span style="color:#66d9ef">error</span>)
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic">// User is a domain object. No database tags. No JSON tags.
-</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span><span style="color:#6ab825;font-weight:bold">type</span> User <span style="color:#6ab825;font-weight:bold">struct</span> {
-</span></span><span style="display:flex;"><span>    ID    <span style="color:#6ab825;font-weight:bold">string</span>
-</span></span><span style="display:flex;"><span>    Email <span style="color:#6ab825;font-weight:bold">string</span>
-</span></span><span style="display:flex;"><span>    Name  <span style="color:#6ab825;font-weight:bold">string</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// User is a domain object. No database tags. No JSON tags.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">User</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">ID</span>    <span style="color:#66d9ef">string</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Email</span> <span style="color:#66d9ef">string</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Name</span>  <span style="color:#66d9ef">string</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h3 id="the-core-the-use-case">The Core: The Use Case<a href="#the-core-the-use-case" class="hanchor" ariaLabel="Anchor">#</a> </h3>
-<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#999;font-style:italic">// internal/user/service.go
-</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">package</span> user
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// internal/user/service.go
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">user</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">import</span> (
-</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;context&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> (
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;context&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;fmt&#34;</span>
 </span></span><span style="display:flex;"><span>)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">type</span> Service <span style="color:#6ab825;font-weight:bold">struct</span> {
-</span></span><span style="display:flex;"><span>    repo Repository
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Service</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">repo</span> <span style="color:#a6e22e">Repository</span>
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> <span style="color:#447fcf">NewService</span>(repo Repository) *Service {
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> &amp;Service{repo: repo}
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">NewService</span>(<span style="color:#a6e22e">repo</span> <span style="color:#a6e22e">Repository</span>) <span style="color:#f92672">*</span><span style="color:#a6e22e">Service</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">Service</span>{<span style="color:#a6e22e">repo</span>: <span style="color:#a6e22e">repo</span>}
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> (s *Service) <span style="color:#447fcf">Register</span>(ctx context.Context, email, name <span style="color:#6ab825;font-weight:bold">string</span>) (User, <span style="color:#6ab825;font-weight:bold">error</span>) {
-</span></span><span style="display:flex;"><span>    _, err := s.repo.<span style="color:#447fcf">FindByEmail</span>(ctx, email)
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> err == <span style="color:#6ab825;font-weight:bold">nil</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> User{}, fmt.<span style="color:#447fcf">Errorf</span>(<span style="color:#ed9d13">&#34;email already registered: %s&#34;</span>, email)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Service</span>) <span style="color:#a6e22e">Register</span>(<span style="color:#a6e22e">ctx</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>, <span style="color:#a6e22e">email</span>, <span style="color:#a6e22e">name</span> <span style="color:#66d9ef">string</span>) (<span style="color:#a6e22e">User</span>, <span style="color:#66d9ef">error</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">repo</span>.<span style="color:#a6e22e">FindByEmail</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#a6e22e">email</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">User</span>{}, <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;email already registered: %s&#34;</span>, <span style="color:#a6e22e">email</span>)
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    u := User{
-</span></span><span style="display:flex;"><span>        ID:    <span style="color:#447fcf">newID</span>(),
-</span></span><span style="display:flex;"><span>        Email: email,
-</span></span><span style="display:flex;"><span>        Name:  name,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">u</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">User</span>{
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">ID</span>:    <span style="color:#a6e22e">newID</span>(),
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">Email</span>: <span style="color:#a6e22e">email</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">Name</span>:  <span style="color:#a6e22e">name</span>,
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> err := s.repo.<span style="color:#447fcf">Save</span>(ctx, u); err != <span style="color:#6ab825;font-weight:bold">nil</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> User{}, fmt.<span style="color:#447fcf">Errorf</span>(<span style="color:#ed9d13">&#34;save user: %w&#34;</span>, err)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">repo</span>.<span style="color:#a6e22e">Save</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#a6e22e">u</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">User</span>{}, <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;save user: %w&#34;</span>, <span style="color:#a6e22e">err</span>)
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> u, <span style="color:#6ab825;font-weight:bold">nil</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">u</span>, <span style="color:#66d9ef">nil</span>
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>No <code>database/sql</code>. No <code>net/http</code>. The core knows nothing about infrastructure.</p>
+</span></span></code></pre></div><p>No <code>database/sql</code>. No <code>net/http</code>. The core imports nothing from infrastructure.</p>
+
+<div class="callout callout--note">
+  <span class="callout__icon">
+    →
+  </span>
+  <div class="callout__body"><code>newID()</code> is a small helper — <code>uuid.New().String()</code> or similar. Keep it in the same package. Do not over-engineer it.</div>
+</div>
+
 <h3 id="the-driven-adapter-postgres">The Driven Adapter: Postgres<a href="#the-driven-adapter-postgres" class="hanchor" ariaLabel="Anchor">#</a> </h3>
-<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#999;font-style:italic">// internal/user/postgres.go
-</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">package</span> user
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// internal/user/postgres.go
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">user</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">import</span> (
-</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;context&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;database/sql&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> (
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;context&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;database/sql&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;fmt&#34;</span>
 </span></span><span style="display:flex;"><span>)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">type</span> PostgresRepository <span style="color:#6ab825;font-weight:bold">struct</span> {
-</span></span><span style="display:flex;"><span>    db *sql.DB
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">PostgresRepository</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">db</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">sql</span>.<span style="color:#a6e22e">DB</span>
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> <span style="color:#447fcf">NewPostgresRepository</span>(db *sql.DB) *PostgresRepository {
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> &amp;PostgresRepository{db: db}
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">NewPostgresRepository</span>(<span style="color:#a6e22e">db</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">sql</span>.<span style="color:#a6e22e">DB</span>) <span style="color:#f92672">*</span><span style="color:#a6e22e">PostgresRepository</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">PostgresRepository</span>{<span style="color:#a6e22e">db</span>: <span style="color:#a6e22e">db</span>}
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> (r *PostgresRepository) <span style="color:#447fcf">Save</span>(ctx context.Context, u User) <span style="color:#6ab825;font-weight:bold">error</span> {
-</span></span><span style="display:flex;"><span>    _, err := r.db.<span style="color:#447fcf">ExecContext</span>(ctx,
-</span></span><span style="display:flex;"><span>        <span style="color:#ed9d13">`INSERT INTO users (id, email, name) VALUES ($1, $2, $3)`</span>,
-</span></span><span style="display:flex;"><span>        u.ID, u.Email, u.Name,
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">r</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">PostgresRepository</span>) <span style="color:#a6e22e">Save</span>(<span style="color:#a6e22e">ctx</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>, <span style="color:#a6e22e">u</span> <span style="color:#a6e22e">User</span>) <span style="color:#66d9ef">error</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">ExecContext</span>(<span style="color:#a6e22e">ctx</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">`INSERT INTO users (id, email, name) VALUES ($1, $2, $3)`</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">u</span>.<span style="color:#a6e22e">ID</span>, <span style="color:#a6e22e">u</span>.<span style="color:#a6e22e">Email</span>, <span style="color:#a6e22e">u</span>.<span style="color:#a6e22e">Name</span>,
 </span></span><span style="display:flex;"><span>    )
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> err
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span>
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> (r *PostgresRepository) <span style="color:#447fcf">FindByEmail</span>(ctx context.Context, email <span style="color:#6ab825;font-weight:bold">string</span>) (User, <span style="color:#6ab825;font-weight:bold">error</span>) {
-</span></span><span style="display:flex;"><span>    row := r.db.<span style="color:#447fcf">QueryRowContext</span>(ctx,
-</span></span><span style="display:flex;"><span>        <span style="color:#ed9d13">`SELECT id, email, name FROM users WHERE email = $1`</span>, email,
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">r</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">PostgresRepository</span>) <span style="color:#a6e22e">FindByEmail</span>(<span style="color:#a6e22e">ctx</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>, <span style="color:#a6e22e">email</span> <span style="color:#66d9ef">string</span>) (<span style="color:#a6e22e">User</span>, <span style="color:#66d9ef">error</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">row</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">QueryRowContext</span>(<span style="color:#a6e22e">ctx</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">`SELECT id, email, name FROM users WHERE email = $1`</span>, <span style="color:#a6e22e">email</span>,
 </span></span><span style="display:flex;"><span>    )
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">var</span> u User
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> err := row.<span style="color:#447fcf">Scan</span>(&amp;u.ID, &amp;u.Email, &amp;u.Name); err != <span style="color:#6ab825;font-weight:bold">nil</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> User{}, fmt.<span style="color:#447fcf">Errorf</span>(<span style="color:#ed9d13">&#34;find by email: %w&#34;</span>, err)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">u</span> <span style="color:#a6e22e">User</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">row</span>.<span style="color:#a6e22e">Scan</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">u</span>.<span style="color:#a6e22e">ID</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">u</span>.<span style="color:#a6e22e">Email</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">u</span>.<span style="color:#a6e22e">Name</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">User</span>{}, <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;find by email: %w&#34;</span>, <span style="color:#a6e22e">err</span>)
 </span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> u, <span style="color:#6ab825;font-weight:bold">nil</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">u</span>, <span style="color:#66d9ef">nil</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p><code>PostgresRepository</code> implements <code>Repository</code>. The core never imports this file.</p>
 <h3 id="the-driving-adapter-http-handler">The Driving Adapter: HTTP Handler<a href="#the-driving-adapter-http-handler" class="hanchor" ariaLabel="Anchor">#</a> </h3>
-<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#999;font-style:italic">// internal/user/handler.go
-</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">package</span> user
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// internal/user/handler.go
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">user</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">import</span> (
-</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;encoding/json&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;net/http&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> (
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;encoding/json&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;net/http&#34;</span>
 </span></span><span style="display:flex;"><span>)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">type</span> Handler <span style="color:#6ab825;font-weight:bold">struct</span> {
-</span></span><span style="display:flex;"><span>    svc *Service
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Handler</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">svc</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Service</span>
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> <span style="color:#447fcf">NewHandler</span>(svc *Service) *Handler {
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> &amp;Handler{svc: svc}
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">NewHandler</span>(<span style="color:#a6e22e">svc</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Service</span>) <span style="color:#f92672">*</span><span style="color:#a6e22e">Handler</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">Handler</span>{<span style="color:#a6e22e">svc</span>: <span style="color:#a6e22e">svc</span>}
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> (h *Handler) <span style="color:#447fcf">Register</span>(w http.ResponseWriter, r *http.Request) {
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">var</span> body <span style="color:#6ab825;font-weight:bold">struct</span> {
-</span></span><span style="display:flex;"><span>        Email <span style="color:#6ab825;font-weight:bold">string</span> <span style="color:#ed9d13">`json:&#34;email&#34;`</span>
-</span></span><span style="display:flex;"><span>        Name  <span style="color:#6ab825;font-weight:bold">string</span> <span style="color:#ed9d13">`json:&#34;name&#34;`</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">h</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Handler</span>) <span style="color:#a6e22e">Register</span>(<span style="color:#a6e22e">w</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">ResponseWriter</span>, <span style="color:#a6e22e">r</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Request</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">body</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">Email</span> <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`json:&#34;email&#34;`</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">Name</span>  <span style="color:#66d9ef">string</span> <span style="color:#e6db74">`json:&#34;name&#34;`</span>
 </span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> err := json.<span style="color:#447fcf">NewDecoder</span>(r.Body).<span style="color:#447fcf">Decode</span>(&amp;body); err != <span style="color:#6ab825;font-weight:bold">nil</span> {
-</span></span><span style="display:flex;"><span>        http.<span style="color:#447fcf">Error</span>(w, <span style="color:#ed9d13">&#34;bad request&#34;</span>, http.StatusBadRequest)
-</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    u, err := h.svc.<span style="color:#447fcf">Register</span>(r.<span style="color:#447fcf">Context</span>(), body.Email, body.Name)
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> err != <span style="color:#6ab825;font-weight:bold">nil</span> {
-</span></span><span style="display:flex;"><span>        http.<span style="color:#447fcf">Error</span>(w, err.<span style="color:#447fcf">Error</span>(), http.StatusConflict)
-</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">json</span>.<span style="color:#a6e22e">NewDecoder</span>(<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Body</span>).<span style="color:#a6e22e">Decode</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">body</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Error</span>(<span style="color:#a6e22e">w</span>, <span style="color:#e6db74">&#34;bad request&#34;</span>, <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">StatusBadRequest</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span>
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    w.<span style="color:#447fcf">Header</span>().<span style="color:#447fcf">Set</span>(<span style="color:#ed9d13">&#34;Content-Type&#34;</span>, <span style="color:#ed9d13">&#34;application/json&#34;</span>)
-</span></span><span style="display:flex;"><span>    json.<span style="color:#447fcf">NewEncoder</span>(w).<span style="color:#447fcf">Encode</span>(u)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">u</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">h</span>.<span style="color:#a6e22e">svc</span>.<span style="color:#a6e22e">Register</span>(<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Context</span>(), <span style="color:#a6e22e">body</span>.<span style="color:#a6e22e">Email</span>, <span style="color:#a6e22e">body</span>.<span style="color:#a6e22e">Name</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Error</span>(<span style="color:#a6e22e">w</span>, <span style="color:#a6e22e">err</span>.<span style="color:#a6e22e">Error</span>(), <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">StatusConflict</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">w</span>.<span style="color:#a6e22e">Header</span>().<span style="color:#a6e22e">Set</span>(<span style="color:#e6db74">&#34;Content-Type&#34;</span>, <span style="color:#e6db74">&#34;application/json&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">json</span>.<span style="color:#a6e22e">NewEncoder</span>(<span style="color:#a6e22e">w</span>).<span style="color:#a6e22e">Encode</span>(<span style="color:#a6e22e">u</span>)
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>The handler knows about HTTP. It does not know about Postgres. It calls the service and translates the result.</p>
-<hr>
+<div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
 <h2 id="wiring-it-together">Wiring It Together<a href="#wiring-it-together" class="hanchor" ariaLabel="Anchor">#</a> </h2>
-<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#999;font-style:italic">// cmd/api/main.go
-</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// cmd/api/main.go
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">import</span> (
-</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;database/sql&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;net/http&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> (
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;database/sql&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;net/http&#34;</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;github.com/mikemwita/myblog/internal/user&#34;</span>
-</span></span><span style="display:flex;"><span>    _ <span style="color:#ed9d13">&#34;github.com/lib/pq&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;github.com/mikemwita/myblog/internal/user&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">_</span> <span style="color:#e6db74">&#34;github.com/lib/pq&#34;</span>
 </span></span><span style="display:flex;"><span>)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> <span style="color:#447fcf">main</span>() {
-</span></span><span style="display:flex;"><span>    db, _ := sql.<span style="color:#447fcf">Open</span>(<span style="color:#ed9d13">&#34;postgres&#34;</span>, <span style="color:#ed9d13">&#34;postgres://localhost/mydb?sslmode=disable&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">db</span>, <span style="color:#a6e22e">_</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">sql</span>.<span style="color:#a6e22e">Open</span>(<span style="color:#e6db74">&#34;postgres&#34;</span>, <span style="color:#e6db74">&#34;postgres://localhost/mydb?sslmode=disable&#34;</span>)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    repo := user.<span style="color:#447fcf">NewPostgresRepository</span>(db)
-</span></span><span style="display:flex;"><span>    svc := user.<span style="color:#447fcf">NewService</span>(repo)
-</span></span><span style="display:flex;"><span>    h := user.<span style="color:#447fcf">NewHandler</span>(svc)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">repo</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">user</span>.<span style="color:#a6e22e">NewPostgresRepository</span>(<span style="color:#a6e22e">db</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">svc</span>  <span style="color:#f92672">:=</span> <span style="color:#a6e22e">user</span>.<span style="color:#a6e22e">NewService</span>(<span style="color:#a6e22e">repo</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">h</span>    <span style="color:#f92672">:=</span> <span style="color:#a6e22e">user</span>.<span style="color:#a6e22e">NewHandler</span>(<span style="color:#a6e22e">svc</span>)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    http.<span style="color:#447fcf">HandleFunc</span>(<span style="color:#ed9d13">&#34;/users&#34;</span>, h.Register)
-</span></span><span style="display:flex;"><span>    http.<span style="color:#447fcf">ListenAndServe</span>(<span style="color:#ed9d13">&#34;:8080&#34;</span>, <span style="color:#6ab825;font-weight:bold">nil</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">HandleFunc</span>(<span style="color:#e6db74">&#34;/users&#34;</span>, <span style="color:#a6e22e">h</span>.<span style="color:#a6e22e">Register</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">ListenAndServe</span>(<span style="color:#e6db74">&#34;:8080&#34;</span>, <span style="color:#66d9ef">nil</span>)
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>The wiring happens at the outermost layer. Only <code>main</code> knows how all the pieces connect.</p>
-<hr>
+</span></span></code></pre></div><p>The wiring happens at the outermost layer. Only <code>main</code> knows how all the pieces connect. This is the <a href="https://blog.ploeh.dk/2011/07/28/CompositionRoot/">composition root</a> pattern — one place in the entire codebase where concrete types are assembled.</p>
+<div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
 <h2 id="why-testing-becomes-trivial">Why Testing Becomes Trivial<a href="#why-testing-becomes-trivial" class="hanchor" ariaLabel="Anchor">#</a> </h2>
-<p>Because the core depends on an interface, not a concrete type, you can test it with a fake:</p>
-<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#999;font-style:italic">// internal/user/service_test.go
-</span></span></span><span style="display:flex;"><span><span style="color:#999;font-style:italic"></span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">package</span> user_test
+<p>Because the core depends on an interface, not a concrete type, you replace the database with a fake in tests:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// internal/user/service_test.go
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">user_test</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">import</span> (
-</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;context&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;testing&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> (
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;context&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;testing&#34;</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ed9d13">&#34;github.com/mikemwita/myblog/internal/user&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;github.com/mikemwita/myblog/internal/user&#34;</span>
 </span></span><span style="display:flex;"><span>)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">type</span> fakeRepo <span style="color:#6ab825;font-weight:bold">struct</span> {
-</span></span><span style="display:flex;"><span>    users <span style="color:#6ab825;font-weight:bold">map</span>[<span style="color:#6ab825;font-weight:bold">string</span>]user.User
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">fakeRepo</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">users</span> <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#a6e22e">user</span>.<span style="color:#a6e22e">User</span>
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> (f *fakeRepo) <span style="color:#447fcf">Save</span>(_ context.Context, u user.User) <span style="color:#6ab825;font-weight:bold">error</span> {
-</span></span><span style="display:flex;"><span>    f.users[u.Email] = u
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> <span style="color:#6ab825;font-weight:bold">nil</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">f</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">fakeRepo</span>) <span style="color:#a6e22e">Save</span>(<span style="color:#a6e22e">_</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>, <span style="color:#a6e22e">u</span> <span style="color:#a6e22e">user</span>.<span style="color:#a6e22e">User</span>) <span style="color:#66d9ef">error</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">f</span>.<span style="color:#a6e22e">users</span>[<span style="color:#a6e22e">u</span>.<span style="color:#a6e22e">Email</span>] = <span style="color:#a6e22e">u</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> (f *fakeRepo) <span style="color:#447fcf">FindByEmail</span>(_ context.Context, email <span style="color:#6ab825;font-weight:bold">string</span>) (user.User, <span style="color:#6ab825;font-weight:bold">error</span>) {
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> u, ok := f.users[email]; ok {
-</span></span><span style="display:flex;"><span>        <span style="color:#6ab825;font-weight:bold">return</span> u, <span style="color:#6ab825;font-weight:bold">nil</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">f</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">fakeRepo</span>) <span style="color:#a6e22e">FindByEmail</span>(<span style="color:#a6e22e">_</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>, <span style="color:#a6e22e">email</span> <span style="color:#66d9ef">string</span>) (<span style="color:#a6e22e">user</span>.<span style="color:#a6e22e">User</span>, <span style="color:#66d9ef">error</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">u</span>, <span style="color:#a6e22e">ok</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">f</span>.<span style="color:#a6e22e">users</span>[<span style="color:#a6e22e">email</span>]; <span style="color:#a6e22e">ok</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">u</span>, <span style="color:#66d9ef">nil</span>
 </span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">return</span> user.User{}, fmt.<span style="color:#447fcf">Errorf</span>(<span style="color:#ed9d13">&#34;not found&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">user</span>.<span style="color:#a6e22e">User</span>{}, <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;not found&#34;</span>)
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">func</span> <span style="color:#447fcf">TestRegister_DuplicateEmail</span>(t *testing.T) {
-</span></span><span style="display:flex;"><span>    repo := &amp;fakeRepo{users: <span style="color:#24909d">make</span>(<span style="color:#6ab825;font-weight:bold">map</span>[<span style="color:#6ab825;font-weight:bold">string</span>]user.User)}
-</span></span><span style="display:flex;"><span>    svc := user.<span style="color:#447fcf">NewService</span>(repo)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">TestRegister_DuplicateEmail</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">repo</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">fakeRepo</span>{<span style="color:#a6e22e">users</span>: make(<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#a6e22e">user</span>.<span style="color:#a6e22e">User</span>)}
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">svc</span>  <span style="color:#f92672">:=</span> <span style="color:#a6e22e">user</span>.<span style="color:#a6e22e">NewService</span>(<span style="color:#a6e22e">repo</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">ctx</span>  <span style="color:#f92672">:=</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Background</span>()
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    ctx := context.<span style="color:#447fcf">Background</span>()
-</span></span><span style="display:flex;"><span>    svc.<span style="color:#447fcf">Register</span>(ctx, <span style="color:#ed9d13">&#34;mike@example.com&#34;</span>, <span style="color:#ed9d13">&#34;Mike&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">svc</span>.<span style="color:#a6e22e">Register</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#e6db74">&#34;mike@example.com&#34;</span>, <span style="color:#e6db74">&#34;Mike&#34;</span>)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    _, err := svc.<span style="color:#447fcf">Register</span>(ctx, <span style="color:#ed9d13">&#34;mike@example.com&#34;</span>, <span style="color:#ed9d13">&#34;Mike Again&#34;</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#6ab825;font-weight:bold">if</span> err == <span style="color:#6ab825;font-weight:bold">nil</span> {
-</span></span><span style="display:flex;"><span>        t.<span style="color:#447fcf">Fatal</span>(<span style="color:#ed9d13">&#34;expected error for duplicate email, got nil&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">svc</span>.<span style="color:#a6e22e">Register</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#e6db74">&#34;mike@example.com&#34;</span>, <span style="color:#e6db74">&#34;Mike Again&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Fatal</span>(<span style="color:#e6db74">&#34;expected error for duplicate email, got nil&#34;</span>)
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>No Docker. No test database. No slow setup. The test runs in milliseconds and is deterministic.</p>
-<hr>
+</span></span></code></pre></div>
+<div class="callout callout--tip">
+  <span class="callout__icon">
+    💡
+  </span>
+  <div class="callout__body"><strong>No Docker. No test database. No slow setup.</strong> The test runs in milliseconds and is deterministic. This is the biggest practical payoff of the pattern.</div>
+</div>
+
+<div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
 <h2 id="the-folder-structure">The Folder Structure<a href="#the-folder-structure" class="hanchor" ariaLabel="Anchor">#</a> </h2>
-<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>myblog/
-</span></span><span style="display:flex;"><span>├── cmd/
-</span></span><span style="display:flex;"><span>│   └── api/
-</span></span><span style="display:flex;"><span>│       └── main.go          ← wiring only
-</span></span><span style="display:flex;"><span>├── internal/
-</span></span><span style="display:flex;"><span>│   └── user/
-</span></span><span style="display:flex;"><span>│       ├── user.go          ← domain types
-</span></span><span style="display:flex;"><span>│       ├── port.go          ← interfaces (ports)
-</span></span><span style="display:flex;"><span>│       ├── service.go       ← use cases (core)
-</span></span><span style="display:flex;"><span>│       ├── service_test.go  ← unit tests
-</span></span><span style="display:flex;"><span>│       ├── postgres.go      ← driven adapter
-</span></span><span style="display:flex;"><span>│       └── handler.go       ← driving adapter
-</span></span></code></pre></div><p>Each package owns its domain. <code>internal/</code> ensures nothing outside this module imports these packages directly.</p>
+<pre tabindex="0"><code>myblog/
+├── cmd/
+│   └── api/
+│       └── main.go          ← wiring only
+├── internal/
+│   └── user/
+│       ├── user.go          ← domain types
+│       ├── port.go          ← interfaces (ports)
+│       ├── service.go       ← use cases (core)
+│       ├── service_test.go  ← unit tests
+│       ├── postgres.go      ← driven adapter
+│       └── handler.go       ← driving adapter
+</code></pre><p>Each package owns its domain. <code>internal/</code> ensures nothing outside this module imports these packages directly.</p>
+<div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
+<h2 id="when-not-to-use-it">When Not to Use It<a href="#when-not-to-use-it" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+
+<div class="callout callout--warning">
+  <span class="callout__icon">
+    ⚠
+  </span>
+  <div class="callout__body">Hexagonal architecture adds indirection. Indirection has a cost. Don&rsquo;t apply it everywhere by default.</div>
+</div>
+
+<p>The pattern pays off when:</p>
+<ul>
+<li>You have non-trivial business logic that changes independently of infrastructure</li>
+<li>You need to swap adapters (e.g. Postgres → DynamoDB, REST → gRPC)</li>
+<li>You want fast, isolated unit tests without infrastructure dependencies</li>
+<li>Multiple teams touch the same codebase and need clear boundaries</li>
+</ul>
+<p>If none of those apply, a flat package with direct database calls is fine.</p>
+<figure class="attributed-quote">
+  <blockquote>The purpose of software architecture is to make the cost of change low.</blockquote>
+  <figcaption>— Robert C. Martin</figcaption>
+</figure>
+
+<div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
+<h2 id="the-one-rule-to-remember">The One Rule to Remember<a href="#the-one-rule-to-remember" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<aside class="pullquote">
+  
+Dependencies point inward. The core knows nothing about the outside world — only the outside world knows about the core.
+
+</aside>
+
+<p>Everything else — the folder names, the number of layers, whether you call it &ldquo;hexagonal&rdquo; or &ldquo;clean&rdquo; or &ldquo;onion&rdquo; — is secondary. The dependency rule is the invariant. Keep it and the rest follows.</p>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th></th>
+          <th>Driving adapters (in)</th>
+          <th>Core</th>
+          <th>Driven adapters (out)</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Knows about</strong></td>
+          <td>HTTP, gRPC, Kafka</td>
+          <td>Domain types, ports</td>
+          <td>SQL, Redis, HTTP client</td>
+      </tr>
+      <tr>
+          <td><strong>Direction</strong></td>
+          <td>Calls inward →</td>
+          <td>← defines interfaces →</td>
+          <td>← implements interfaces</td>
+      </tr>
+      <tr>
+          <td><strong>Changes when</strong></td>
+          <td>Protocol changes</td>
+          <td>Business rules change</td>
+          <td>Infrastructure changes</td>
+      </tr>
+      <tr>
+          <td><strong>Test with</strong></td>
+          <td>Integration test</td>
+          <td>Fake adapters</td>
+          <td>Integration test</td>
+      </tr>
+  </tbody>
+</table>
 
       </div></div>
 

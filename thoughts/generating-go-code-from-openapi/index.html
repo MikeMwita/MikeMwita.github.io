@@ -263,94 +263,94 @@ it describes endpoints, request/response formats, authentication, and data model
 </li>
 <li>
 <p>Start the project’s module using the <code>go mod init</code> command in the terminal:</p>
-<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>go mod init github.com/MikeMwita/article
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>go mod init github.com/MikeMwita/article
 </span></span></code></pre></div></li>
 </ol>
 <h3 id="writing-openapi-document">Writing OpenAPI document<a href="#writing-openapi-document" class="hanchor" ariaLabel="Anchor">#</a> </h3>
 <p>This is a sample of the OpenAPI specification file we will use to generate the documentation.</p>
-<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6ab825;font-weight:bold">openapi</span>:<span style="color:#666"> </span><span style="color:#3677a9">3.0.3</span><span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666"></span><span style="color:#6ab825;font-weight:bold">info</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">  </span><span style="color:#6ab825;font-weight:bold">title</span>:<span style="color:#666"> </span>FinanceAPP<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">  </span><span style="color:#6ab825;font-weight:bold">description</span>:<span style="color:#666"> </span>FinanceAPP<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">  </span><span style="color:#6ab825;font-weight:bold">version</span>:<span style="color:#666"> </span>2022-04-01<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666"></span><span style="color:#6ab825;font-weight:bold">servers</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">  </span>- <span style="color:#6ab825;font-weight:bold">url</span>:<span style="color:#666"> </span><span style="color:#ed9d13">&#39;http://localhost:9090/v1&#39;</span><span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">    </span><span style="color:#6ab825;font-weight:bold">description</span>:<span style="color:#666"> </span><span style="color:#ed9d13">&#39;Local&#39;</span><span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666"></span><span style="color:#6ab825;font-weight:bold">paths</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">  </span><span style="color:#6ab825;font-weight:bold">/signup</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">    </span><span style="color:#6ab825;font-weight:bold">summary</span>:<span style="color:#666"> </span>Signup for users to get account<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">    </span><span style="color:#6ab825;font-weight:bold">description</span>:<span style="color:#666">  </span>User account signup<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">    </span><span style="color:#6ab825;font-weight:bold">post</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">      </span><span style="color:#6ab825;font-weight:bold">summary</span>:<span style="color:#666"> </span>A POST request to sign up for an account<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">      </span><span style="color:#6ab825;font-weight:bold">security</span>:<span style="color:#666"> </span>[]<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">      </span><span style="color:#6ab825;font-weight:bold">operationId</span>:<span style="color:#666"> </span>signUp<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">      </span><span style="color:#6ab825;font-weight:bold">tags</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">        </span>- Signup<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">      </span><span style="color:#6ab825;font-weight:bold">description</span>:<span style="color:#666"> </span>sign up post<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">      </span><span style="color:#6ab825;font-weight:bold">requestBody</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">        </span><span style="color:#6ab825;font-weight:bold">description</span>:<span style="color:#666"> </span>signup request object<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">        </span><span style="color:#6ab825;font-weight:bold">required</span>:<span style="color:#666"> </span><span style="color:#6ab825;font-weight:bold">true</span><span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">        </span><span style="color:#6ab825;font-weight:bold">content</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">          </span><span style="color:#6ab825;font-weight:bold">application/json</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">            </span><span style="color:#6ab825;font-weight:bold">schema</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">              </span><span style="color:#6ab825;font-weight:bold">type</span>:<span style="color:#666"> </span>object<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">              </span><span style="color:#6ab825;font-weight:bold">properties</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                </span><span style="color:#6ab825;font-weight:bold">name</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                  </span><span style="color:#6ab825;font-weight:bold">description</span>:<span style="color:#666"> </span>full user name<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                  </span><span style="color:#6ab825;font-weight:bold">type</span>:<span style="color:#666"> </span>string<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                  </span><span style="color:#6ab825;font-weight:bold">example</span>:<span style="color:#666"> </span>john doe<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                </span><span style="color:#6ab825;font-weight:bold">email</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                  </span><span style="color:#6ab825;font-weight:bold">type</span>:<span style="color:#666"> </span>string<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                  </span><span style="color:#6ab825;font-weight:bold">description</span>:<span style="color:#666"> </span>valid email<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                  </span><span style="color:#6ab825;font-weight:bold">example</span>:<span style="color:#666"> </span>john.doe@example.com<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                </span><span style="color:#6ab825;font-weight:bold">password</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                  </span><span style="color:#6ab825;font-weight:bold">type</span>:<span style="color:#666"> </span>string<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                  </span><span style="color:#6ab825;font-weight:bold">description</span>:<span style="color:#666"> </span>strong password<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                  </span><span style="color:#6ab825;font-weight:bold">example</span>:<span style="color:#666"> </span>secureP@ssword<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                  </span><span style="color:#6ab825;font-weight:bold">minLength</span>:<span style="color:#666"> </span><span style="color:#3677a9">6</span><span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                  </span><span style="color:#6ab825;font-weight:bold">maxLength</span>:<span style="color:#666"> </span><span style="color:#3677a9">16</span><span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                </span><span style="color:#6ab825;font-weight:bold">confirm_password</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                  </span><span style="color:#6ab825;font-weight:bold">type</span>:<span style="color:#666"> </span>string<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                  </span><span style="color:#6ab825;font-weight:bold">example</span>:<span style="color:#666"> </span>secureP@ssword<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                  </span><span style="color:#6ab825;font-weight:bold">minLength</span>:<span style="color:#666"> </span><span style="color:#3677a9">6</span><span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                  </span><span style="color:#6ab825;font-weight:bold">maxLength</span>:<span style="color:#666"> </span><span style="color:#3677a9">16</span><span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">              </span><span style="color:#6ab825;font-weight:bold">required</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                </span>- name<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                </span>- password<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                </span>- email<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                </span>- confirm_password<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">      </span><span style="color:#6ab825;font-weight:bold">responses</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">        </span><span style="color:#6ab825;font-weight:bold">&#39;200&#39;</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">          </span><span style="color:#6ab825;font-weight:bold">description</span>:<span style="color:#666"> </span>succesfully signed up<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">          </span><span style="color:#6ab825;font-weight:bold">content</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">            </span><span style="color:#6ab825;font-weight:bold">application/json</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">              </span><span style="color:#6ab825;font-weight:bold">schema</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                </span><span style="color:#6ab825;font-weight:bold">properties</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                  </span><span style="color:#6ab825;font-weight:bold">name</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                    </span><span style="color:#6ab825;font-weight:bold">type</span>:<span style="color:#666"> </span>string<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                    </span><span style="color:#6ab825;font-weight:bold">example</span>:<span style="color:#666"> </span>Joe doe<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                  </span><span style="color:#6ab825;font-weight:bold">email</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                    </span><span style="color:#6ab825;font-weight:bold">type</span>:<span style="color:#666"> </span>string<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                    </span><span style="color:#6ab825;font-weight:bold">example</span>:<span style="color:#666"> </span>john.doe@example.com<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">        </span><span style="color:#6ab825;font-weight:bold">default</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">          </span><span style="color:#6ab825;font-weight:bold">description</span>:<span style="color:#666"> </span>error<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">          </span><span style="color:#6ab825;font-weight:bold">content</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">            </span><span style="color:#6ab825;font-weight:bold">application/json</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">              </span><span style="color:#6ab825;font-weight:bold">schema</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                </span><span style="color:#6ab825;font-weight:bold">properties</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                  </span><span style="color:#6ab825;font-weight:bold">message</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                    </span><span style="color:#6ab825;font-weight:bold">type</span>:<span style="color:#666"> </span>string<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                  </span><span style="color:#6ab825;font-weight:bold">error</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">                    </span><span style="color:#6ab825;font-weight:bold">type</span>:<span style="color:#666"> </span>string<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666"></span><span style="color:#6ab825;font-weight:bold">tags</span>:<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">  </span>- <span style="color:#6ab825;font-weight:bold">name</span>:<span style="color:#666"> </span>Signup<span style="color:#666">
-</span></span></span><span style="display:flex;"><span><span style="color:#666">    </span><span style="color:#6ab825;font-weight:bold">description</span>:<span style="color:#666"> </span>signup description<span style="color:#666">
-</span></span></span></code></pre></div><blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">openapi</span>: <span style="color:#ae81ff">3.0.3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">info</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">title</span>: <span style="color:#ae81ff">FinanceAPP</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">description</span>: <span style="color:#ae81ff">FinanceAPP</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">version</span>: <span style="color:#e6db74">2022-04-01</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">servers</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">url</span>: <span style="color:#e6db74">&#39;http://localhost:9090/v1&#39;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">description</span>: <span style="color:#e6db74">&#39;Local&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">paths</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">/signup</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">summary</span>: <span style="color:#ae81ff">Signup for users to get account</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">description</span>:  <span style="color:#ae81ff">User account signup</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">post</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">summary</span>: <span style="color:#ae81ff">A POST request to sign up for an account</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">security</span>: []
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">operationId</span>: <span style="color:#ae81ff">signUp</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">tags</span>:
+</span></span><span style="display:flex;"><span>        - <span style="color:#ae81ff">Signup</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">description</span>: <span style="color:#ae81ff">sign up post</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">requestBody</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">description</span>: <span style="color:#ae81ff">signup request object</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">required</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">content</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">application/json</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">schema</span>:
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">type</span>: <span style="color:#ae81ff">object</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">properties</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">name</span>:
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">description</span>: <span style="color:#ae81ff">full user name</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">type</span>: <span style="color:#ae81ff">string</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">example</span>: <span style="color:#ae81ff">john doe</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">email</span>:
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">type</span>: <span style="color:#ae81ff">string</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">description</span>: <span style="color:#ae81ff">valid email</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">example</span>: <span style="color:#ae81ff">john.doe@example.com</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">password</span>:
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">type</span>: <span style="color:#ae81ff">string</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">description</span>: <span style="color:#ae81ff">strong password</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">example</span>: <span style="color:#ae81ff">secureP@ssword</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">minLength</span>: <span style="color:#ae81ff">6</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">maxLength</span>: <span style="color:#ae81ff">16</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">confirm_password</span>:
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">type</span>: <span style="color:#ae81ff">string</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">example</span>: <span style="color:#ae81ff">secureP@ssword</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">minLength</span>: <span style="color:#ae81ff">6</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">maxLength</span>: <span style="color:#ae81ff">16</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">required</span>:
+</span></span><span style="display:flex;"><span>                - <span style="color:#ae81ff">name</span>
+</span></span><span style="display:flex;"><span>                - <span style="color:#ae81ff">password</span>
+</span></span><span style="display:flex;"><span>                - <span style="color:#ae81ff">email</span>
+</span></span><span style="display:flex;"><span>                - <span style="color:#ae81ff">confirm_password</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">responses</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#39;200&#39;</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">description</span>: <span style="color:#ae81ff">succesfully signed up</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">content</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">application/json</span>:
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">schema</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">properties</span>:
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">name</span>:
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">type</span>: <span style="color:#ae81ff">string</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">example</span>: <span style="color:#ae81ff">Joe doe</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">email</span>:
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">type</span>: <span style="color:#ae81ff">string</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">example</span>: <span style="color:#ae81ff">john.doe@example.com</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">default</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">description</span>: <span style="color:#ae81ff">error</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">content</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">application/json</span>:
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">schema</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">properties</span>:
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">message</span>:
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">type</span>: <span style="color:#ae81ff">string</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">error</span>:
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">type</span>: <span style="color:#ae81ff">string</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">tags</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Signup</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">description</span>: <span style="color:#ae81ff">signup description</span>
+</span></span></code></pre></div><blockquote>
 <p>You can install the <strong>Gherkin</strong> extension for YAML files in your preferred IDE’s marketplace.
 This will allow you to write better and structure your OpenAPI document effectively.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>_Initially posted on [medium.com](https://medium.com/@MikeMwita/generating-go-code-from-openapi-specification-document-ae225e49e970)_
-</span></span></code></pre></div>
+<pre tabindex="0"><code>_Initially posted on [medium.com](https://medium.com/@MikeMwita/generating-go-code-from-openapi-specification-document-ae225e49e970)_
+</code></pre>
       </div></div>
 
   
