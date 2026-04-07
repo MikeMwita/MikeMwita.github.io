@@ -231,38 +231,6 @@
 <script>
  
 (function () {
-  document.querySelectorAll('pre > code').forEach(function (codeEl) {
-    var pre = codeEl.parentElement;
-
-    
-    var langClass = Array.from(codeEl.classList).find(function (c) {
-      return c.startsWith('language-');
-    });
-    if (langClass) {
-      pre.setAttribute('data-lang', langClass.replace('language-', ''));
-    }
-
-    
-    var btn = document.createElement('button');
-    btn.className = 'code-copy-btn';
-    btn.textContent = 'copy';
-    btn.addEventListener('click', function () {
-      var text = codeEl.innerText || codeEl.textContent;
-      navigator.clipboard.writeText(text).then(function () {
-        btn.textContent = 'copied!';
-        btn.classList.add('code-copy-btn--ok');
-        setTimeout(function () {
-          btn.textContent = 'copy';
-          btn.classList.remove('code-copy-btn--ok');
-        }, 2000);
-      });
-    });
-    pre.appendChild(btn);
-  });
-})();
-
- 
-(function () {
   if (!document.querySelector('.post__content')) return;
   var bar = document.createElement('div');
   bar.id = 'reading-progress';
@@ -273,6 +241,18 @@
     var docHeight = document.documentElement.scrollHeight - window.innerHeight;
     bar.style.width = docHeight > 0 ? (scrollTop / docHeight * 100) + '%' : '0%';
   }, { passive: true });
+})();
+
+ 
+(function () {
+  document.querySelectorAll('pre > code').forEach(function (codeEl) {
+    var langClass = Array.from(codeEl.classList).find(function (c) {
+      return c.startsWith('language-');
+    });
+    if (langClass) {
+      codeEl.parentElement.setAttribute('data-lang', langClass.replace('language-', ''));
+    }
+  });
 })();
 </script>
 

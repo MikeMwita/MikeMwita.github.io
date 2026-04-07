@@ -237,9 +237,6 @@ Your application should not know what drives it or what it talks to. It should o
 <p>An HTTP handler is an adapter. A Postgres repository is an adapter. A Kafka consumer is an adapter. They are interchangeable. The core does not care which one is plugged in.</p>
 
 <div class="callout callout--tip">
-  <span class="callout__icon">
-    💡
-  </span>
   <div class="callout__body"><strong>The one rule:</strong> Dependencies point inward. The core knows nothing about the outside world — only the outside world knows about the core.</div>
 </div>
 
@@ -329,9 +326,6 @@ Your application should not know what drives it or what it talks to. It should o
 </span></span></code></pre></div><p>No <code>database/sql</code>. No <code>net/http</code>. The core imports nothing from infrastructure.</p>
 
 <div class="callout callout--note">
-  <span class="callout__icon">
-    →
-  </span>
   <div class="callout__body"><code>newID()</code> is a small helper — <code>uuid.New().String()</code> or similar. Keep it in the same package. Do not over-engineer it.</div>
 </div>
 
@@ -487,9 +481,6 @@ Your application should not know what drives it or what it talks to. It should o
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div>
 <div class="callout callout--tip">
-  <span class="callout__icon">
-    💡
-  </span>
   <div class="callout__body"><strong>No Docker. No test database. No slow setup.</strong> The test runs in milliseconds and is deterministic. This is the biggest practical payoff of the pattern.</div>
 </div>
 
@@ -518,9 +509,6 @@ Your application should not know what drives it or what it talks to. It should o
 <h2 id="when-not-to-use-it">When Not to Use It<a href="#when-not-to-use-it" class="hanchor" ariaLabel="Anchor">#</a> </h2>
 
 <div class="callout callout--warning">
-  <span class="callout__icon">
-    ⚠
-  </span>
   <div class="callout__body">Hexagonal architecture adds indirection. Indirection has a cost. Don&rsquo;t apply it everywhere by default.</div>
 </div>
 
