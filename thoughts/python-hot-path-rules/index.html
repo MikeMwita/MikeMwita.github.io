@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  
+    <title>My golden rules when writing Python :: Mike Mwita</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Here are my golden python rules" />
+<meta name="keywords" content="Web Development, Software Developer Engineer, Programming, Data Structures and Algorithms, Kubernetes, Go, Cloud Engineering" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="http://localhost:1313/thoughts/python-hot-path-rules/" />
+
+
+
+
+
+  
+  <link rel="stylesheet" href="http://localhost:1313/css/green.min.54165f6c5a7a5f0716da6ffb1e3cf34584ec54d8a5ef3f5328de62ffd59a9ffa.css">
+
+  
+  <link rel="stylesheet" href="http://localhost:1313/css/buttons.min.86f6b4c106b6c6eb690ae5203d36b442c1f66f718ff4e8164fa86cf6c61ad641.css">
+
+  
+  <link rel="stylesheet" href="http://localhost:1313/css/code.min.c4581949edab7810737609fc5568852bcd908945f14561e366dcd2300a370545.css">
+
+  
+  <link rel="stylesheet" href="http://localhost:1313/css/fonts.min.5bb7ed13e1d00d8ff39ea84af26737007eb5051b157b86fc24487c94f3dc8bbe.css">
+
+  
+  <link rel="stylesheet" href="http://localhost:1313/css/footer.min.eb8dfc2c6a7eafa36cd3ba92d63e69e849e2200e0002a228d137f236b09ecd75.css">
+
+  
+  <link rel="stylesheet" href="http://localhost:1313/css/gist.min.a751e8b0abe1ba8bc53ced52a38b19d8950fe78ca29454ea8c2595cf26aad5c0.css">
+
+  
+  <link rel="stylesheet" href="http://localhost:1313/css/header.min.75c7eb0e2872d95ff48109c6647d0223a38db52e2561dd87966eb5fc7c6bdac6.css">
+
+  
+  <link rel="stylesheet" href="http://localhost:1313/css/main.min.36833afd348409fc6c3d09d0897c5833d9d5bf1ff31f5e60ea3ee42ce2b1268c.css">
+
+  
+  <link rel="stylesheet" href="http://localhost:1313/css/menu.min.3c17467ebeb3d38663dce68f71f519901124fa5cbb4519b2fb0667a21e9aca39.css">
+
+  
+  <link rel="stylesheet" href="http://localhost:1313/css/pagination.min.bbb986dbce00a5ce5aca0504b7925fc1c581992a4bf57f163e5d69cc1db7d836.css">
+
+  
+  <link rel="stylesheet" href="http://localhost:1313/css/post.min.e6dddd258e64c83e05cec0cd49c05216742d42fc8ecbfbe6b67083412b609bd3.css">
+
+  
+  <link rel="stylesheet" href="http://localhost:1313/css/syntax.min.a2cc694a9b481f15d41722bffc2cc54eea4c4f74fd9072b0b33253604c22606e.css">
+
+  
+  <link rel="stylesheet" href="http://localhost:1313/css/terminal.min.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css">
+
+  
+  <link rel="stylesheet" href="http://localhost:1313/css/terms.min.b81791663c3790e738e571cdbf802312390d30e4b1d8dc9d814a5b5454d0ac11.css">
+
+
+
+
+
+
+
+<link rel="shortcut icon" href="http://localhost:1313/favicon.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+
+
+<meta name="twitter:card" content="summary" />
+
+  
+    <meta name="twitter:site" content="https://MikeMwita.github.io/" />
+  
+    <meta name="twitter:creator" content="" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="My golden rules when writing Python">
+<meta property="og:description" content="Here are my golden python rules" />
+<meta property="og:url" content="http://localhost:1313/thoughts/python-hot-path-rules/" />
+<meta property="og:site_name" content="Mike Mwita" />
+
+  <meta property="og:image" content="http://localhost:1313/og-image.png">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/green.css">
+
+
+<style>
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-roman-line-figures/et-book-roman-line-figures.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-display-italic-old-style-figures/et-book-display-italic-old-style-figures.woff') format('woff');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-bold-line-figures/et-book-bold-line-figures.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+</style>
+
+<script data-goatcounter="https://mikemwita.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+
+
+</head>
+<body>
+
+
+<div class="container center">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    Mike  Mwita (⌐▨_▨)
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/cv">CV</a></li>
+        
+      
+        
+          <li><a href="/projects">Projects</a></li>
+        
+      
+        
+          <li><a href="/thoughts">Thoughts?</a></li>
+        
+      
+        
+          <li><a href="/reads">Reads</a></li>
+        
+      
+        
+          <li><a href="/contacts">Contacts</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/cv" >CV</a></li>
+        
+      
+        
+          <li><a href="/projects" >Projects</a></li>
+        
+      
+        
+          <li><a href="/thoughts" >Thoughts?</a></li>
+        
+      
+        
+          <li><a href="/reads" >Reads</a></li>
+        
+      
+        
+          <li><a href="/contacts" >Contacts</a></li>
+        
+      
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="http://localhost:1313/thoughts/python-hot-path-rules/">My golden rules when writing Python</a>
+  </h1>
+  <div class="post-meta"><span class="post-views" id="article-view-count"></span>
+  </div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="http://localhost:1313/tags/python/">python</a>&nbsp;
+      
+      #<a href="http://localhost:1313/tags/performance/">performance</a>&nbsp;
+      
+      #<a href="http://localhost:1313/tags/data-structures/">data-structures</a>&nbsp;
+      
+      #<a href="http://localhost:1313/tags/algorithms/">algorithms</a>&nbsp;
+      
+    </span>
+  
+
+  
+<nav class="article-toc">
+    <p class="article-toc__title">Contents</p>
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#no-python-loops-on-the-critical-path">No Python Loops on the Critical Path</a></li>
+    <li><a href="#use-typed-arrays-not-python-objects">Use Typed Arrays, Not Python Objects</a></li>
+    <li><a href="#batch-calls--every-python-call-has-a-cover-charge">Batch Calls — Every Python Call Has a Cover Charge</a></li>
+    <li><a href="#no-allocations-on-the-hot-path">No Allocations on the Hot Path</a></li>
+    <li><a href="#replace-branches-with-masks-and-lookup-tables">Replace Branches with Masks and Lookup Tables</a></li>
+    <li><a href="#conversions-are-poison">Conversions Are Poison</a></li>
+    <li><a href="#no-io-or-logging-inside-the-hot-path">No I/O or Logging Inside the Hot Path</a></li>
+    <li><a href="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+  </nav><div class="post-content"><div>
+        <p><span class="dropcap">P</span>
+ython is slow. That sentence alone ends most performance conversations before they start — but it&rsquo;s the wrong frame. The real question is: <em>which parts</em> of Python are slow, and how do you keep them off the critical path?</p>
+<p>Most performance-sensitive Python — numerical computing, trading systems, ML inference — is fast not because Python got faster, but because the hot path barely runs Python at all. The rules below are what that looks like in practice.</p>
+<div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
+<h2 id="no-python-loops-on-the-critical-path">No Python Loops on the Critical Path<a href="#no-python-loops-on-the-critical-path" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>For loops, while loops, list comprehensions, <code>map()</code> — they all carry the Python interpreter overhead on every iteration. At scale, that overhead compounds.</p>
+<p>The alternative is to express iteration as array operations. NumPy, pandas, and PyTorch all execute their inner loops in C or Fortran. When you write <code>a + b</code> on two arrays, no Python loop runs.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># slow: Python iterates</span>
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> [x <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span> <span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> data]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># fast: C iterates</span>
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array(data) <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>
+</span></span></code></pre></div>
+<div class="callout callout--warning">
+  <div class="callout__body">This rule only matters on the hot path — the code that runs millions of times. Looping over config at startup costs nothing.</div>
+</div>
+
+<div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
+<h2 id="use-typed-arrays-not-python-objects">Use Typed Arrays, Not Python Objects<a href="#use-typed-arrays-not-python-objects" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Python lists, dicts, and tuples carry per-element overhead: reference counting, type tags, pointer indirection. A list of a million floats is a million separate Python objects in memory.</p>
+<p>Typed arrays eliminate that. A <code>np.float64</code> array of a million elements is a contiguous block of 8MB. Iteration is cache-friendly, SIMD-vectorisable, and doesn&rsquo;t touch the Python heap.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># a million Python objects, scattered in memory</span>
+</span></span><span style="display:flex;"><span>prices <span style="color:#f92672">=</span> [<span style="color:#ae81ff">101.5</span>, <span style="color:#ae81ff">102.0</span>, <span style="color:#ae81ff">101.8</span>, <span style="color:#f92672">...</span>]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># a contiguous block of float64 — one allocation</span>
+</span></span><span style="display:flex;"><span>prices <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array([<span style="color:#ae81ff">101.5</span>, <span style="color:#ae81ff">102.0</span>, <span style="color:#ae81ff">101.8</span>, <span style="color:#f92672">...</span>], dtype<span style="color:#f92672">=</span>np<span style="color:#f92672">.</span>float64)
+</span></span></code></pre></div><aside class="sidenote"><code>dtype=np.float32</code> halves memory and often improves cache hit rate, at the cost of precision. Worth benchmarking in ML workloads.</aside>
+
+<p>The same principle applies across the stack: prefer <code>array.array</code> over <code>list</code>, <code>pd.Categorical</code> over object columns, typed dataclasses over plain dicts.</p>
+<div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
+<h2 id="batch-calls--every-python-call-has-a-cover-charge">Batch Calls — Every Python Call Has a Cover Charge<a href="#batch-calls--every-python-call-has-a-cover-charge" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Every call from Python into a C extension (NumPy, a database driver, a network client) has overhead: argument validation, GIL coordination, stack setup. One call on a million elements is fast. A million calls on one element each is slow.</p>
+<aside class="pullquote">
+  
+Prefer batching, operation fusion, or doing everything in one shot.
+
+</aside>
+
+<p>This shows up most in database access:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># one round-trip per row — never do this</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> row_id <span style="color:#f92672">in</span> ids:
+</span></span><span style="display:flex;"><span>    cursor<span style="color:#f92672">.</span>execute(<span style="color:#e6db74">&#34;SELECT * FROM orders WHERE id = </span><span style="color:#e6db74">%s</span><span style="color:#e6db74">&#34;</span>, (row_id,))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># one round-trip for all rows</span>
+</span></span><span style="display:flex;"><span>cursor<span style="color:#f92672">.</span>execute(<span style="color:#e6db74">&#34;SELECT * FROM orders WHERE id = ANY(</span><span style="color:#e6db74">%s</span><span style="color:#e6db74">)&#34;</span>, (ids,))
+</span></span></code></pre></div><p>The same pattern applies to API calls, file writes, and vectorised operations. When in doubt, accumulate and flush — don&rsquo;t call in a loop.</p>
+<div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
+<h2 id="no-allocations-on-the-hot-path">No Allocations on the Hot Path<a href="#no-allocations-on-the-hot-path" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Every <code>list()</code>, <code>dict()</code>, <code>np.zeros()</code>, or string format in a tight loop is a memory allocation. Allocations take time, and eventually the garbage collector reclaims them — also taking time, and often at the worst moment.</p>
+<p>Preallocate buffers outside the loop and reuse them:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># allocates a new array every call</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">compute</span>(data):
+</span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>empty(len(data))
+</span></span><span style="display:flex;"><span>    result[:] <span style="color:#f92672">=</span> data <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> result
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># preallocate once, reuse across calls</span>
+</span></span><span style="display:flex;"><span>buffer <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>empty(MAX_SIZE)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">compute</span>(data, out<span style="color:#f92672">=</span>buffer):
+</span></span><span style="display:flex;"><span>    np<span style="color:#f92672">.</span>multiply(data, <span style="color:#ae81ff">2</span>, out<span style="color:#f92672">=</span>out)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> out[:len(data)]
+</span></span></code></pre></div>
+<div class="callout callout--tip">
+  <div class="callout__body">NumPy&rsquo;s <code>out=</code> parameter on most ufuncs writes results into an existing array instead of allocating a new one. Use it on any path that runs more than a few times per second.</div>
+</div>
+
+<div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
+<h2 id="replace-branches-with-masks-and-lookup-tables">Replace Branches with Masks and Lookup Tables<a href="#replace-branches-with-masks-and-lookup-tables" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p><code>if</code>/<code>else</code> inside a loop forces sequential execution — the CPU can&rsquo;t pipeline across an unpredictable branch. More importantly, it means Python is deciding something per element, which defeats the point of array operations.</p>
+<p>Replace conditional logic with boolean masks or lookup tables:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># branch per element</span>
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> data:
+</span></span><span style="display:flex;"><span>    result<span style="color:#f92672">.</span>append(x <span style="color:#f92672">*</span> <span style="color:#ae81ff">1.1</span> <span style="color:#66d9ef">if</span> x <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">100</span> <span style="color:#66d9ef">else</span> x <span style="color:#f92672">*</span> <span style="color:#ae81ff">0.9</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># vectorised: no Python branch</span>
+</span></span><span style="display:flex;"><span>mask <span style="color:#f92672">=</span> data <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">100</span>
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>where(mask, data <span style="color:#f92672">*</span> <span style="color:#ae81ff">1.1</span>, data <span style="color:#f92672">*</span> <span style="color:#ae81ff">0.9</span>)
+</span></span></code></pre></div><p>Lookup tables work for discrete mappings. Instead of a chain of <code>if</code> statements over a category code, build a dict or array indexed by the code and hit it once per element.</p>
+<div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
+<h2 id="conversions-are-poison">Conversions Are Poison<a href="#conversions-are-poison" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p><code>list</code> to <code>np.array</code>, <code>.astype(np.float64)</code>, <code>.tolist()</code>, <code>.values</code> on a DataFrame — every one of these copies data. A conversion on the hot path means you&rsquo;re allocating and filling a new buffer for every batch.</p>
+<p>The fix is to get the data into the right shape <em>once</em>, at the boundary where it enters your system, and keep it in that shape throughout.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># wrong: converting on every inference call</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">predict</span>(raw_input: list):
+</span></span><span style="display:flex;"><span>    arr <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array(raw_input, dtype<span style="color:#f92672">=</span>np<span style="color:#f92672">.</span>float32)  <span style="color:#75715e"># allocation + copy</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> model(arr)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># right: convert at the edge, pass arrays internally</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">ingest</span>(raw_input: list) <span style="color:#f92672">-&gt;</span> np<span style="color:#f92672">.</span>ndarray:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> np<span style="color:#f92672">.</span>array(raw_input, dtype<span style="color:#f92672">=</span>np<span style="color:#f92672">.</span>float32)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">predict</span>(arr: np<span style="color:#f92672">.</span>ndarray):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> model(arr)
+</span></span></code></pre></div>
+<div class="callout callout--note">
+  <div class="callout__body"><code>dtype</code> mismatches are the silent killer here. Passing <code>float64</code> to a model that expects <code>float32</code> triggers an implicit <code>.astype()</code> copy. Always check dtypes at the boundary.</div>
+</div>
+
+<div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
+<h2 id="no-io-or-logging-inside-the-hot-path">No I/O or Logging Inside the Hot Path<a href="#no-io-or-logging-inside-the-hot-path" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p><code>print()</code>, <code>logging.debug()</code>, file writes, and network calls have latency measured in microseconds to milliseconds. Inside a loop running at MHz, that&rsquo;s a full stop.</p>
+<p>The pattern is to collect, not emit. Accumulate metrics or log entries in a buffer; flush them asynchronously or at the end of a batch. Structured logging frameworks like <code>structlog</code> make this straightforward.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># blocks every iteration</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> event <span style="color:#f92672">in</span> stream:
+</span></span><span style="display:flex;"><span>    process(event)
+</span></span><span style="display:flex;"><span>    logger<span style="color:#f92672">.</span>info(<span style="color:#e6db74">&#34;processed&#34;</span>, id<span style="color:#f92672">=</span>event<span style="color:#f92672">.</span>id)  <span style="color:#75715e"># I/O on hot path</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># collect first, flush after</span>
+</span></span><span style="display:flex;"><span>results <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> event <span style="color:#f92672">in</span> stream:
+</span></span><span style="display:flex;"><span>    results<span style="color:#f92672">.</span>append(process(event))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>logger<span style="color:#f92672">.</span>info(<span style="color:#e6db74">&#34;batch complete&#34;</span>, count<span style="color:#f92672">=</span>len(results))  <span style="color:#75715e"># once</span>
+</span></span></code></pre></div><div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
+<h2 id="conclusion">Conclusion<a href="#conclusion" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>None of these rules require a different language. They require knowing <em>where Python ends and the fast path begins</em> — and keeping the interpreter out of the inner loop.</p>
+<p>Profile first. <code>cProfile</code>, <code>py-spy</code>, and <code>line_profiler</code> will show you exactly which lines are costing you. The rules above tell you what to do once you&rsquo;ve found them.</p>
+<aside class="pullquote">
+  
+Fast Python isn't about avoiding Python — it's about knowing where to stop using it.
+
+</aside>
+
+
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright copyright--user">
+        <span>© 2026 Mike Mwita</span>
+    
+      <span>:: <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+<script>
+ 
+(function () {
+   
+  if (document.querySelector('.posts, .thoughts-list, .posts-group')) return;
+  if (!document.querySelector('.post-content, .post__content')) return;
+
+  var bar = document.createElement('div');
+  bar.id = 'reading-progress';
+  document.body.prepend(bar);
+
+  window.addEventListener('scroll', function () {
+    var scrollTop = window.scrollY || window.pageYOffset;
+    var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = docHeight > 0 ? (scrollTop / docHeight * 100) + '%' : '0%';
+  }, { passive: true });
+})();
+
+ 
+(function () {
+  document.querySelectorAll('pre > code').forEach(function (codeEl) {
+    var langClass = Array.from(codeEl.classList).find(function (c) {
+      return c.startsWith('language-');
+    });
+    if (langClass) {
+      codeEl.parentElement.setAttribute('data-lang', langClass.replace('language-', ''));
+    }
+  });
+})();
+
+ 
+(function () {
+  var el = document.getElementById('article-view-count');
+  if (!el) return;
+  var path = encodeURIComponent(window.location.pathname);
+  fetch('https://mikemwita.goatcounter.com/api/v0/stats/hits?path=' + path, {
+    headers: { 'Content-Type': 'application/json' }
+  })
+  .then(function (r) { return r.json(); })
+  .then(function (data) {
+    var total = (data.stats && data.stats[0] && data.stats[0].count) ? data.stats[0].count : null;
+    if (total) el.textContent = total.toLocaleString() + ' views';
+  })
+  .catch(function () {});
+})();
+</script>
+
+
+  
+</div>
+
+</body>
+</html>
