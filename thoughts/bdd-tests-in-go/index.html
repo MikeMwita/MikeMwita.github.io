@@ -479,7 +479,10 @@ It’s not about fancy syntax or cucumber-green outputs — it’s about ensurin
 <script>
  
 (function () {
-  if (!document.querySelector('.post__content')) return;
+   
+  if (document.querySelector('.posts, .thoughts-list, .posts-group')) return;
+  if (!document.querySelector('.post-content, .post__content')) return;
+
   var bar = document.createElement('div');
   bar.id = 'reading-progress';
   document.body.prepend(bar);

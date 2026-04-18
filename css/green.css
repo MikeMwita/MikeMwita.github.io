@@ -555,28 +555,34 @@ pre, pre code {
 
 .thoughts-list {
   margin-top: 2.5rem;
-  display: flex;
-  flex-direction: column;
 }
 
-.thought-card {
+/* Card is an <a> — reset ALL link inheritance first */
+a.thought-card,
+a.thought-card:visited,
+a.thought-card:link {
   display: block;
-  padding: 2em 1.4em;
+  padding: 1.8em 1.4em;
   margin: 0 -1.4em;
   border-radius: 6px;
   text-decoration: none !important;
   color: inherit !important;
-  border-bottom: 1px solid rgba(0, 255, 153, 0.07);
+  border-bottom: 1px solid rgba(0, 255, 153, 0.08);
   transition: background 0.2s;
   position: relative;
+  cursor: pointer;
 }
 
-.thought-card::before {
+a.thought-card:last-child {
+  border-bottom: none;
+}
+
+a.thought-card::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 20%;
-  bottom: 20%;
+  top: 18%;
+  bottom: 18%;
   width: 2px;
   background: #00ff99;
   border-radius: 2px;
@@ -584,80 +590,85 @@ pre, pre code {
   transition: opacity 0.2s;
 }
 
-.thought-card:last-child {
-  border-bottom: none;
+a.thought-card:hover {
+  background: rgba(0, 255, 153, 0.03) !important;
+  color: inherit !important;
 }
 
-.thought-card:hover {
-  background: rgba(0, 255, 153, 0.03);
-}
-
-.thought-card:hover::before {
+a.thought-card:hover::before {
   opacity: 1;
 }
 
-.thought-card:hover .thought-card__title {
-  color: #00ff99;
+a.thought-card:hover .thought-card__title {
+  color: #00ff99 !important;
 }
 
-/* ── Top meta row: read time + 2 topics ── */
+/* Reset underlines on every child */
+a.thought-card *,
+a.thought-card *:hover {
+  text-decoration: none !important;
+}
+
+/* ── Top meta row ── */
 .thought-card__meta {
   display: flex;
   align-items: center;
   gap: 0.5em;
-  margin-bottom: 0.55em;
+  margin-bottom: 0.6em;
   font-family: monospace;
   font-size: 0.72rem;
+  line-height: 1;
 }
 
 .thought-card__read {
-  color: rgba(0, 255, 153, 0.6);
+  display: inline-block;
+  color: rgba(0, 255, 153, 0.7) !important;
   background: rgba(0, 255, 153, 0.07);
-  border: 1px solid rgba(0, 255, 153, 0.15);
+  border: 1px solid rgba(0, 255, 153, 0.18);
   border-radius: 4px;
-  padding: 0.15em 0.55em;
+  padding: 0.2em 0.55em;
   white-space: nowrap;
+  text-decoration: none !important;
 }
 
 .thought-card__dot {
-  color: rgba(200, 240, 200, 0.2);
+  color: rgba(200, 240, 200, 0.2) !important;
 }
 
 .thought-card__topic {
-  color: rgba(200, 240, 200, 0.35);
+  color: rgba(200, 240, 200, 0.3) !important;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .thought-card__topic + .thought-card__topic::before {
-  content: '·';
-  margin-right: 0.4em;
-  color: rgba(200, 240, 200, 0.2);
+  content: '· ';
+  color: rgba(200, 240, 200, 0.15);
 }
 
 /* ── Title ── */
 .thought-card__title {
-  margin: 0 0 0.4em !important;
+  margin: 0 0 0.45em !important;
+  padding: 0 !important;
+  border: none !important;
   font-size: 1.3rem !important;
   font-weight: 700;
   line-height: 1.35;
-  color: rgba(200, 240, 200, 0.92);
-  transition: color 0.2s;
-  border: none !important;
-  padding: 0 !important;
   letter-spacing: -0.01em;
+  color: rgba(200, 240, 200, 0.92) !important;
+  transition: color 0.2s;
+  text-decoration: none !important;
 }
 
 /* ── Description ── */
 .thought-card__desc {
   margin: 0 0 0.85em !important;
-  font-size: 0.925rem;
-  color: rgba(200, 240, 200, 0.4);
+  font-size: 0.92rem !important;
   line-height: 1.65;
-  font-family: 'et-book', Palatino, Georgia, serif;
+  font-family: 'et-book', Palatino, Georgia, serif !important;
   font-style: italic;
+  color: rgba(200, 240, 200, 0.38) !important;
   max-width: 640px;
+  text-decoration: none !important;
 }
 
 /* ── Tag pills ── */
@@ -665,24 +676,27 @@ pre, pre code {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4em;
+  margin-top: 0.1em;
 }
 
 .thought-card__tag {
-  font-size: 0.67rem;
-  padding: 0.18em 0.6em;
+  display: inline-block;
+  font-size: 0.67rem !important;
+  padding: 0.2em 0.6em;
   border-radius: 99px;
   background: rgba(0, 255, 153, 0.05);
-  border: 1px solid rgba(0, 255, 153, 0.12);
+  border: 1px solid rgba(0, 255, 153, 0.13);
   color: rgba(0, 255, 153, 0.45) !important;
   font-family: monospace;
   letter-spacing: 0.02em;
   white-space: nowrap;
+  text-decoration: none !important;
 }
 
 @media (max-width: 600px) {
-  .thought-card {
-    padding: 1.5em 1em;
-    margin: 0 -1em;
+  a.thought-card {
+    padding: 1.4em 0.8em;
+    margin: 0 -0.8em;
   }
 
   .thought-card__title {
