@@ -6,7 +6,7 @@
   
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Here are my golden python rules" />
+<meta name="description" content="Some of the constraints I keep in mind to keep Python fast where it matters(critical path)." />
 <meta name="keywords" content="Web Development, Software Developer Engineer, Programming, Data Structures and Algorithms, Kubernetes, Go, Cloud Engineering" />
 
   <meta name="robots" content="noodp" />
@@ -81,7 +81,7 @@
 <meta property="og:locale" content="en" />
 <meta property="og:type" content="article" />
 <meta property="og:title" content="My golden rules when writing Python">
-<meta property="og:description" content="Here are my golden python rules" />
+<meta property="og:description" content="Some of the constraints I keep in mind to keep Python fast where it matters(critical path)." />
 <meta property="og:url" content="http://localhost:1313/thoughts/python-hot-path-rules/" />
 <meta property="og:site_name" content="Mike Mwita" />
 
@@ -242,163 +242,177 @@
     <p class="article-toc__title">Contents</p>
     <nav id="TableOfContents">
   <ul>
-    <li><a href="#no-python-loops-on-the-critical-path">No Python Loops on the Critical Path</a></li>
-    <li><a href="#use-typed-arrays-not-python-objects">Use Typed Arrays, Not Python Objects</a></li>
-    <li><a href="#batch-calls--every-python-call-has-a-cover-charge">Batch Calls — Every Python Call Has a Cover Charge</a></li>
-    <li><a href="#no-allocations-on-the-hot-path">No Allocations on the Hot Path</a></li>
-    <li><a href="#replace-branches-with-masks-and-lookup-tables">Replace Branches with Masks and Lookup Tables</a></li>
-    <li><a href="#conversions-are-poison">Conversions Are Poison</a></li>
-    <li><a href="#no-io-or-logging-inside-the-hot-path">No I/O or Logging Inside the Hot Path</a></li>
+    <li><a href="#no-python-loops-on-the-critical-path">No Python loops on the critical path</a></li>
+    <li><a href="#batch-everything--repeated-calls-compound">Batch everything — repeated calls compound</a></li>
+    <li><a href="#the-data-structure-is-the-algorithm">The data structure is the algorithm</a></li>
+    <li><a href="#dont-allocate-on-the-hot-path">Don&rsquo;t allocate on the hot path</a></li>
+    <li><a href="#replace-ifelif-chains-with-dispatch-tables">Replace if/elif chains with dispatch tables</a></li>
+    <li><a href="#parse-at-the-boundary--carry-clean-types-inward">Parse at the boundary — carry clean types inward</a></li>
+    <li><a href="#keep-io-out-of-the-hot-path">Keep I/O out of the hot path</a></li>
     <li><a href="#conclusion">Conclusion</a></li>
   </ul>
 </nav>
   </nav><div class="post-content"><div>
-        <p><span class="dropcap">P</span>
-ython is slow. That sentence alone ends most performance conversations before they start — but it&rsquo;s the wrong frame. The real question is: <em>which parts</em> of Python are slow, and how do you keep them off the critical path?</p>
-<p>Most performance-sensitive Python — numerical computing, trading systems, ML inference — is fast not because Python got faster, but because the hot path barely runs Python at all. The rules below are what that looks like in practice.</p>
+        <p><span class="dropcap">E</span>
+very Python performance problem I&rsquo;ve debugged traces back to the same mistake: Python doing work it should have handed off.</p>
+<p>The interpreter overhead is predictable and manageable — the mistake is letting it accumulate inside the section of code that runs a million times. These are some of the learnings or rather rules of thumb I use.</p>
 <div class="section-divider">
   <span></span><span></span><span></span>
 </div>
 
-<h2 id="no-python-loops-on-the-critical-path">No Python Loops on the Critical Path<a href="#no-python-loops-on-the-critical-path" class="hanchor" ariaLabel="Anchor">#</a> </h2>
-<p>For loops, while loops, list comprehensions, <code>map()</code> — they all carry the Python interpreter overhead on every iteration. At scale, that overhead compounds.</p>
-<p>The alternative is to express iteration as array operations. NumPy, pandas, and PyTorch all execute their inner loops in C or Fortran. When you write <code>a + b</code> on two arrays, no Python loop runs.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># slow: Python iterates</span>
-</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> [x <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span> <span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> data]
+<h2 id="no-python-loops-on-the-critical-path">No Python loops on the critical path<a href="#no-python-loops-on-the-critical-path" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Python&rsquo;s for loop dispatches bytecode on every iteration. On millions of items in a request handler or data pipeline, it becomes the bottleneck — not because the work is expensive, but because the interpreter is doing it one item at a time.</p>
+<p>Python&rsquo;s built-ins — <code>sum()</code>, <code>any()</code>, <code>all()</code>, <code>map()</code> with a C-level callable — execute their inner loops in C. Not syntactic sugar over a Python loop; a different execution path.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>total <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> values:    <span style="color:#75715e"># interpreter overhead per element</span>
+</span></span><span style="display:flex;"><span>    total <span style="color:#f92672">+=</span> x
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># fast: C iterates</span>
-</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array(data) <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>
-</span></span></code></pre></div>
-<div class="callout callout--warning">
-  <div class="callout__body">This rule only matters on the hot path — the code that runs millions of times. Looping over config at startup costs nothing.</div>
-</div>
-
+</span></span><span style="display:flex;"><span>total <span style="color:#f92672">=</span> sum(values) <span style="color:#75715e"># one Python call, C handles the rest</span>
+</span></span></code></pre></div><p>When the built-ins don&rsquo;t cover the operation, that&rsquo;s the signal to push the work into a compiled layer. The goal is to express <em>what</em> you want computed, not <em>how to iterate</em>.</p>
 <div class="section-divider">
   <span></span><span></span><span></span>
 </div>
 
-<h2 id="use-typed-arrays-not-python-objects">Use Typed Arrays, Not Python Objects<a href="#use-typed-arrays-not-python-objects" class="hanchor" ariaLabel="Anchor">#</a> </h2>
-<p>Python lists, dicts, and tuples carry per-element overhead: reference counting, type tags, pointer indirection. A list of a million floats is a million separate Python objects in memory.</p>
-<p>Typed arrays eliminate that. A <code>np.float64</code> array of a million elements is a contiguous block of 8MB. Iteration is cache-friendly, SIMD-vectorisable, and doesn&rsquo;t touch the Python heap.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># a million Python objects, scattered in memory</span>
-</span></span><span style="display:flex;"><span>prices <span style="color:#f92672">=</span> [<span style="color:#ae81ff">101.5</span>, <span style="color:#ae81ff">102.0</span>, <span style="color:#ae81ff">101.8</span>, <span style="color:#f92672">...</span>]
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># a contiguous block of float64 — one allocation</span>
-</span></span><span style="display:flex;"><span>prices <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array([<span style="color:#ae81ff">101.5</span>, <span style="color:#ae81ff">102.0</span>, <span style="color:#ae81ff">101.8</span>, <span style="color:#f92672">...</span>], dtype<span style="color:#f92672">=</span>np<span style="color:#f92672">.</span>float64)
-</span></span></code></pre></div><aside class="sidenote"><code>dtype=np.float32</code> halves memory and often improves cache hit rate, at the cost of precision. Worth benchmarking in ML workloads.</aside>
-
-<p>The same principle applies across the stack: prefer <code>array.array</code> over <code>list</code>, <code>pd.Categorical</code> over object columns, typed dataclasses over plain dicts.</p>
-<div class="section-divider">
-  <span></span><span></span><span></span>
-</div>
-
-<h2 id="batch-calls--every-python-call-has-a-cover-charge">Batch Calls — Every Python Call Has a Cover Charge<a href="#batch-calls--every-python-call-has-a-cover-charge" class="hanchor" ariaLabel="Anchor">#</a> </h2>
-<p>Every call from Python into a C extension (NumPy, a database driver, a network client) has overhead: argument validation, GIL coordination, stack setup. One call on a million elements is fast. A million calls on one element each is slow.</p>
+<h2 id="batch-everything--repeated-calls-compound">Batch everything — repeated calls compound<a href="#batch-everything--repeated-calls-compound" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Every external call carries overhead beyond the work itself: a DB query has a round-trip, a cache GET has socket overhead, even a C extension call has setup cost. The mistake is paying that overhead N times to do N units of work.</p>
 <aside class="pullquote">
   
-Prefer batching, operation fusion, or doing everything in one shot.
+The unit of work should be a batch, not an item.
 
 </aside>
 
-<p>This shows up most in database access:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># one round-trip per row — never do this</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> row_id <span style="color:#f92672">in</span> ids:
-</span></span><span style="display:flex;"><span>    cursor<span style="color:#f92672">.</span>execute(<span style="color:#e6db74">&#34;SELECT * FROM orders WHERE id = </span><span style="color:#e6db74">%s</span><span style="color:#e6db74">&#34;</span>, (row_id,))
+<p>The classical N+1 query problem:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># one round-trip per order — latency scales with row count</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> order <span style="color:#f92672">in</span> orders:
+</span></span><span style="display:flex;"><span>    customer <span style="color:#f92672">=</span> db<span style="color:#f92672">.</span>query(
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;SELECT * FROM customers WHERE id = </span><span style="color:#e6db74">%s</span><span style="color:#e6db74">&#34;</span>, order<span style="color:#f92672">.</span>customer_id
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    enrich(order, customer)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># one round-trip for all rows</span>
-</span></span><span style="display:flex;"><span>cursor<span style="color:#f92672">.</span>execute(<span style="color:#e6db74">&#34;SELECT * FROM orders WHERE id = ANY(</span><span style="color:#e6db74">%s</span><span style="color:#e6db74">)&#34;</span>, (ids,))
-</span></span></code></pre></div><p>The same pattern applies to API calls, file writes, and vectorised operations. When in doubt, accumulate and flush — don&rsquo;t call in a loop.</p>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># one round-trip, join in the db where it belongs</span>
+</span></span><span style="display:flex;"><span>customers <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>    c<span style="color:#f92672">.</span>id: c <span style="color:#66d9ef">for</span> c <span style="color:#f92672">in</span> db<span style="color:#f92672">.</span>query(
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;SELECT * FROM customers WHERE id = ANY(</span><span style="color:#e6db74">%s</span><span style="color:#e6db74">)&#34;</span>,
+</span></span><span style="display:flex;"><span>        [o<span style="color:#f92672">.</span>customer_id <span style="color:#66d9ef">for</span> o <span style="color:#f92672">in</span> orders],
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> order <span style="color:#f92672">in</span> orders:
+</span></span><span style="display:flex;"><span>    enrich(order, customers[order<span style="color:#f92672">.</span>customer_id])
+</span></span></code></pre></div><p>Same principle elsewhere: Redis pipeline over individual GETs, <code>executemany</code> over looped <code>execute</code>, bulk API calls over individual POSTs. Accumulate, then dispatch once.</p>
 <div class="section-divider">
   <span></span><span></span><span></span>
 </div>
 
-<h2 id="no-allocations-on-the-hot-path">No Allocations on the Hot Path<a href="#no-allocations-on-the-hot-path" class="hanchor" ariaLabel="Anchor">#</a> </h2>
-<p>Every <code>list()</code>, <code>dict()</code>, <code>np.zeros()</code>, or string format in a tight loop is a memory allocation. Allocations take time, and eventually the garbage collector reclaims them — also taking time, and often at the worst moment.</p>
-<p>Preallocate buffers outside the loop and reuse them:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># allocates a new array every call</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">compute</span>(data):
-</span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>empty(len(data))
-</span></span><span style="display:flex;"><span>    result[:] <span style="color:#f92672">=</span> data <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> result
+<h2 id="the-data-structure-is-the-algorithm">The data structure is the algorithm<a href="#the-data-structure-is-the-algorithm" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Slow Python code almost always has the wrong data structure rather than the wrong algorithm. The structure determines the cost of every operation on it — and that cost multiplies across every call in the hot path.</p>
+<p>A <code>list</code> used for membership checks is O(n) per lookup. A <code>set</code> is O(1). That difference is irrelevant at ten items and catastrophic at ten thousand.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>blocked_ids <span style="color:#f92672">=</span> get_blocked_ids()       <span style="color:#75715e"># returns a list</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># preallocate once, reuse across calls</span>
-</span></span><span style="display:flex;"><span>buffer <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>empty(MAX_SIZE)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> user_id <span style="color:#f92672">in</span> blocked_ids: <span style="color:#f92672">...</span>        <span style="color:#75715e"># O(n) scan</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">compute</span>(data, out<span style="color:#f92672">=</span>buffer):
-</span></span><span style="display:flex;"><span>    np<span style="color:#f92672">.</span>multiply(data, <span style="color:#ae81ff">2</span>, out<span style="color:#f92672">=</span>out)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> out[:len(data)]
-</span></span></code></pre></div>
+</span></span><span style="display:flex;"><span>blocked_ids <span style="color:#f92672">=</span> set(get_blocked_ids())  <span style="color:#75715e"># one-time conversion</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> user_id <span style="color:#f92672">in</span> blocked_ids: <span style="color:#f92672">...</span>        <span style="color:#75715e"># O(1) hash lookup</span>
+</span></span></code></pre></div><p>The rest of the standard library follows the same logic: <code>deque</code> for queues, <code>Counter</code> instead of manual dict accumulation, <code>bisect</code> for sorted search, <code>defaultdict</code> to eliminate the <code>if key not in d</code> guard. Each one exists because the naïve alternative has a worse complexity profile.</p>
+
 <div class="callout callout--tip">
-  <div class="callout__body">NumPy&rsquo;s <code>out=</code> parameter on most ufuncs writes results into an existing array instead of allocating a new one. Use it on any path that runs more than a few times per second.</div>
+  <div class="callout__body">If a <code>list</code> is being used for lookups and it&rsquo;s not trivially small, it&rsquo;s wrong. Convert it to a <code>set</code> at construction time, not at query time — the bug is in where it&rsquo;s built, not where it&rsquo;s checked.</div>
 </div>
 
 <div class="section-divider">
   <span></span><span></span><span></span>
 </div>
 
-<h2 id="replace-branches-with-masks-and-lookup-tables">Replace Branches with Masks and Lookup Tables<a href="#replace-branches-with-masks-and-lookup-tables" class="hanchor" ariaLabel="Anchor">#</a> </h2>
-<p><code>if</code>/<code>else</code> inside a loop forces sequential execution — the CPU can&rsquo;t pipeline across an unpredictable branch. More importantly, it means Python is deciding something per element, which defeats the point of array operations.</p>
-<p>Replace conditional logic with boolean masks or lookup tables:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># branch per element</span>
-</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> []
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> data:
-</span></span><span style="display:flex;"><span>    result<span style="color:#f92672">.</span>append(x <span style="color:#f92672">*</span> <span style="color:#ae81ff">1.1</span> <span style="color:#66d9ef">if</span> x <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">100</span> <span style="color:#66d9ef">else</span> x <span style="color:#f92672">*</span> <span style="color:#ae81ff">0.9</span>)
+<h2 id="dont-allocate-on-the-hot-path">Don&rsquo;t allocate on the hot path<a href="#dont-allocate-on-the-hot-path" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Every object constructed inside a tight loop — a list, a dict, a formatted string — is a heap allocation. Python&rsquo;s GC reclaims them, but reclaims happen at unpredictable times and pause execution. The correct response is to stop generating garbage in the first place.</p>
+<p>Generators are the lightweight version: constant memory, values produced on demand.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">active_users</span>(records):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> [r <span style="color:#66d9ef">for</span> r <span style="color:#f92672">in</span> records <span style="color:#66d9ef">if</span> r<span style="color:#f92672">.</span>active]   <span style="color:#75715e"># full list in memory</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># vectorised: no Python branch</span>
-</span></span><span style="display:flex;"><span>mask <span style="color:#f92672">=</span> data <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">100</span>
-</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>where(mask, data <span style="color:#f92672">*</span> <span style="color:#ae81ff">1.1</span>, data <span style="color:#f92672">*</span> <span style="color:#ae81ff">0.9</span>)
-</span></span></code></pre></div><p>Lookup tables work for discrete mappings. Instead of a chain of <code>if</code> statements over a category code, build a dict or array indexed by the code and hit it once per element.</p>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">active_users</span>(records):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> (r <span style="color:#66d9ef">for</span> r <span style="color:#f92672">in</span> records <span style="color:#66d9ef">if</span> r<span style="color:#f92672">.</span>active)   <span style="color:#75715e"># one item at a time</span>
+</span></span></code></pre></div><p>String concatenation in a loop allocates a new object on every <code>+=</code>. <code>&quot;&quot;.join(parts)</code> allocates once at the end. On any non-trivial input the difference is an order of magnitude.</p>
 <div class="section-divider">
   <span></span><span></span><span></span>
 </div>
 
-<h2 id="conversions-are-poison">Conversions Are Poison<a href="#conversions-are-poison" class="hanchor" ariaLabel="Anchor">#</a> </h2>
-<p><code>list</code> to <code>np.array</code>, <code>.astype(np.float64)</code>, <code>.tolist()</code>, <code>.values</code> on a DataFrame — every one of these copies data. A conversion on the hot path means you&rsquo;re allocating and filling a new buffer for every batch.</p>
-<p>The fix is to get the data into the right shape <em>once</em>, at the boundary where it enters your system, and keep it in that shape throughout.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># wrong: converting on every inference call</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">predict</span>(raw_input: list):
-</span></span><span style="display:flex;"><span>    arr <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array(raw_input, dtype<span style="color:#f92672">=</span>np<span style="color:#f92672">.</span>float32)  <span style="color:#75715e"># allocation + copy</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> model(arr)
+<h2 id="replace-ifelif-chains-with-dispatch-tables">Replace if/elif chains with dispatch tables<a href="#replace-ifelif-chains-with-dispatch-tables" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<aside class="sidenote">A dispatch table is a dict that maps keys to functions. Instead of branching logic deciding what to call, you look up the callable directly and invoke it. The name comes from how OS kernels route system calls.</aside>
+
+<p>A long <code>if</code>/<code>elif</code> chain is sequential lookup that gets worse as cases are added. It also couples extension to editing — a new case means touching the chain.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">handle</span>(event_type, payload):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> event_type <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;order.created&#34;</span>:
+</span></span><span style="display:flex;"><span>        on_order_created(payload)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">elif</span> event_type <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;order.updated&#34;</span>:
+</span></span><span style="display:flex;"><span>        on_order_updated(payload)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">elif</span> event_type <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;payment.failed&#34;</span>:
+</span></span><span style="display:flex;"><span>        on_payment_failed(payload)
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># every new handler extends this chain</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># right: convert at the edge, pass arrays internally</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">ingest</span>(raw_input: list) <span style="color:#f92672">-&gt;</span> np<span style="color:#f92672">.</span>ndarray:
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> np<span style="color:#f92672">.</span>array(raw_input, dtype<span style="color:#f92672">=</span>np<span style="color:#f92672">.</span>float32)
+</span></span><span style="display:flex;"><span>HANDLERS: dict[str, Callable] <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;order.created&#34;</span>:  on_order_created,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;order.updated&#34;</span>:  on_order_updated,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;payment.failed&#34;</span>: on_payment_failed,
+</span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">predict</span>(arr: np<span style="color:#f92672">.</span>ndarray):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> model(arr)
-</span></span></code></pre></div>
-<div class="callout callout--note">
-  <div class="callout__body"><code>dtype</code> mismatches are the silent killer here. Passing <code>float64</code> to a model that expects <code>float32</code> triggers an implicit <code>.astype()</code> copy. Always check dtypes at the boundary.</div>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">handle</span>(event_type, payload):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> handler <span style="color:#f92672">:=</span> HANDLERS<span style="color:#f92672">.</span>get(event_type):
+</span></span><span style="display:flex;"><span>        handler(payload)
+</span></span></code></pre></div><p>O(1) lookup, handlers registered independently of dispatch logic, and the walrus operator keeps the check and assignment on one line without calling <code>.get()</code> twice.</p>
+<div class="section-divider">
+  <span></span><span></span><span></span>
 </div>
+
+<h2 id="parse-at-the-boundary--carry-clean-types-inward">Parse at the boundary — carry clean types inward<a href="#parse-at-the-boundary--carry-clean-types-inward" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Parsing is cheap in isolation. It becomes expensive when it happens inside processing logic on every call rather than once at ingestion. Every layer that re-parses the same field is doing redundant work in a place that&rsquo;s hard to profile.</p>
+<p>Parse raw input once, at the point it enters the system. Every function downstream receives typed values.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># parsing runs on every call to process()</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">process</span>(raw: dict):
+</span></span><span style="display:flex;"><span>    user_id <span style="color:#f92672">=</span> int(raw[<span style="color:#e6db74">&#34;user_id&#34;</span>])
+</span></span><span style="display:flex;"><span>    ts <span style="color:#f92672">=</span> datetime<span style="color:#f92672">.</span>fromisoformat(raw[<span style="color:#e6db74">&#34;timestamp&#34;</span>])
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">...</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># parse at the edge, internal functions see typed models</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@dataclass</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Event</span>:
+</span></span><span style="display:flex;"><span>    user_id: int
+</span></span><span style="display:flex;"><span>    timestamp: datetime
+</span></span><span style="display:flex;"><span>    payload: dict
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@classmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">from_raw</span>(cls, raw: dict) <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;Event&#34;</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cls(
+</span></span><span style="display:flex;"><span>            user_id<span style="color:#f92672">=</span>int(raw[<span style="color:#e6db74">&#34;user_id&#34;</span>]),
+</span></span><span style="display:flex;"><span>            timestamp<span style="color:#f92672">=</span>datetime<span style="color:#f92672">.</span>fromisoformat(raw[<span style="color:#e6db74">&#34;timestamp&#34;</span>]),
+</span></span><span style="display:flex;"><span>            payload<span style="color:#f92672">=</span>raw[<span style="color:#e6db74">&#34;payload&#34;</span>],
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">process</span>(event: Event): <span style="color:#f92672">...</span>
+</span></span></code></pre></div><aside class="sidenote">This is precisely what Pydantic does well — parse and validate at the boundary, clean model objects everywhere internal. The performance cost of Pydantic is at ingestion, not in your hot path.</aside>
 
 <div class="section-divider">
   <span></span><span></span><span></span>
 </div>
 
-<h2 id="no-io-or-logging-inside-the-hot-path">No I/O or Logging Inside the Hot Path<a href="#no-io-or-logging-inside-the-hot-path" class="hanchor" ariaLabel="Anchor">#</a> </h2>
-<p><code>print()</code>, <code>logging.debug()</code>, file writes, and network calls have latency measured in microseconds to milliseconds. Inside a loop running at MHz, that&rsquo;s a full stop.</p>
-<p>The pattern is to collect, not emit. Accumulate metrics or log entries in a buffer; flush them asynchronously or at the end of a batch. Structured logging frameworks like <code>structlog</code> make this straightforward.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># blocks every iteration</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> event <span style="color:#f92672">in</span> stream:
-</span></span><span style="display:flex;"><span>    process(event)
-</span></span><span style="display:flex;"><span>    logger<span style="color:#f92672">.</span>info(<span style="color:#e6db74">&#34;processed&#34;</span>, id<span style="color:#f92672">=</span>event<span style="color:#f92672">.</span>id)  <span style="color:#75715e"># I/O on hot path</span>
+<h2 id="keep-io-out-of-the-hot-path">Keep I/O out of the hot path<a href="#keep-io-out-of-the-hot-path" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p><code>print()</code>, <code>logger.info()</code>, file writes, HTTP calls — all block the current thread. Inside a loop, the aggregate latency from logging alone can exceed the actual processing time. This is the performance bug that surprises people most because it looks harmless in isolation.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">for</span> record <span style="color:#f92672">in</span> records:
+</span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> process(record)
+</span></span><span style="display:flex;"><span>    logger<span style="color:#f92672">.</span>info(<span style="color:#e6db74">&#34;processed&#34;</span>, id<span style="color:#f92672">=</span>record<span style="color:#f92672">.</span>id, status<span style="color:#f92672">=</span>result<span style="color:#f92672">.</span>status)  <span style="color:#75715e"># blocks every iteration</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># collect first, flush after</span>
-</span></span><span style="display:flex;"><span>results <span style="color:#f92672">=</span> []
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> event <span style="color:#f92672">in</span> stream:
-</span></span><span style="display:flex;"><span>    results<span style="color:#f92672">.</span>append(process(event))
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>logger<span style="color:#f92672">.</span>info(<span style="color:#e6db74">&#34;batch complete&#34;</span>, count<span style="color:#f92672">=</span>len(results))  <span style="color:#75715e"># once</span>
-</span></span></code></pre></div><div class="section-divider">
+</span></span><span style="display:flex;"><span>results <span style="color:#f92672">=</span> [process(r) <span style="color:#66d9ef">for</span> r <span style="color:#f92672">in</span> records]
+</span></span><span style="display:flex;"><span>logger<span style="color:#f92672">.</span>info(<span style="color:#e6db74">&#34;batch complete&#34;</span>, count<span style="color:#f92672">=</span>len(results), failures<span style="color:#f92672">=</span>sum(<span style="color:#ae81ff">1</span> <span style="color:#66d9ef">for</span> r <span style="color:#f92672">in</span> results <span style="color:#66d9ef">if</span> r<span style="color:#f92672">.</span>failed))
+</span></span></code></pre></div><p>When per-record observability is genuinely required, buffer log entries and flush after the loop, or push them to an async handler that writes off the main thread. The hot path should never wait on I/O.</p>
+<div class="section-divider">
   <span></span><span></span><span></span>
 </div>
 
 <h2 id="conclusion">Conclusion<a href="#conclusion" class="hanchor" ariaLabel="Anchor">#</a> </h2>
-<p>None of these rules require a different language. They require knowing <em>where Python ends and the fast path begins</em> — and keeping the interpreter out of the inner loop.</p>
-<p>Profile first. <code>cProfile</code>, <code>py-spy</code>, and <code>line_profiler</code> will show you exactly which lines are costing you. The rules above tell you what to do once you&rsquo;ve found them.</p>
+<p>Most of these are a one-line change. A <code>list</code> becomes a <code>set</code>, a query moves outside a loop, a log call batches.You begin to see immediate impact.</p>
+<p>The prerequisite is knowing where your hot path actually is. <code>cProfile</code> for function-level attribution, <code>py-spy</code> for profiling in production without code changes, <code>line_profiler</code> for line-level precision. Measure first — these rules tell you what to fix once you know where to look.</p>
 <aside class="pullquote">
   
-Fast Python isn't about avoiding Python — it's about knowing where to stop using it.
+Fast Python isn't about avoiding Python — it's about knowing exactly where to stop using it carelessly.
 
 </aside>
 
