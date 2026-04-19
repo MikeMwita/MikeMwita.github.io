@@ -16,6 +16,13 @@
       <description>&lt;ul&gt;&#xA;&lt;li&gt;PostgreSQL’s source code is overwhelmingly written in C .(Over 85%)&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
     </item>
     <item>
+      <title>SQL Performance Explained</title>
+      <link>https://MikeMwita.github.io/reads/sql-performance-explained/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/reads/sql-performance-explained/</guid>
+      <description>&lt;h3 id=&#34;anatomy-of-an-index&#34;&gt;Anatomy of an Index&lt;/h3&gt;&#xA;&lt;h3 id=&#34;the-where-clause&#34;&gt;The Where Clause&lt;/h3&gt;&#xA;&lt;h3 id=&#34;performance-and-scalability&#34;&gt;Performance and Scalability&lt;/h3&gt;&#xA;&lt;h3 id=&#34;the-join-operation&#34;&gt;The Join Operation&lt;/h3&gt;&#xA;&lt;h3 id=&#34;clustering-data&#34;&gt;Clustering Data&lt;/h3&gt;&#xA;&lt;h3 id=&#34;sorting--grouping&#34;&gt;Sorting &amp;amp; Grouping&lt;/h3&gt;&#xA;&lt;h3 id=&#34;partial-results&#34;&gt;Partial Results&lt;/h3&gt;&#xA;&lt;h3 id=&#34;modifying-data&#34;&gt;Modifying Data&lt;/h3&gt;&#xA;&lt;h3 id=&#34;execution-plans&#34;&gt;Execution Plans&lt;/h3&gt;</description>
+    </item>
+    <item>
       <title>The Pragmatic Programmer</title>
       <link>https://MikeMwita.github.io/reads/the-pragmatic-programmer/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
