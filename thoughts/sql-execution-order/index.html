@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+<head>
   
     <title>SQL Doesn&#39;t Run in the Order You Write It :: Mike Mwita</title>
   
@@ -11,53 +11,53 @@
 
   <meta name="robots" content="noodp" />
 
-<link rel="canonical" href="http://localhost:1313/thoughts/sql-execution-order/" />
+<link rel="canonical" href="https://MikeMwita.github.io/thoughts/sql-execution-order/" />
 
 
 
 
 
   
-  <link rel="stylesheet" href="http://localhost:1313/css/green.min.afffb9a52aa6a0326516551654123ad07aef0c6b572608c714358997ba751126.css">
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/green.min.afffb9a52aa6a0326516551654123ad07aef0c6b572608c714358997ba751126.css">
 
   
-  <link rel="stylesheet" href="http://localhost:1313/css/buttons.min.86f6b4c106b6c6eb690ae5203d36b442c1f66f718ff4e8164fa86cf6c61ad641.css">
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/buttons.min.86f6b4c106b6c6eb690ae5203d36b442c1f66f718ff4e8164fa86cf6c61ad641.css">
 
   
-  <link rel="stylesheet" href="http://localhost:1313/css/code.min.c4581949edab7810737609fc5568852bcd908945f14561e366dcd2300a370545.css">
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/code.min.d529ea4b2fb8d34328d7d31afc5466d5f7bc2f0bc9abdd98b69385335d7baee4.css">
 
   
-  <link rel="stylesheet" href="http://localhost:1313/css/fonts.min.5bb7ed13e1d00d8ff39ea84af26737007eb5051b157b86fc24487c94f3dc8bbe.css">
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/fonts.min.5bb7ed13e1d00d8ff39ea84af26737007eb5051b157b86fc24487c94f3dc8bbe.css">
 
   
-  <link rel="stylesheet" href="http://localhost:1313/css/footer.min.eb8dfc2c6a7eafa36cd3ba92d63e69e849e2200e0002a228d137f236b09ecd75.css">
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/footer.min.eb8dfc2c6a7eafa36cd3ba92d63e69e849e2200e0002a228d137f236b09ecd75.css">
 
   
-  <link rel="stylesheet" href="http://localhost:1313/css/gist.min.a751e8b0abe1ba8bc53ced52a38b19d8950fe78ca29454ea8c2595cf26aad5c0.css">
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/gist.min.a751e8b0abe1ba8bc53ced52a38b19d8950fe78ca29454ea8c2595cf26aad5c0.css">
 
   
-  <link rel="stylesheet" href="http://localhost:1313/css/header.min.75c7eb0e2872d95ff48109c6647d0223a38db52e2561dd87966eb5fc7c6bdac6.css">
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/header.min.75c7eb0e2872d95ff48109c6647d0223a38db52e2561dd87966eb5fc7c6bdac6.css">
 
   
-  <link rel="stylesheet" href="http://localhost:1313/css/main.min.36833afd348409fc6c3d09d0897c5833d9d5bf1ff31f5e60ea3ee42ce2b1268c.css">
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/main.min.36833afd348409fc6c3d09d0897c5833d9d5bf1ff31f5e60ea3ee42ce2b1268c.css">
 
   
-  <link rel="stylesheet" href="http://localhost:1313/css/menu.min.3c17467ebeb3d38663dce68f71f519901124fa5cbb4519b2fb0667a21e9aca39.css">
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/menu.min.3c17467ebeb3d38663dce68f71f519901124fa5cbb4519b2fb0667a21e9aca39.css">
 
   
-  <link rel="stylesheet" href="http://localhost:1313/css/pagination.min.bbb986dbce00a5ce5aca0504b7925fc1c581992a4bf57f163e5d69cc1db7d836.css">
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/pagination.min.bbb986dbce00a5ce5aca0504b7925fc1c581992a4bf57f163e5d69cc1db7d836.css">
 
   
-  <link rel="stylesheet" href="http://localhost:1313/css/post.min.e6dddd258e64c83e05cec0cd49c05216742d42fc8ecbfbe6b67083412b609bd3.css">
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/post.min.e6dddd258e64c83e05cec0cd49c05216742d42fc8ecbfbe6b67083412b609bd3.css">
 
   
-  <link rel="stylesheet" href="http://localhost:1313/css/syntax.min.a2cc694a9b481f15d41722bffc2cc54eea4c4f74fd9072b0b33253604c22606e.css">
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/syntax.min.a0773cce9310cb6d8ed23e50f005448facf29a53001b57e038828daa466b25c0.css">
 
   
-  <link rel="stylesheet" href="http://localhost:1313/css/terminal.min.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css">
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/terminal.min.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css">
 
   
-  <link rel="stylesheet" href="http://localhost:1313/css/terms.min.b81791663c3790e738e571cdbf802312390d30e4b1d8dc9d814a5b5454d0ac11.css">
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/terms.min.b81791663c3790e738e571cdbf802312390d30e4b1d8dc9d814a5b5454d0ac11.css">
 
 
 
@@ -65,8 +65,8 @@
 
 
 
-<link rel="shortcut icon" href="http://localhost:1313/favicon.png">
-<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="shortcut icon" href="https://MikeMwita.github.io/favicon.png">
+<link rel="apple-touch-icon" href="https://MikeMwita.github.io/apple-touch-icon.png">
 
 
 <meta name="twitter:card" content="summary" />
@@ -82,10 +82,10 @@
 <meta property="og:type" content="article" />
 <meta property="og:title" content="SQL Doesn&#39;t Run in the Order You Write It">
 <meta property="og:description" content="The order you write a SQL query and the order the database executes it are completely different — and that gap explains most SQL mistakes." />
-<meta property="og:url" content="http://localhost:1313/thoughts/sql-execution-order/" />
+<meta property="og:url" content="https://MikeMwita.github.io/thoughts/sql-execution-order/" />
 <meta property="og:site_name" content="Mike Mwita" />
 
-  <meta property="og:image" content="http://localhost:1313/og-image.png">
+  <meta property="og:image" content="https://MikeMwita.github.io/og-image.png">
 
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="627">
@@ -218,7 +218,7 @@
     
 <article class="post">
   <h1 class="post-title">
-    <a href="http://localhost:1313/thoughts/sql-execution-order/">SQL Doesn&rsquo;t Run in the Order You Write It</a>
+    <a href="https://MikeMwita.github.io/thoughts/sql-execution-order/">SQL Doesn&rsquo;t Run in the Order You Write It</a>
   </h1>
   <div class="post-meta"><span class="post-views" id="article-view-count"></span>
   </div>
@@ -226,13 +226,13 @@
   
     <span class="post-tags">
       
-      #<a href="http://localhost:1313/tags/sql/">sql</a>&nbsp;
+      #<a href="https://MikeMwita.github.io/tags/sql/">sql</a>&nbsp;
       
-      #<a href="http://localhost:1313/tags/databases/">databases</a>&nbsp;
+      #<a href="https://MikeMwita.github.io/tags/databases/">databases</a>&nbsp;
       
-      #<a href="http://localhost:1313/tags/backend/">backend</a>&nbsp;
+      #<a href="https://MikeMwita.github.io/tags/backend/">backend</a>&nbsp;
       
-      #<a href="http://localhost:1313/tags/performance/">performance</a>&nbsp;
+      #<a href="https://MikeMwita.github.io/tags/performance/">performance</a>&nbsp;
       
     </span>
   
@@ -266,14 +266,14 @@ very developer who has written SQL has made the same mistake at least once: used
 
 <h2 id="the-order-the-database-actually-uses">The Order the Database Actually Uses<a href="#the-order-the-database-actually-uses" class="hanchor" ariaLabel="Anchor">#</a> </h2>
 <p>When a query runs, the engine processes clauses in this sequence — regardless of how you wrote them:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#ae81ff">1</span>. <span style="color:#66d9ef">FROM</span> <span style="color:#f92672">+</span> <span style="color:#66d9ef">JOIN</span>   <span style="color:#75715e">-- build the full working dataset
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff">2</span>. <span style="color:#66d9ef">WHERE</span>         <span style="color:#75715e">-- filter rows before any grouping
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff">3</span>. <span style="color:#66d9ef">GROUP</span> <span style="color:#66d9ef">BY</span>      <span style="color:#75715e">-- collapse rows into groups
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff">4</span>. <span style="color:#66d9ef">HAVING</span>        <span style="color:#75715e">-- filter groups after aggregation
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff">5</span>. <span style="color:#66d9ef">SELECT</span>        <span style="color:#75715e">-- compute output columns, assign aliases
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff">6</span>. <span style="color:#66d9ef">DISTINCT</span>      <span style="color:#75715e">-- deduplicate computed output
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff">7</span>. <span style="color:#66d9ef">ORDER</span> <span style="color:#66d9ef">BY</span>      <span style="color:#75715e">-- sort the final result
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff">8</span>. <span style="color:#66d9ef">LIMIT</span><span style="color:#f92672">/</span><span style="color:#66d9ef">OFFSET</span>  <span style="color:#75715e">-- slice rows from the sorted result
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#ae81ff">1</span>. <span style="color:#66d9ef">FROM</span> <span style="color:#f92672">+</span> <span style="color:#66d9ef">JOIN</span>   <span style="color:#75715e">-- build the full working dataset
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#ae81ff">2</span>. <span style="color:#66d9ef">WHERE</span>         <span style="color:#75715e">-- filter rows before any grouping
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#ae81ff">3</span>. <span style="color:#66d9ef">GROUP</span> <span style="color:#66d9ef">BY</span>      <span style="color:#75715e">-- collapse rows into groups
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#ae81ff">4</span>. <span style="color:#66d9ef">HAVING</span>        <span style="color:#75715e">-- filter groups after aggregation
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#ae81ff">5</span>. <span style="color:#66d9ef">SELECT</span>        <span style="color:#75715e">-- compute output columns, assign aliases
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#ae81ff">6</span>. <span style="color:#66d9ef">DISTINCT</span>      <span style="color:#75715e">-- deduplicate computed output
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#ae81ff">7</span>. <span style="color:#66d9ef">ORDER</span> <span style="color:#66d9ef">BY</span>      <span style="color:#75715e">-- sort the final result
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#ae81ff">8</span>. <span style="color:#66d9ef">LIMIT</span><span style="color:#f92672">/</span><span style="color:#66d9ef">OFFSET</span>  <span style="color:#75715e">-- slice rows from the sorted result
 </span></span></span></code></pre></div><div class="mermaid">
 %%{init: {'themeVariables': {'fontSize': '16px'}, 'flowchart': {'padding': 25, 'nodeSpacing': 50, 'rankSpacing': 80}}}%%
 flowchart LR
@@ -326,26 +326,26 @@ The written order is syntax. The execution order is semantics.
 <h2 id="what-this-means-in-practice">What This Means in Practice<a href="#what-this-means-in-practice" class="hanchor" ariaLabel="Anchor">#</a> </h2>
 <h3 id="where-cannot-see-select-aliases">WHERE cannot see SELECT aliases<a href="#where-cannot-see-select-aliases" class="hanchor" ariaLabel="Anchor">#</a> </h3>
 <p><code>SELECT</code> runs after <code>WHERE</code>. So at the time <code>WHERE</code> evaluates, aliases defined in the select list do not exist yet.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#75715e">-- fails: &#39;discounted&#39; is not defined when WHERE runs
-</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> price <span style="color:#f92672">*</span> <span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">9</span> <span style="color:#66d9ef">AS</span> discounted
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#75715e">-- fails: &#39;discounted&#39; is not defined when WHERE runs
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">SELECT</span> price <span style="color:#f92672">*</span> <span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">9</span> <span style="color:#66d9ef">AS</span> discounted
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> products
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> discounted <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">100</span>;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e">-- works: repeat the expression
-</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> price <span style="color:#f92672">*</span> <span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">9</span> <span style="color:#66d9ef">AS</span> discounted
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">SELECT</span> price <span style="color:#f92672">*</span> <span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">9</span> <span style="color:#66d9ef">AS</span> discounted
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> products
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> price <span style="color:#f92672">*</span> <span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">9</span> <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">100</span>;
 </span></span></code></pre></div><p>Most databases will reject the first form outright. A few (like BigQuery) allow alias references in <code>WHERE</code> as a non-standard extension — but relying on that makes your SQL non-portable.</p>
 <h3 id="where-cannot-filter-aggregates">WHERE cannot filter aggregates<a href="#where-cannot-filter-aggregates" class="hanchor" ariaLabel="Anchor">#</a> </h3>
 <p><code>WHERE</code> runs before <code>GROUP BY</code>, so aggregate functions like <code>COUNT</code>, <code>SUM</code>, and <code>AVG</code> have not been computed yet when <code>WHERE</code> fires. This is exactly what <code>HAVING</code> is for.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#75715e">-- fails: COUNT(*) doesn&#39;t exist at WHERE time
-</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> customer_id, <span style="color:#66d9ef">COUNT</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">AS</span> order_count
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#75715e">-- fails: COUNT(*) doesn&#39;t exist at WHERE time
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">SELECT</span> customer_id, <span style="color:#66d9ef">COUNT</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">AS</span> order_count
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> orders
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> <span style="color:#66d9ef">COUNT</span>(<span style="color:#f92672">*</span>) <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">5</span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">GROUP</span> <span style="color:#66d9ef">BY</span> customer_id;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e">-- correct
-</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> customer_id, <span style="color:#66d9ef">COUNT</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">AS</span> order_count
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">SELECT</span> customer_id, <span style="color:#66d9ef">COUNT</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">AS</span> order_count
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> orders
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">GROUP</span> <span style="color:#66d9ef">BY</span> customer_id
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">HAVING</span> <span style="color:#66d9ef">COUNT</span>(<span style="color:#f92672">*</span>) <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">5</span>;
@@ -356,8 +356,8 @@ The written order is syntax. The execution order is semantics.
 
 <h3 id="order-by-can-see-select-aliases">ORDER BY can see SELECT aliases<a href="#order-by-can-see-select-aliases" class="hanchor" ariaLabel="Anchor">#</a> </h3>
 <p><code>ORDER BY</code> runs after <code>SELECT</code>, so aliases are fully in scope. This is one of the few places you can use them.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#75715e">-- valid: ORDER BY runs after SELECT
-</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> price <span style="color:#f92672">*</span> <span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">9</span> <span style="color:#66d9ef">AS</span> discounted
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#75715e">-- valid: ORDER BY runs after SELECT
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">SELECT</span> price <span style="color:#f92672">*</span> <span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">9</span> <span style="color:#66d9ef">AS</span> discounted
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> products
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">ORDER</span> <span style="color:#66d9ef">BY</span> discounted <span style="color:#66d9ef">DESC</span>;
 </span></span></code></pre></div><p>This works in all major databases. It is not a trick — it is a direct consequence of the execution order.</p>
@@ -374,8 +374,8 @@ The written order is syntax. The execution order is semantics.
 
 <h2 id="subqueries-and-ctes-as-a-workaround">Subqueries and CTEs as a Workaround<a href="#subqueries-and-ctes-as-a-workaround" class="hanchor" ariaLabel="Anchor">#</a> </h2>
 <p>When you need to filter on a <code>SELECT</code> alias — say, a computed value you do not want to repeat — the cleanest approach is a subquery or CTE. Both establish a new logical scope where the computed column becomes a real column.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#75715e">-- CTE: compute once, filter in the outer query
-</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">WITH</span> priced <span style="color:#66d9ef">AS</span> (
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#75715e">-- CTE: compute once, filter in the outer query
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">WITH</span> priced <span style="color:#66d9ef">AS</span> (
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">SELECT</span> <span style="color:#f92672">*</span>, price <span style="color:#f92672">*</span> <span style="color:#ae81ff">0</span>.<span style="color:#ae81ff">9</span> <span style="color:#66d9ef">AS</span> discounted
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">FROM</span> products
 </span></span><span style="display:flex;"><span>)
@@ -389,12 +389,12 @@ The written order is syntax. The execution order is semantics.
 
 <h2 id="distinct-is-not-a-function">DISTINCT Is Not a Function<a href="#distinct-is-not-a-function" class="hanchor" ariaLabel="Anchor">#</a> </h2>
 <p>A common misconception is that <code>DISTINCT</code> is a modifier on a single column, like <code>SELECT DISTINCT(status)</code>. It is not. <code>DISTINCT</code> applies to the entire row — it deduplicates based on the combination of all selected columns after <code>SELECT</code> computes them.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#75715e">-- these are identical — the parens do nothing
-</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> <span style="color:#66d9ef">DISTINCT</span> status <span style="color:#66d9ef">FROM</span> orders;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#75715e">-- these are identical — the parens do nothing
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">SELECT</span> <span style="color:#66d9ef">DISTINCT</span> status <span style="color:#66d9ef">FROM</span> orders;
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> <span style="color:#66d9ef">DISTINCT</span>(status) <span style="color:#66d9ef">FROM</span> orders;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#75715e">-- DISTINCT applies to both columns together
-</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> <span style="color:#66d9ef">DISTINCT</span> customer_id, status <span style="color:#66d9ef">FROM</span> orders;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">SELECT</span> <span style="color:#66d9ef">DISTINCT</span> customer_id, status <span style="color:#66d9ef">FROM</span> orders;
 </span></span><span style="display:flex;"><span><span style="color:#75715e">-- returns one row per unique (customer_id, status) pair, not per customer_id
 </span></span></span></code></pre></div><p>This trips people up when they expect <code>DISTINCT customer_id</code> to deduplicate across all rows and then return other columns too. That is <code>GROUP BY</code>, not <code>DISTINCT</code>.</p>
 <div class="section-divider">

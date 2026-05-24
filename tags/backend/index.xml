@@ -31,6 +31,13 @@
       <description>&lt;p&gt;&lt;span class=&#34;dropcap&#34;&gt;M&lt;/span&gt;&#xA;ost Go services start out reasonable. A handler calls a database. A function returns a struct. Six months later, your HTTP handler is importing your database package, your database package is calling an external API, and your tests require a live Postgres instance to run a single unit.&lt;/p&gt;&#xA;&lt;p&gt;This is not a Go problem. It is an architecture problem — and hexagonal architecture is the structural answer.&lt;aside class=&#34;sidenote&#34;&gt;Also called &lt;strong&gt;ports and adapters&lt;/strong&gt;, coined by Alistair Cockburn in 2005. The hexagon shape has no special meaning — it just illustrates that an application has multiple sides to connect.&lt;/aside&gt;&#xA;&lt;/p&gt;</description>
     </item>
     <item>
+      <title>SQL Doesn&#39;t Run in the Order You Write It</title>
+      <link>https://MikeMwita.github.io/thoughts/sql-execution-order/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/sql-execution-order/</guid>
+      <description>&lt;p&gt;&lt;span class=&#34;dropcap&#34;&gt;E&lt;/span&gt;&#xA;very developer who has written SQL has made the same mistake at least once: used a &lt;code&gt;SELECT&lt;/code&gt; alias in a &lt;code&gt;WHERE&lt;/code&gt; clause, or tried to filter on an aggregate without &lt;code&gt;HAVING&lt;/code&gt;, and gotten an error that felt completely arbitrary. It is not arbitrary. It is the database telling you that you wrote the query in one order and expected it to execute in that order. It does not.&lt;/p&gt;&#xA;&lt;p&gt;Understanding the actual execution order is one of those things that turns SQL from a language you fight into a language you reason with.&lt;/p&gt;</description>
+    </item>
+    <item>
       <title>That Username Is Taken. How Does Google Know Instantly?</title>
       <link>https://MikeMwita.github.io/thoughts/username-availability-at-scale/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

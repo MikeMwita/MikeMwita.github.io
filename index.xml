@@ -150,6 +150,13 @@
       <description>&lt;h1 id=&#34;my-thoughts-on-domain-driven-design-in-golang&#34;&gt;My Thoughts on Domain-Driven Design in Golang&lt;/h1&gt;&#xA;&lt;p&gt;Contrary to what most people think, DDD is not about folder naming. It is not about having directories called &lt;code&gt;domain&lt;/code&gt; and &lt;code&gt;infrastructure&lt;/code&gt; and calling it a day.&lt;/p&gt;&#xA;&lt;p&gt;Here is my lightweight approach that helps you think about what your app domain actually is.&lt;/p&gt;&#xA;&lt;p&gt;The concept is straightforward: you see a domain, you create a directory for it. The real value is not in the structure itself — it is in the thinking the structure forces you to do.&lt;/p&gt;</description>
     </item>
     <item>
+      <title>SQL Doesn&#39;t Run in the Order You Write It</title>
+      <link>https://MikeMwita.github.io/thoughts/sql-execution-order/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/sql-execution-order/</guid>
+      <description>&lt;p&gt;&lt;span class=&#34;dropcap&#34;&gt;E&lt;/span&gt;&#xA;very developer who has written SQL has made the same mistake at least once: used a &lt;code&gt;SELECT&lt;/code&gt; alias in a &lt;code&gt;WHERE&lt;/code&gt; clause, or tried to filter on an aggregate without &lt;code&gt;HAVING&lt;/code&gt;, and gotten an error that felt completely arbitrary. It is not arbitrary. It is the database telling you that you wrote the query in one order and expected it to execute in that order. It does not.&lt;/p&gt;&#xA;&lt;p&gt;Understanding the actual execution order is one of those things that turns SQL from a language you fight into a language you reason with.&lt;/p&gt;</description>
+    </item>
+    <item>
       <title>SQL Performance Explained</title>
       <link>https://MikeMwita.github.io/reads/sql-performance-explained/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
