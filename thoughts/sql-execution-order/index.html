@@ -274,7 +274,45 @@ very developer who has written SQL has made the same mistake at least once: used
 </span></span></span><span style="display:flex;"><span><span style="color:#ae81ff">6</span>. <span style="color:#66d9ef">DISTINCT</span>      <span style="color:#75715e">-- deduplicate computed output
 </span></span></span><span style="display:flex;"><span><span style="color:#ae81ff">7</span>. <span style="color:#66d9ef">ORDER</span> <span style="color:#66d9ef">BY</span>      <span style="color:#75715e">-- sort the final result
 </span></span></span><span style="display:flex;"><span><span style="color:#ae81ff">8</span>. <span style="color:#66d9ef">LIMIT</span><span style="color:#f92672">/</span><span style="color:#66d9ef">OFFSET</span>  <span style="color:#75715e">-- slice rows from the sorted result
-</span></span></span></code></pre></div><p>The written order — <code>SELECT ... FROM ... WHERE ... GROUP BY ... HAVING ... ORDER BY ... LIMIT</code> — is the opposite in most places. The database parses it in written order but executes it in logical order.</p>
+</span></span></span></code></pre></div><div class="mermaid">
+%%{init: {'themeVariables': {'fontSize': '16px'}, 'flowchart': {'padding': 25, 'nodeSpacing': 50, 'rankSpacing': 80}}}%%
+flowchart LR
+    A["FROM + JOIN\nBuild the dataset"] --> B["WHERE\nFilter rows"]
+    B --> C["GROUP BY\nCollapse into groups"]
+    C --> D["HAVING\nFilter groups"]
+    D --> E["SELECT\nCompute columns"]
+    E --> F["DISTINCT\nDeduplicate"]
+    F --> G["ORDER BY\nSort results"]
+    G --> H["LIMIT / OFFSET\nSlice the output"]
+
+    style A fill:#1e3a5f,color:#e8edf2,stroke:#2d6a9f,stroke-width:1.5px
+    style B fill:#1e3a5f,color:#e8edf2,stroke:#2d6a9f,stroke-width:1.5px
+    style C fill:#1e3a5f,color:#e8edf2,stroke:#2d6a9f,stroke-width:1.5px
+    style D fill:#1e3a5f,color:#e8edf2,stroke:#2d6a9f,stroke-width:1.5px
+    style E fill:#2d5a27,color:#e8edf2,stroke:#4a9e3f,stroke-width:1.5px
+    style F fill:#2d5a27,color:#e8edf2,stroke:#4a9e3f,stroke-width:1.5px
+    style G fill:#5a3a1e,color:#e8edf2,stroke:#9e6a2d,stroke-width:1.5px
+    style H fill:#5a3a1e,color:#e8edf2,stroke:#9e6a2d,stroke-width:1.5px
+
+</div>
+<style>
+  .mermaid text { font-weight: 300 !important; }
+  .mermaid .node rect,
+  .mermaid .node circle,
+  .mermaid .node ellipse,
+  .mermaid .node polygon,
+  .mermaid .node path { fill: transparent !important; }
+  .mermaid .edgeLabel rect { fill: transparent !important; }
+  .mermaid .edgeLabel foreignObject div,
+  .mermaid .edgeLabel foreignObject span,
+  .mermaid .edgeLabel { background-color: transparent !important; background: transparent !important; }
+</style>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, look: 'handDrawn', theme: 'dark' });
+</script>
+
+<p>The written order — <code>SELECT ... FROM ... WHERE ... GROUP BY ... HAVING ... ORDER BY ... LIMIT</code> — is the opposite in most places. The database parses it in written order but executes it in logical order.</p>
 <aside class="pullquote">
   
 The written order is syntax. The execution order is semantics.
