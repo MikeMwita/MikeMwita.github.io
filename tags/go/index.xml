@@ -45,6 +45,13 @@
       <description>&lt;h2 id=&#34;mike-mwita&#34;&gt;Mike Mwita&lt;/h2&gt;&#xA;&lt;p&gt;&lt;strong&gt;Ambitious Software Developer&lt;/strong&gt;&lt;/p&gt;&#xA;&lt;p&gt;Passionate about building reliable software systems, scalable backends, and clean developer experiences across web, cloud, and distributed environments.&lt;/p&gt;&#xA;&lt;p&gt;&lt;a href=&#34;https://MikeMwita.github.io/cv/mike-mwita.pdf&#34;&gt;Download full CV (PDF)&lt;/a&gt;&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;&#xA;&lt;p&gt;I am a driven and enthusiastic software developer with a strong interest in backend systems, cloud infrastructure, and developer tooling. I enjoy designing and building software that is maintainable, scalable, and easy to reason about.&lt;/p&gt;&#xA;&lt;p&gt;I have hands-on experience collaborating in cross-functional teams, contributing to open-source projects, and delivering production-ready systems using modern tools and practices.&lt;/p&gt;</description>
     </item>
     <item>
+      <title>Reading Flame Graphs in Go</title>
+      <link>https://MikeMwita.github.io/thoughts/reading-flame-graphs-in-go/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/reading-flame-graphs-in-go/</guid>
+      <description>&lt;p&gt;&lt;span class=&#34;dropcap&#34;&gt;I&lt;/span&gt;&#xA;nvisible performance bugs are the ones that scale with you. A function that takes 800 nanoseconds at 100 rows and 130 microseconds at 10,000 rows looks fine in every test you write on day one, and quietly becomes the reason a page hangs on day three hundred. You cannot fix what you cannot see — and a guess is not seeing.&lt;/p&gt;&#xA;&lt;p&gt;This is a walkthrough of making one such bug visible: write a benchmark, capture a CPU profile, and read the flame graph until the cost stops being a mystery. The example is a real lookup from &lt;a href=&#34;https://github.com/MikeMwita/PayMeter&#34;&gt;PayMeter&lt;/a&gt;, a small Go payments service, but the workflow is the same for anything.&lt;aside class=&#34;sidenote&#34;&gt;Everything here uses only the standard toolchain — &lt;code&gt;go test&lt;/code&gt;, &lt;code&gt;go tool pprof&lt;/code&gt;, and Graphviz. No third-party profilers.&lt;/aside&gt;&#xA;&lt;/p&gt;</description>
+    </item>
+    <item>
       <title>What It Takes to Be a Real Go Engineer</title>
       <link>https://MikeMwita.github.io/thoughts/what-it-takes-to-be-a-real-go-engineer/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

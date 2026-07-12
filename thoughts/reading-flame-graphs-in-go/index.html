@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Reading Flame Graphs in Go :: Mike Mwita</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="How to turn a slow Go function into a picture you can act on — benchmarks, pprof, and how to actually read a flame graph, using one real O(n) lookup as the worked example." />
+<meta name="keywords" content="Web Development, Software Developer Engineer, Programming, Data Structures and Algorithms, Kubernetes, Go, Cloud Engineering" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://MikeMwita.github.io/thoughts/reading-flame-graphs-in-go/" />
+
+
+
+
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/green.min.19ff399c8fe2afa299bb9b81f8c46c29bbef4df545e529049bd13540bfcacf79.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/buttons.min.86f6b4c106b6c6eb690ae5203d36b442c1f66f718ff4e8164fa86cf6c61ad641.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/code.min.d529ea4b2fb8d34328d7d31afc5466d5f7bc2f0bc9abdd98b69385335d7baee4.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/fonts.min.5bb7ed13e1d00d8ff39ea84af26737007eb5051b157b86fc24487c94f3dc8bbe.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/footer.min.eb8dfc2c6a7eafa36cd3ba92d63e69e849e2200e0002a228d137f236b09ecd75.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/gist.min.a751e8b0abe1ba8bc53ced52a38b19d8950fe78ca29454ea8c2595cf26aad5c0.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/header.min.75c7eb0e2872d95ff48109c6647d0223a38db52e2561dd87966eb5fc7c6bdac6.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/main.min.36833afd348409fc6c3d09d0897c5833d9d5bf1ff31f5e60ea3ee42ce2b1268c.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/menu.min.3c17467ebeb3d38663dce68f71f519901124fa5cbb4519b2fb0667a21e9aca39.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/pagination.min.bbb986dbce00a5ce5aca0504b7925fc1c581992a4bf57f163e5d69cc1db7d836.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/post.min.e6dddd258e64c83e05cec0cd49c05216742d42fc8ecbfbe6b67083412b609bd3.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/syntax.min.a0773cce9310cb6d8ed23e50f005448facf29a53001b57e038828daa466b25c0.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/terminal.min.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css">
+
+  
+  <link rel="stylesheet" href="https://MikeMwita.github.io/css/terms.min.b81791663c3790e738e571cdbf802312390d30e4b1d8dc9d814a5b5454d0ac11.css">
+
+
+
+
+
+
+
+<link rel="shortcut icon" href="https://MikeMwita.github.io/favicon.png">
+<link rel="apple-touch-icon" href="https://MikeMwita.github.io/apple-touch-icon.png">
+
+
+<meta name="twitter:card" content="summary" />
+
+  
+    <meta name="twitter:site" content="https://MikeMwita.github.io/" />
+  
+    <meta name="twitter:creator" content="" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Reading Flame Graphs in Go">
+<meta property="og:description" content="How to turn a slow Go function into a picture you can act on — benchmarks, pprof, and how to actually read a flame graph, using one real O(n) lookup as the worked example." />
+<meta property="og:url" content="https://MikeMwita.github.io/thoughts/reading-flame-graphs-in-go/" />
+<meta property="og:site_name" content="Mike Mwita" />
+
+  <meta property="og:image" content="https://MikeMwita.github.io/og-image.png">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/green.css">
+
+
+<style>
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-roman-line-figures/et-book-roman-line-figures.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-display-italic-old-style-figures/et-book-display-italic-old-style-figures.woff') format('woff');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'et-book';
+  src: url('https://cdn.jsdelivr.net/gh/edwardtufte/et-book@gh-pages/et-book/et-book-bold-line-figures/et-book-bold-line-figures.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+</style>
+
+<script data-goatcounter="https://mikemwita.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+
+
+</head>
+<body>
+
+
+<div class="container center">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    Mike  Mwita (⌐▨_▨)
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/cv">CV</a></li>
+        
+      
+        
+          <li><a href="/projects">Projects</a></li>
+        
+      
+        
+          <li><a href="/design">Design</a></li>
+        
+      
+        
+          <li><a href="/thoughts">Thoughts?</a></li>
+        
+      
+        
+          <li><a href="/reads">Reads</a></li>
+        
+      
+        
+          <li><a href="/links">Links</a></li>
+        
+      
+        
+          <li><a href="/contacts">Contacts</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/cv" >CV</a></li>
+        
+      
+        
+          <li><a href="/projects" >Projects</a></li>
+        
+      
+        
+          <li><a href="/design" >Design</a></li>
+        
+      
+        
+          <li><a href="/thoughts" >Thoughts?</a></li>
+        
+      
+        
+          <li><a href="/reads" >Reads</a></li>
+        
+      
+        
+          <li><a href="/links" >Links</a></li>
+        
+      
+        
+          <li><a href="/contacts" >Contacts</a></li>
+        
+      
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://MikeMwita.github.io/thoughts/reading-flame-graphs-in-go/">Reading Flame Graphs in Go</a>
+  </h1>
+  <div class="post-meta"><span class="post-views" id="article-view-count"></span>
+  </div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://MikeMwita.github.io/tags/go/">go</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/performance/">performance</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/profiling/">profiling</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/pprof/">pprof</a>&nbsp;
+      
+    </span>
+  
+
+  
+<nav class="article-toc">
+    <p class="article-toc__title">Contents</p>
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#the-lookup-that-lied">The lookup that lied</a></li>
+    <li><a href="#write-the-benchmark-first">Write the benchmark first</a></li>
+    <li><a href="#from-numbers-to-a-picture">From numbers to a picture</a></li>
+    <li><a href="#how-to-read-a-flame-graph">How to read a flame graph</a></li>
+    <li><a href="#zooming-into-a-single-map-lookup">Zooming into a single map lookup</a></li>
+    <li><a href="#the-fix-and-the-proof">The fix, and the proof</a></li>
+    <li><a href="#knowing-when-to-stop">Knowing when to stop</a></li>
+    <li><a href="#do-it-yourself">Do it yourself</a></li>
+  </ul>
+</nav>
+  </nav><div class="post-content"><div>
+        <p><span class="dropcap">I</span>
+nvisible performance bugs are the ones that scale with you. A function that takes 800 nanoseconds at 100 rows and 130 microseconds at 10,000 rows looks fine in every test you write on day one, and quietly becomes the reason a page hangs on day three hundred. You cannot fix what you cannot see — and a guess is not seeing.</p>
+<p>This is a walkthrough of making one such bug visible: write a benchmark, capture a CPU profile, and read the flame graph until the cost stops being a mystery. The example is a real lookup from <a href="https://github.com/MikeMwita/PayMeter">PayMeter</a>, a small Go payments service, but the workflow is the same for anything.<aside class="sidenote">Everything here uses only the standard toolchain — <code>go test</code>, <code>go tool pprof</code>, and Graphviz. No third-party profilers.</aside>
+</p>
+<div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
+<h2 id="the-lookup-that-lied">The lookup that lied<a href="#the-lookup-that-lied" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>PayMeter keeps an in-memory customer repository behind an interface. The first cut of &ldquo;find a customer by email&rdquo; did the obvious thing:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">r</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">CustomerRepository</span>) <span style="color:#a6e22e">FindByEmail</span>(<span style="color:#a6e22e">_</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>, <span style="color:#a6e22e">email</span> <span style="color:#66d9ef">string</span>) (<span style="color:#f92672">*</span><span style="color:#a6e22e">customer</span>.<span style="color:#a6e22e">Customer</span>, <span style="color:#66d9ef">error</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">mu</span>.<span style="color:#a6e22e">RLock</span>()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">mu</span>.<span style="color:#a6e22e">RUnlock</span>()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">byID</span> {   <span style="color:#75715e">// scan every customer
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Email</span>() <span style="color:#f92672">==</span> <span style="color:#a6e22e">email</span> {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">c</span>, <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>, <span style="color:#a6e22e">customer</span>.<span style="color:#a6e22e">ErrNotFound</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>It passes every test. It reads cleanly. And it is O(n) — a full scan of the map on every call. At ten rows that is free. At ten thousand it is a scaling cliff hiding in plain sight.</p>
+<aside class="pullquote">
+  
+Clean code and fast code are different claims. Only one of them shows up in a benchmark.
+
+</aside>
+
+<div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
+<h2 id="write-the-benchmark-first">Write the benchmark first<a href="#write-the-benchmark-first" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Before touching the code, measure it. The trick that makes an O(n) bug jump out is a <strong>sub-benchmark sweep</strong> — run the same operation across input sizes so scaling shows up as a slope, not a single number.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">BenchmarkFindByEmail</span>(<span style="color:#a6e22e">b</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">B</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">n</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">100</span>, <span style="color:#ae81ff">1_000</span>, <span style="color:#ae81ff">10_000</span>} {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">repo</span>, <span style="color:#a6e22e">email</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">seedRepo</span>(<span style="color:#a6e22e">b</span>, <span style="color:#a6e22e">n</span>)          <span style="color:#75715e">// n customers; look up the last
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#a6e22e">ctx</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Background</span>()
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">Run</span>(<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;n=%d&#34;</span>, <span style="color:#a6e22e">n</span>), <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">b</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">B</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">ReportAllocs</span>()
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">ResetTimer</span>()                     <span style="color:#75715e">// exclude seeding from the timing
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>            <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; <span style="color:#a6e22e">b</span>.<span style="color:#a6e22e">N</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+</span></span><span style="display:flex;"><span>                <span style="color:#a6e22e">repo</span>.<span style="color:#a6e22e">FindByEmail</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#a6e22e">email</span>)
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        })
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Two lines earn their keep here: <code>b.ResetTimer()</code> throws away the fixture setup so you measure only the lookup, and <code>b.ReportAllocs()</code> surfaces allocations, which are usually the real story.<aside class="sidenote">Look up the <em>last</em> inserted email — the worst case for a linear scan, so the benchmark measures the cliff, not the lucky first hit.</aside>
+</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>go test ./internal/infrastructure/memory -run<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;^$&#39;</span> -bench<span style="color:#f92672">=</span>FindByEmail -benchmem
+</span></span></code></pre></div><pre tabindex="0"><code>BenchmarkFindByEmail/n=100        827.7 ns/op    0 allocs/op
+BenchmarkFindByEmail/n=1000      9688   ns/op    0 allocs/op
+BenchmarkFindByEmail/n=10000   129794   ns/op    0 allocs/op
+</code></pre><p>Ten times the data, roughly ten times the time. That is O(n) written in numbers — and notice zero allocations the whole way, which tells you the cost is pure CPU, not the garbage collector. Now we know <em>what</em> is wrong. A flame graph will show us <em>where</em>.</p>
+
+<div class="callout callout--tip">
+  <div class="callout__body"><code>-run='^$'</code> matches no tests, so only benchmarks run. Add <code>-count=10</code> and compare runs with <code>benchstat</code> when you need to prove a change is real and not noise.</div>
+</div>
+
+<div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
+<h2 id="from-numbers-to-a-picture">From numbers to a picture<a href="#from-numbers-to-a-picture" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>A CPU profile records where the program spends wall-clock CPU time. Any benchmark can emit one:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>go test ./internal/infrastructure/memory -run<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;^$&#39;</span> -bench<span style="color:#f92672">=</span>FindByEmail -cpuprofile<span style="color:#f92672">=</span>cpu.prof
+</span></span><span style="display:flex;"><span>go tool pprof -http<span style="color:#f92672">=</span>: cpu.prof
+</span></span></code></pre></div><p><code>-http=:</code> starts a local web UI on a free port and opens your browser. The default view is a call graph; the one we want is under <strong>VIEW → Flame Graph</strong>.<aside class="sidenote">The flame graph is rendered in the browser and needs no extra tools. Graphviz (<code>brew install graphviz</code>) is only required for the call-graph and SVG views.</aside>
+</p>
+<p>Before reading the graph, two words that the whole thing is built on:</p>
+<ul>
+<li><strong>flat</strong> — time spent <em>inside a function itself</em>.</li>
+<li><strong>cum</strong> (cumulative) — that function <em>plus everything it calls</em>.</li>
+</ul>
+<p>High <code>cum</code> with low <code>flat</code> means a function is just a caller; the cost is deeper. High <code>flat</code> is where work actually happens. That is your target.</p>
+<div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
+<h2 id="how-to-read-a-flame-graph">How to read a flame graph<a href="#how-to-read-a-flame-graph" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>The single rule: <strong>read it by width, not by height.</strong></p>
+<figure class="post-figure">
+  <img src="/images/flame-findbyemail.png" alt="Flame graph of FindByEmail after the fix, showing the map access, RLock and RUnlock as roughly equal-width leaves" />
+  <figcaption>The FindByEmail lookup after the fix. Width is share of CPU time; height is only call depth.</figcaption>
+</figure>
+
+<p>Everything below is the plumbing: <code>root → testing.(*B).runN → BenchmarkFindByEmail → FindByEmail</code>. Those bars are full-width because all the work happens inside the benchmark loop — expected. Then read what sits <em>on top</em> of <code>FindByEmail</code>:</p>
+<ul>
+<li><strong><code>runtime.mapaccess2_faststr</code></strong> — the map lookup itself.</li>
+<li><strong><code>sync.(*RWMutex).RLock</code></strong> → <code>atomic.(*Int32).Add</code> — taking the read lock.</li>
+<li><strong><code>sync.(*RWMutex).RUnlock</code></strong> → <code>atomic.(*Int32).Add</code> — releasing it.</li>
+</ul>
+<p>The width grammar tells you three things at a glance:</p>
+<ol>
+<li><strong>Width is inherited downward.</strong> A parent is as wide as its children plus its own self-time, so a wide box always has a wide culprit somewhere above it. Keep climbing until the width stops shrinking.</li>
+<li><strong>The hot spot is a <em>wide box near the top</em></strong> — a wide leaf is a function burning time itself, not delegating.</li>
+<li><strong>Tall-and-thin is cheap.</strong> A deep stack a few pixels wide cost almost nothing, regardless of how many frames it has.</li>
+</ol>
+<p>Colors are meaningless — warmth is just visual separation (hence &ldquo;flame&rdquo; or &ldquo;torch&rdquo;). Only width is data.</p>
+
+<div class="callout callout--tip">
+  <div class="callout__body">Click any box to zoom that subtree to 100%. Type in the <strong>Search regexp</strong> box to highlight a function everywhere it appears — its total width lights up across the whole graph. That is how you sum a cost that is split across branches.</div>
+</div>
+
+<p>The interesting read here is not a bug — it is a lesson. <code>RLock</code>, <code>RUnlock</code>, and the map access each take roughly a third of the width, which means the two lock operations together now cost about <em>twice</em> the lookup they were guarding. <strong>Once the O(n) scan was gone, the mutex atomics became the dominant cost.</strong> Fix the big thing and the next thing down becomes visible. That is the normal shape of an optimized function, not a problem to chase.</p>
+<div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
+<h2 id="zooming-into-a-single-map-lookup">Zooming into a single map lookup<a href="#zooming-into-a-single-map-lookup" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Click <code>runtime.mapaccess2_faststr</code> and the graph zooms to the anatomy of one Go map probe on a string key.</p>
+<figure class="post-figure">
+  <img src="/images/flame-mapaccess-zoom.png" alt="Zoomed flame graph of runtime.mapaccess2_faststr showing aeshashbody, runtime.strhash, memequal, group, matchH2 and other Swiss-table internals" />
+  <figcaption>One string-keyed map lookup, zoomed in. The header reads 870ms — 27.4% of the whole profile.</figcaption>
+</figure>
+
+<p>The header now reads its share of the total profile — here, <strong>27.4%</strong>. Reading the leaves widest-first:</p>
+<ul>
+<li><strong><code>aeshashbody</code> / <code>runtime.strhash</code></strong> — hashing the email string using the CPU&rsquo;s AES instructions. The single biggest slice.</li>
+<li><strong><code>memequal</code></strong> — byte-compare the actual key to rule out a hash collision.</li>
+<li><strong><code>group</code>, <code>matchH2</code>, <code>first</code>, <code>h2</code></strong> — Swiss-table bookkeeping: pick the group, match the hash&rsquo;s tag byte against a bank of slots at once.<aside class="sidenote">Go&rsquo;s map has used a Swiss-table design since 1.24 — grouped slots probed with SIMD-style byte matching. <code>matchH2</code> compares the 7-bit tag against eight slots in one shot.</aside>
+</li>
+</ul>
+<p>There is a real insight buried in those box widths:</p>
+<aside class="pullquote">
+  
+A string-keyed map lookup costs what it costs to hash the string — which scales with the length of the key, not the size of the map.
+
+</aside>
+
+<p>That is the deep reason the fixed <code>FindByEmail</code> is O(1) in customer count: the graph is all <em>hash, match, one compare</em>, with <strong>no iteration anywhere</strong>. Whether the map holds a hundred entries or ten thousand, you hash one email and probe one group. It is why the three sub-benchmarks collapsed onto the same number after the fix.</p>
+<div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
+<h2 id="the-fix-and-the-proof">The fix, and the proof<a href="#the-fix-and-the-proof" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>The fix is boring, which is the point — keep an email index alongside the id map and maintain it in <code>Save</code> and <code>Delete</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">r</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">CustomerRepository</span>) <span style="color:#a6e22e">FindByEmail</span>(<span style="color:#a6e22e">_</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>, <span style="color:#a6e22e">email</span> <span style="color:#66d9ef">string</span>) (<span style="color:#f92672">*</span><span style="color:#a6e22e">customer</span>.<span style="color:#a6e22e">Customer</span>, <span style="color:#66d9ef">error</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">mu</span>.<span style="color:#a6e22e">RLock</span>()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">mu</span>.<span style="color:#a6e22e">RUnlock</span>()
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">c</span>, <span style="color:#a6e22e">ok</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">byEmail</span>[<span style="color:#a6e22e">email</span>]   <span style="color:#75715e">// one probe, no scan
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> !<span style="color:#a6e22e">ok</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>, <span style="color:#a6e22e">customer</span>.<span style="color:#a6e22e">ErrNotFound</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">c</span>, <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Re-run the exact same benchmark:</p>
+<pre tabindex="0"><code>BenchmarkFindByEmail/n=100      34.12 ns/op    0 allocs/op
+BenchmarkFindByEmail/n=1000     31.88 ns/op    0 allocs/op
+BenchmarkFindByEmail/n=10000    31.79 ns/op    0 allocs/op
+</code></pre><p>Flat ~32 ns regardless of size — O(1). At ten thousand customers that is roughly a <strong>4000×</strong> speedup, and the slope is gone. The flame graph is the confirmation: no scan tower, just a hash and a lock.</p>
+
+<div class="callout callout--warning">
+  <div class="callout__body">Watch the sweep, not the single number. A benchmark at one input size would have shown &ldquo;800 ns, fast enough&rdquo; and hidden the cliff completely. Scaling bugs only confess when you vary the input.</div>
+</div>
+
+<div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
+<h2 id="knowing-when-to-stop">Knowing when to stop<a href="#knowing-when-to-stop" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>The zoomed graph also tells you something a lot of profiling advice leaves out: <strong>when to stop.</strong> Inside <code>mapaccess2_faststr</code> there is nothing to fix. It is hardware-accelerated hashing and SIMD slot matching — the Go runtime doing its job about as well as a general-purpose map can. The only way to beat it would be to not hash a string at all, which is an absurd trade for a lookup already at 32 nanoseconds.</p>
+<figure class="attributed-quote">
+  <blockquote>Premature optimization is the root of all evil.</blockquote>
+  <figcaption>— Donald Knuth</figcaption>
+</figure>
+
+<p>A profile is not a to-do list of everything that costs time. It is a map of where cost <em>concentrates</em>, so you can spend your effort on the one box that matters and leave the irreducible ones alone. The discipline is reading the graph and then having the judgment to close the tab.</p>
+<div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
+<h2 id="do-it-yourself">Do it yourself<a href="#do-it-yourself" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>The whole loop, against any Go code:</p>
+<ol>
+<li><strong>Benchmark</strong> the suspect function, sweeping input sizes with <code>b.Run</code>.</li>
+<li><strong>Profile</strong> it: <code>go test -bench=X -cpuprofile=cpu.prof</code>.</li>
+<li><strong>Open</strong> the flame graph: <code>go tool pprof -http=: cpu.prof</code> → VIEW → Flame Graph.</li>
+<li><strong>Read wide</strong> — find the widest leaf, climb to the widest box you own.</li>
+<li><strong>Fix, then re-benchmark</strong> to prove the delta is real.</li>
+</ol>
+<p>The benchmarks, the fix, and a full profiling guide live in the PayMeter repo — see <a href="https://github.com/MikeMwita/PayMeter"><code>docs/profiling.md</code></a> and the <code>make bench-cpu</code> / <code>make pprof-cpu</code> targets, which wrap the commands above.<aside class="sidenote"><code>make pprof-cpu</code> even pulls a live 30-second CPU profile from a running server and opens the flame graph, so the same workflow works against production traffic, not just benchmarks.</aside>
+</p>
+<aside class="pullquote">
+  
+Don't guess where the time goes. Make it a picture, read it by width, and fix the widest box you own.
+
+</aside>
+
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>Reading a flame graph</th>
+          <th>What it means</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Wide box</strong></td>
+          <td>Large share of the resource (CPU time, bytes)</td>
+      </tr>
+      <tr>
+          <td><strong>Height</strong></td>
+          <td>Call depth only — <em>not</em> time, <em>not</em> slowness</td>
+      </tr>
+      <tr>
+          <td><strong>Wide leaf on top</strong></td>
+          <td>The hot spot — work happening here, optimize it</td>
+      </tr>
+      <tr>
+          <td><strong>Tall and thin</strong></td>
+          <td>Cheap — ignore it</td>
+      </tr>
+      <tr>
+          <td><strong>Color</strong></td>
+          <td>Meaningless — visual separation only</td>
+      </tr>
+      <tr>
+          <td><strong>high <code>cum</code>, low <code>flat</code></strong></td>
+          <td>Just a caller — look higher up the stack</td>
+      </tr>
+  </tbody>
+</table>
+
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright copyright--user">
+        <span>© 2026 Mike Mwita</span>
+    
+      <span>:: <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+<script>
+ 
+(function () {
+   
+  if (document.querySelector('.posts, .thoughts-list, .posts-group')) return;
+  if (!document.querySelector('.post-content, .post__content')) return;
+
+  var bar = document.createElement('div');
+  bar.id = 'reading-progress';
+  document.body.prepend(bar);
+
+  window.addEventListener('scroll', function () {
+    var scrollTop = window.scrollY || window.pageYOffset;
+    var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = docHeight > 0 ? (scrollTop / docHeight * 100) + '%' : '0%';
+  }, { passive: true });
+})();
+
+ 
+(function () {
+  document.querySelectorAll('pre > code').forEach(function (codeEl) {
+    var langClass = Array.from(codeEl.classList).find(function (c) {
+      return c.startsWith('language-');
+    });
+    if (langClass) {
+      codeEl.parentElement.setAttribute('data-lang', langClass.replace('language-', ''));
+    }
+  });
+})();
+
+ 
+(function () {
+  var el = document.getElementById('article-view-count');
+  if (!el) return;
+  var path = encodeURIComponent(window.location.pathname);
+  fetch('https://mikemwita.goatcounter.com/api/v0/stats/hits?path=' + path, {
+    headers: { 'Content-Type': 'application/json' }
+  })
+  .then(function (r) { return r.json(); })
+  .then(function (data) {
+    var total = (data.stats && data.stats[0] && data.stats[0].count) ? data.stats[0].count : null;
+    if (total) el.textContent = total.toLocaleString() + ' views';
+  })
+  .catch(function () {});
+})();
+</script>
+
+
+  
+</div>
+
+</body>
+</html>

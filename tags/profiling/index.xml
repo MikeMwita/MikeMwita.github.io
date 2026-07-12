@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Profiling on Mike Mwita</title>
+    <link>https://MikeMwita.github.io/tags/profiling/</link>
+    <description>Recent content in Profiling on Mike Mwita</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <copyright>© 2026 Mike Mwita</copyright>
+    <atom:link href="https://MikeMwita.github.io/tags/profiling/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Reading Flame Graphs in Go</title>
+      <link>https://MikeMwita.github.io/thoughts/reading-flame-graphs-in-go/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/reading-flame-graphs-in-go/</guid>
+      <description>&lt;p&gt;&lt;span class=&#34;dropcap&#34;&gt;I&lt;/span&gt;&#xA;nvisible performance bugs are the ones that scale with you. A function that takes 800 nanoseconds at 100 rows and 130 microseconds at 10,000 rows looks fine in every test you write on day one, and quietly becomes the reason a page hangs on day three hundred. You cannot fix what you cannot see — and a guess is not seeing.&lt;/p&gt;&#xA;&lt;p&gt;This is a walkthrough of making one such bug visible: write a benchmark, capture a CPU profile, and read the flame graph until the cost stops being a mystery. The example is a real lookup from &lt;a href=&#34;https://github.com/MikeMwita/PayMeter&#34;&gt;PayMeter&lt;/a&gt;, a small Go payments service, but the workflow is the same for anything.&lt;aside class=&#34;sidenote&#34;&gt;Everything here uses only the standard toolchain — &lt;code&gt;go test&lt;/code&gt;, &lt;code&gt;go tool pprof&lt;/code&gt;, and Graphviz. No third-party profilers.&lt;/aside&gt;&#xA;&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

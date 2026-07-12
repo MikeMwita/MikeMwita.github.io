@@ -335,9 +335,13 @@ pre, pre code {
 
 .post-figure figcaption {
   font-size: 0.82rem;
-  color: rgba(200, 240, 200, 0.5);
-  margin-top: 0.55em;
+  color: rgba(200, 240, 200, 0.55);
+  margin-top: 0.6em;
   font-style: italic;
+  /* override the theme's global figcaption green bar */
+  background: none;
+  padding: 0;
+  border-radius: 0;
 }
 
 .post-figure--wide {

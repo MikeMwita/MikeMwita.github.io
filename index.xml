@@ -150,6 +150,13 @@
       <description>&lt;h1 id=&#34;my-thoughts-on-domain-driven-design-in-golang&#34;&gt;My Thoughts on Domain-Driven Design in Golang&lt;/h1&gt;&#xA;&lt;p&gt;Contrary to what most people think, DDD is not about folder naming. It is not about having directories called &lt;code&gt;domain&lt;/code&gt; and &lt;code&gt;infrastructure&lt;/code&gt; and calling it a day.&lt;/p&gt;&#xA;&lt;p&gt;Here is my lightweight approach that helps you think about what your app domain actually is.&lt;/p&gt;&#xA;&lt;p&gt;The concept is straightforward: you see a domain, you create a directory for it. The real value is not in the structure itself — it is in the thinking the structure forces you to do.&lt;/p&gt;</description>
     </item>
     <item>
+      <title>Reading Flame Graphs in Go</title>
+      <link>https://MikeMwita.github.io/thoughts/reading-flame-graphs-in-go/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://MikeMwita.github.io/thoughts/reading-flame-graphs-in-go/</guid>
+      <description>&lt;p&gt;&lt;span class=&#34;dropcap&#34;&gt;I&lt;/span&gt;&#xA;nvisible performance bugs are the ones that scale with you. A function that takes 800 nanoseconds at 100 rows and 130 microseconds at 10,000 rows looks fine in every test you write on day one, and quietly becomes the reason a page hangs on day three hundred. You cannot fix what you cannot see — and a guess is not seeing.&lt;/p&gt;&#xA;&lt;p&gt;This is a walkthrough of making one such bug visible: write a benchmark, capture a CPU profile, and read the flame graph until the cost stops being a mystery. The example is a real lookup from &lt;a href=&#34;https://github.com/MikeMwita/PayMeter&#34;&gt;PayMeter&lt;/a&gt;, a small Go payments service, but the workflow is the same for anything.&lt;aside class=&#34;sidenote&#34;&gt;Everything here uses only the standard toolchain — &lt;code&gt;go test&lt;/code&gt;, &lt;code&gt;go tool pprof&lt;/code&gt;, and Graphviz. No third-party profilers.&lt;/aside&gt;&#xA;&lt;/p&gt;</description>
+    </item>
+    <item>
       <title>SQL Doesn&#39;t Run in the Order You Write It</title>
       <link>https://MikeMwita.github.io/thoughts/sql-execution-order/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
