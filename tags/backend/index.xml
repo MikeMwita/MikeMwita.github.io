@@ -7,8 +7,15 @@
     <generator>Hugo</generator>
     <language>en</language>
     <copyright>© 2026 Mike Mwita</copyright>
-    <lastBuildDate>Wed, 07 Jan 2026 13:10:00 +0300</lastBuildDate>
+    <lastBuildDate>Sun, 02 Aug 2026 09:00:00 +0300</lastBuildDate>
     <atom:link href="https://MikeMwita.github.io/tags/backend/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Bug #1 — The Clock That Kept Slipping</title>
+      <link>https://MikeMwita.github.io/buglog/the-clock-that-kept-slipping/</link>
+      <pubDate>Sun, 02 Aug 2026 09:00:00 +0300</pubDate>
+      <guid>https://MikeMwita.github.io/buglog/the-clock-that-kept-slipping/</guid>
+      <description>&lt;p&gt;&lt;span class=&#34;dropcap&#34;&gt;I&lt;/span&gt;&#xA; was integrating an external API. The datetime it stamped on every response never agreed with my local clock — and not by a clean, constant amount. Sometimes it was 4 minutes behind. Later, 8. Then more. The gap kept drifting.&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  our clock          their timestamp       gap&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  ─────────────────────────────────────────────&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  10:14              10:10                 −4 min&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  11:02              10:54                 −8 min&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  13:40              13:29                 −11 min&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                                            ↑&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                            not a constant — it grows&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;the-wrong-theory&#34;&gt;The Wrong Theory&lt;/h2&gt;&#xA;&lt;p&gt;My first instinct was that we were sending the wrong value, so I checked the payload. The date was correct. That check cost me time: a timezone shift usually leaves the date component intact and only moves the clock, so a date-only comparison passes while the instant is wrong. The date only flips when the shift crosses midnight — which is why &amp;ldquo;the date is right&amp;rdquo; &lt;em&gt;feels&lt;/em&gt; like evidence and isn&amp;rsquo;t.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Beyond Backend Basics</title>
       <link>https://MikeMwita.github.io/thoughts/beyond-the-backend-basics/</link>

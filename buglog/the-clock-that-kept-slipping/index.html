@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
   
-    <title>Engineering :: Mike Mwita</title>
+    <title>Bug #1 — The Clock That Kept Slipping :: Mike Mwita</title>
   
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="" />
+<meta name="description" content="An external API&#39;s timestamps never matched our clock — and the gap kept growing. It was not one bug, it was two." />
 <meta name="keywords" content="Web Development, Software Developer Engineer, Programming, Data Structures and Algorithms, Kubernetes, Go, Cloud Engineering" />
 
   <meta name="robots" content="noodp" />
 
-<link rel="canonical" href="https://MikeMwita.github.io/tags/engineering/" />
+<link rel="canonical" href="https://MikeMwita.github.io/buglog/the-clock-that-kept-slipping/" />
 
 
 
@@ -79,10 +79,10 @@
 
 
 <meta property="og:locale" content="en" />
-<meta property="og:type" content="website" />
-<meta property="og:title" content="Engineering">
-<meta property="og:description" content="" />
-<meta property="og:url" content="https://MikeMwita.github.io/tags/engineering/" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Bug #1 — The Clock That Kept Slipping">
+<meta property="og:description" content="An external API&#39;s timestamps never matched our clock — and the gap kept growing. It was not one bug, it was two." />
+<meta property="og:url" content="https://MikeMwita.github.io/buglog/the-clock-that-kept-slipping/" />
 <meta property="og:site_name" content="Mike Mwita" />
 
   <meta property="og:image" content="https://MikeMwita.github.io/og-image.png">
@@ -91,10 +91,10 @@
 <meta property="og:image:height" content="627">
 
 
+  <meta property="article:published_time" content="2026-08-02 09:00:00 &#43;0300 &#43;0300" />
 
 
 
-  <link href="/tags/engineering/index.xml" rel="alternate" type="application/rss+xml" title="Mike Mwita" />
 
 
 
@@ -253,92 +253,92 @@
 
   <div class="content">
     
-  <h1>Posts for: #Engineering</h1>
-  
-  <div class="posts">
-    
-      <article class="post on-list">
-        <h1 class="post-title">
-          <a href="https://MikeMwita.github.io/thoughts/beyond-the-backend-basics/">Beyond Backend Basics</a>
-        </h1>
-        <div class="post-meta"><time class="post-date">2026-01-07</time></div>
-
-        
-          <span class="post-tags">
-            
-            #<a href="https://MikeMwita.github.io/tags/backend/">backend</a>&nbsp;
-            
-            #<a href="https://MikeMwita.github.io/tags/distributed-systems/">distributed-systems</a>&nbsp;
-            
-            #<a href="https://MikeMwita.github.io/tags/engineering/">engineering</a>&nbsp;
-            
-            #<a href="https://MikeMwita.github.io/tags/staff-level/">staff-level</a>&nbsp;
-            
-          </span>
-        
-
-        
-
-
-        <div class="post-content">
-          
-            <p>A creative roadmap for backend devs.</p>
-          
-        </div>
-
-        
-          <div>
-            <a class="read-more button inline" href="/thoughts/beyond-the-backend-basics/">[Read more]</a>
-          </div>
-        
-      </article>
-    
-      <article class="post on-list">
-        <h1 class="post-title">
-          <a href="https://MikeMwita.github.io/thoughts/what-it-takes-to-be-a-real-go-engineer/">What It Takes to Be a Real Go Engineer</a>
-        </h1>
-        <div class="post-meta"></div>
-
-        
-          <span class="post-tags">
-            
-            #<a href="https://MikeMwita.github.io/tags/go/">go</a>&nbsp;
-            
-            #<a href="https://MikeMwita.github.io/tags/engineering/">engineering</a>&nbsp;
-            
-            #<a href="https://MikeMwita.github.io/tags/software-craft/">software-craft</a>&nbsp;
-            
-            #<a href="https://MikeMwita.github.io/tags/judgment/">judgment</a>&nbsp;
-            
-          </span>
-        
-
-        
-
-
-        <div class="post-content">
-          
-            <p>Knowing Go syntax is table stakes. Real Go engineering is about judgment, restraint, and knowing when the language itself is the wrong tool.</p>
-          
-        </div>
-
-        
-          <div>
-            <a class="read-more button inline" href="/thoughts/what-it-takes-to-be-a-real-go-engineer/">[Read more]</a>
-          </div>
-        
-      </article>
-    
-
-    <div class="pagination">
-  <div class="pagination__buttons">
-    
-    
-    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://MikeMwita.github.io/buglog/the-clock-that-kept-slipping/">Bug #1 — The Clock That Kept Slipping</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2026-08-02&nbsp;[Updated On 2026-08-02]</time><span class="post-views" id="article-view-count"></span>
   </div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://MikeMwita.github.io/tags/backend/">backend</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/debugging/">debugging</a>&nbsp;
+      
+      #<a href="https://MikeMwita.github.io/tags/apis/">apis</a>&nbsp;
+      
+    </span>
+  
+
+  
+<nav class="article-toc">
+    <p class="article-toc__title">Contents</p>
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#the-wrong-theory">The Wrong Theory</a></li>
+    <li><a href="#the-root-cause">The Root Cause</a></li>
+    <li><a href="#what-actually-fixed-it">What Actually Fixed It</a></li>
+    <li><a href="#the-lesson">The Lesson</a></li>
+  </ul>
+</nav>
+  </nav><div class="post-content"><div>
+        <p><span class="dropcap">I</span>
+ was integrating an external API. The datetime it stamped on every response never agreed with my local clock — and not by a clean, constant amount. Sometimes it was 4 minutes behind. Later, 8. Then more. The gap kept drifting.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>  our clock          their timestamp       gap
+</span></span><span style="display:flex;"><span>  ─────────────────────────────────────────────
+</span></span><span style="display:flex;"><span>  10:14              10:10                 −4 min
+</span></span><span style="display:flex;"><span>  11:02              10:54                 −8 min
+</span></span><span style="display:flex;"><span>  13:40              13:29                 −11 min
+</span></span><span style="display:flex;"><span>                                            ↑
+</span></span><span style="display:flex;"><span>                            not a constant — it grows
+</span></span></code></pre></div><h2 id="the-wrong-theory">The Wrong Theory<a href="#the-wrong-theory" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>My first instinct was that we were sending the wrong value, so I checked the payload. The date was correct. That check cost me time: a timezone shift usually leaves the date component intact and only moves the clock, so a date-only comparison passes while the instant is wrong. The date only flips when the shift crosses midnight — which is why &ldquo;the date is right&rdquo; <em>feels</em> like evidence and isn&rsquo;t.</p>
+<p>My second theory was timezone, full stop. That was closer, but it could not explain the numbers. A timezone error is a fixed offset. It does not grow by 4 minutes over an afternoon.</p>
+
+<div class="callout callout--note">
+  <div class="callout__body">A constant error is one bug. An error that changes size is usually two bugs wearing the same coat.</div>
 </div>
 
-  </div>
+<h2 id="the-root-cause">The Root Cause<a href="#the-root-cause" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Two separate faults stacked on top of each other:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>total error = fixed offset      → the API is not timezone aware.
+</span></span><span style="display:flex;"><span>                                  It takes and returns naive timestamps —
+</span></span><span style="display:flex;"><span>                                  a wall clock with no offset, no Z, no zone —
+</span></span><span style="display:flex;"><span>                                  and reads them in whatever zone its own
+</span></span><span style="display:flex;"><span>                                  servers happen to run in.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            + drifting offset   → their server clock itself was not
+</span></span><span style="display:flex;"><span>                                  synchronised. It slipped further behind
+</span></span><span style="display:flex;"><span>                                  real time as the day went on.
+</span></span></code></pre></div><p>The first fault made the timestamps wrong. The second made them <em>inconsistently</em> wrong, which is what hid the first one. A naive timestamp is not a point in time — it is a point in time plus an unstated assumption, and the assumption belongs to whoever parses it last.</p>
+<h2 id="what-actually-fixed-it">What Actually Fixed It<a href="#what-actually-fixed-it" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Three things, in this order:</p>
+<ul>
+<li>Find out what timezone the external API&rsquo;s servers are in. Not what the docs imply — what they actually do. Send a known value, read it back, measure the delta.</li>
+<li>Find out the exact timezone of our own pods. Container timezones are not a given. The host, the base image, and the runtime can each disagree, and a pod rescheduled onto a different node can quietly change the answer.</li>
+<li>Align them, or normalize at the boundary. Pick one representation — UTC with an explicit offset — and convert on the way in and on the way out. Never let a naive timestamp cross a network boundary in either direction.</li>
+</ul>
+<p>And one thing that came out of the drift specifically: stop treating a remote timestamp as truth. Record your own timestamp next to theirs on every call. The pair is what let me <em>see</em> the drift; theirs alone just looked like noise.</p>
+<aside class="pullquote">
+  
+A proper API would never accept a timezone-naive timestamp. But when it does, compensating is your problem, not theirs.
+
+</aside>
+
+<h2 id="the-lesson">The Lesson<a href="#the-lesson" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>You do not get to choose the quality of the APIs you integrate with. An API that takes naive timestamps has pushed a correctness burden onto every one of its callers, and being right about that will not fix your output. Assume nothing about the other side&rsquo;s clock, measure the delta instead of reasoning about it, and normalize at your own edge — that is the only part of the system you control.</p>
+
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
 
   </div>
 
