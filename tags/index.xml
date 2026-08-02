@@ -7,20 +7,48 @@
     <generator>Hugo</generator>
     <language>en</language>
     <copyright>© 2026 Mike Mwita</copyright>
-    <lastBuildDate>Sun, 02 Aug 2026 09:00:00 +0300</lastBuildDate>
+    <lastBuildDate>Sun, 02 Aug 2026 11:00:00 +0300</lastBuildDate>
     <atom:link href="https://MikeMwita.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Backend</title>
+      <link>https://MikeMwita.github.io/tags/backend/</link>
+      <pubDate>Sun, 02 Aug 2026 11:00:00 +0300</pubDate>
+      <guid>https://MikeMwita.github.io/tags/backend/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Engineering</title>
+      <link>https://MikeMwita.github.io/tags/engineering/</link>
+      <pubDate>Sun, 02 Aug 2026 11:00:00 +0300</pubDate>
+      <guid>https://MikeMwita.github.io/tags/engineering/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Go</title>
+      <link>https://MikeMwita.github.io/tags/go/</link>
+      <pubDate>Sun, 02 Aug 2026 11:00:00 +0300</pubDate>
+      <guid>https://MikeMwita.github.io/tags/go/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Python</title>
+      <link>https://MikeMwita.github.io/tags/python/</link>
+      <pubDate>Sun, 02 Aug 2026 11:00:00 +0300</pubDate>
+      <guid>https://MikeMwita.github.io/tags/python/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Time</title>
+      <link>https://MikeMwita.github.io/tags/time/</link>
+      <pubDate>Sun, 02 Aug 2026 11:00:00 +0300</pubDate>
+      <guid>https://MikeMwita.github.io/tags/time/</guid>
+      <description></description>
+    </item>
     <item>
       <title>Apis</title>
       <link>https://MikeMwita.github.io/tags/apis/</link>
       <pubDate>Sun, 02 Aug 2026 09:00:00 +0300</pubDate>
       <guid>https://MikeMwita.github.io/tags/apis/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Backend</title>
-      <link>https://MikeMwita.github.io/tags/backend/</link>
-      <pubDate>Sun, 02 Aug 2026 09:00:00 +0300</pubDate>
-      <guid>https://MikeMwita.github.io/tags/backend/</guid>
       <description></description>
     </item>
     <item>
@@ -38,13 +66,6 @@
       <description></description>
     </item>
     <item>
-      <title>Engineering</title>
-      <link>https://MikeMwita.github.io/tags/engineering/</link>
-      <pubDate>Wed, 07 Jan 2026 13:10:00 +0300</pubDate>
-      <guid>https://MikeMwita.github.io/tags/engineering/</guid>
-      <description></description>
-    </item>
-    <item>
       <title>Staff-Level</title>
       <link>https://MikeMwita.github.io/tags/staff-level/</link>
       <pubDate>Wed, 07 Jan 2026 13:10:00 +0300</pubDate>
@@ -56,13 +77,6 @@
       <link>https://MikeMwita.github.io/tags/clean-code/</link>
       <pubDate>Tue, 21 Oct 2025 07:00:00 +0300</pubDate>
       <guid>https://MikeMwita.github.io/tags/clean-code/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Python</title>
-      <link>https://MikeMwita.github.io/tags/python/</link>
-      <pubDate>Tue, 21 Oct 2025 07:00:00 +0300</pubDate>
-      <guid>https://MikeMwita.github.io/tags/python/</guid>
       <description></description>
     </item>
     <item>
@@ -84,13 +98,6 @@
       <link>https://MikeMwita.github.io/tags/code-generation/</link>
       <pubDate>Sun, 12 Oct 2025 07:00:00 +0300</pubDate>
       <guid>https://MikeMwita.github.io/tags/code-generation/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Go</title>
-      <link>https://MikeMwita.github.io/tags/go/</link>
-      <pubDate>Sun, 12 Oct 2025 07:00:00 +0300</pubDate>
-      <guid>https://MikeMwita.github.io/tags/go/</guid>
       <description></description>
     </item>
     <item>
