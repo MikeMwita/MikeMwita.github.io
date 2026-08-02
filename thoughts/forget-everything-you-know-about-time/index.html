@@ -301,6 +301,16 @@
     </li>
     <li><a href="#what-to-store">What To Store</a></li>
     <li><a href="#wall-clock-vs-monotonic-clock">Wall Clock vs. Monotonic Clock</a></li>
+    <li><a href="#realm-three-logical-time">Realm Three: Logical Time</a>
+      <ul>
+        <li><a href="#first-how-wrong-is-the-clock">First, how wrong is the clock?</a></li>
+        <li><a href="#lamports-move-stop-asking-when">Lamport&rsquo;s move: stop asking &ldquo;when&rdquo;</a></li>
+        <li><a href="#vector-clocks-paying-for-the-missing-answer">Vector clocks: paying for the missing answer</a></li>
+        <li><a href="#hybrid-logical-clocks-the-practical-compromise">Hybrid logical clocks: the practical compromise</a></li>
+        <li><a href="#the-other-way-out-admit-the-uncertainty">The other way out: admit the uncertainty</a></li>
+        <li><a href="#choosing-between-them">Choosing between them</a></li>
+      </ul>
+    </li>
     <li><a href="#the-cheat-sheet">The Cheat Sheet</a></li>
     <li><a href="#the-short-version">The Short Version</a></li>
   </ul>
@@ -316,7 +326,9 @@ itch Hedberg had a bit about late-night television:</p>
 <p>So let&rsquo;s throw it out and build it back together, from an empty page, one piece at a time. It takes about ten minutes and it is worth every one of them, because the whole thing collapses into a single idea:</p>
 
 <div class="callout callout--note">
-  <div class="callout__body">There are <strong>two different things</strong> in your codebase, both called &ldquo;time.&rdquo; Almost every date bug you will ever write is one of them being mistaken for the other.</div>
+  <div class="callout__body"><p>There are <strong>two different things</strong> in your codebase, both called &ldquo;time.&rdquo; Almost every date bug you will ever write is one of them being mistaken for the other.</p>
+<p><em>(There is a third. It only appears once you have more than one machine, and it is the last section.)</em></p>
+</div>
 </div>
 
 <div class="section-divider">
@@ -650,6 +662,123 @@ flowchart LR
 
 </aside>
 
+<div class="section-divider">
+  <span></span><span></span><span></span>
+</div>
+
+<h2 id="realm-three-logical-time">Realm Three: Logical Time<a href="#realm-three-logical-time" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Everything up to here quietly assumed one machine.</p>
+<p>Drop that assumption and something breaks that neither realm can fix. Because the question you actually need answered in a distributed system is almost never &ldquo;what time is it&rdquo; — it is <strong>&ldquo;which of these two things happened first?&rdquo;</strong> And a timestamp cannot tell you.</p>
+<h3 id="first-how-wrong-is-the-clock">First, how wrong is the clock?<a href="#first-how-wrong-is-the-clock" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>A computer&rsquo;s clock is a quartz oscillator, and quartz drifts. Tens of parts per million is ordinary, which works out to several seconds a day if nothing intervenes. Something does intervene — NTP, checking against an upstream source and dragging the clock back into line, either by <em>slewing</em> it (running it slightly fast or slow until it catches up) or by <em>stepping</em> it (a hard jump, which is what mangles your elapsed-time measurements).</p>
+<p>What NTP does not do is make the clock correct. It makes it correct <em>within a margin</em>: single-digit to tens of milliseconds over the public internet on a good day, better on a well-run LAN, worse when a path is congested. That residual error is not noise you can average away. It is a hard floor on what your timestamps can prove.</p>
+<p>Now put two servers side by side:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>   NODE A          true time  10:00:00.000    clock reads  10:00:00.030   (+30ms)
+</span></span><span style="display:flex;"><span>   NODE B          true time  10:00:00.000    clock reads  09:59:59.985   (−15ms)
+</span></span><span style="display:flex;"><span>                                                           └─ 45ms apart ─┘
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>   ── what actually happened ─────────────────────────────────────────────
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>     A: write &#34;balance = 100&#34;        ●  true 10:00:00.100
+</span></span><span style="display:flex;"><span>     B: read balance, write &#34;= 50&#34;      ●  true 10:00:00.120   (caused by A)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>   ── what the timestamps say ────────────────────────────────────────────
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>     A&#39;s write   stamped  10:00:00.130
+</span></span><span style="display:flex;"><span>     B&#39;s write   stamped  10:00:00.105     ← earlier. by the log, B came first.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>   the cause is now recorded as happening after the effect
+</span></span></code></pre></div><p>Nothing malfunctioned. Both clocks were inside a perfectly normal NTP margin. The events were 20 ms apart and the clocks disagreed by 45 ms, so the ordering inverted — and no amount of sorting your log by timestamp will unpick it.</p>
+
+<div class="callout callout--note">
+  <div class="callout__body">Two timestamps from two machines can only order events that are further apart than the clock skew between them. Inside that window, a timestamp comparison is a coin flip wearing a lab coat.</div>
+</div>
+
+<p>And monotonic clocks are no rescue here. A monotonic reading counts from an arbitrary origin <em>on that machine</em> — usually boot. Comparing one machine&rsquo;s <code>time.monotonic()</code> against another&rsquo;s is meaningless.</p>
+<h3 id="lamports-move-stop-asking-when">Lamport&rsquo;s move: stop asking &ldquo;when&rdquo;<a href="#lamports-move-stop-asking-when" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>In 1978 Leslie Lamport published the paper that resolved this, and the insight is a genuine reframe: <strong>give up on knowing when things happened, and track only what could have caused what.</strong></p>
+<p>Formally that is the <em>happens-before</em> relation, written <code>a → b</code>, and it holds in exactly three cases: <code>a</code> and <code>b</code> happened on the same node with <code>a</code> first; <code>a</code> was a message send and <code>b</code> was its receive; or there is a chain of those linking them. If none of that applies, the events are <strong>concurrent</strong> — not simultaneous, just causally unrelated. Nothing connects them, so no order between them is more correct than any other.</p>
+<p>A <strong>Lamport clock</strong> tracks this with one integer per node and three rules:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>   local event      →   c = c + 1
+</span></span><span style="display:flex;"><span>   before sending   →   c = c + 1,  attach c to the message
+</span></span><span style="display:flex;"><span>   on receiving     →   c = max(c, received) + 1
+</span></span></code></pre></div><p>That is the whole algorithm. Here it is running across three nodes:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>            e1            e2
+</span></span><span style="display:flex;"><span>    P1  ────①─────────────②──────────────────────────────────────►
+</span></span><span style="display:flex;"><span>                            ╲
+</span></span><span style="display:flex;"><span>                             ╲  m1  carries 2
+</span></span><span style="display:flex;"><span>                              ↘
+</span></span><span style="display:flex;"><span>            e3                 e4        e5        e6
+</span></span><span style="display:flex;"><span>    P2  ─────①─────────────────③─────────④─────────⑤─────────────►
+</span></span><span style="display:flex;"><span>                          max(1,2)+1                 ╲
+</span></span><span style="display:flex;"><span>                                                      ╲  m2  carries 5
+</span></span><span style="display:flex;"><span>                                                       ↘
+</span></span><span style="display:flex;"><span>            e7        e8                                e9
+</span></span><span style="display:flex;"><span>    P3  ─────①─────────②───────────────────────────────⑥─────────►
+</span></span><span style="display:flex;"><span>                                                   max(2,5)+1
+</span></span></code></pre></div><p>The guarantee: <strong>if <code>a → b</code> then <code>c(a) &lt; c(b)</code>.</strong> Causality never runs backwards in the numbers. That is enough to build a great many things.</p>
+<p>But read the guarantee carefully, because the converse is false. <code>c(e8) = 2</code> and <code>c(e1) = 1</code>, so <code>e1</code> has the smaller number — yet nothing connects them. They are concurrent, and the clock cannot say so. A Lamport clock compresses &ldquo;before&rdquo; and &ldquo;unrelated&rdquo; into the same answer, and once compressed you cannot get them back.</p>
+<h3 id="vector-clocks-paying-for-the-missing-answer">Vector clocks: paying for the missing answer<a href="#vector-clocks-paying-for-the-missing-answer" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>Sometimes &ldquo;unrelated&rdquo; is exactly what you need to know. Two replicas both accepted a write to the same key — is one an update of the other, or did they happen independently and you now have a genuine conflict?</p>
+<p>A <strong>vector clock</strong> answers that by keeping a counter <em>per node</em> instead of one:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>   local event      →   V[me] += 1
+</span></span><span style="display:flex;"><span>   before sending   →   V[me] += 1,  attach the whole vector
+</span></span><span style="display:flex;"><span>   on receiving     →   V = elementwise max(V, received),  then V[me] += 1
+</span></span></code></pre></div><p>Now comparison has three outcomes instead of two:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>   A = {n1:2, n2:1, n3:0}      B = {n1:3, n2:1, n3:0}
+</span></span><span style="display:flex;"><span>   every component  A ≤ B,  at least one strictly less    →   A happened before B
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>   A = {n1:2, n2:1, n3:0}      B = {n1:1, n2:4, n3:0}
+</span></span><span style="display:flex;"><span>   A leads on n1,  B leads on n2,  neither dominates      →   CONCURRENT
+</span></span><span style="display:flex;"><span>                                                              a real conflict
+</span></span></code></pre></div><p>In Python that is about six lines:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">compare</span>(a: dict[str, int], b: dict[str, int]) <span style="color:#f92672">-&gt;</span> str:
+</span></span><span style="display:flex;"><span>    nodes <span style="color:#f92672">=</span> a<span style="color:#f92672">.</span>keys() <span style="color:#f92672">|</span> b<span style="color:#f92672">.</span>keys()
+</span></span><span style="display:flex;"><span>    a_le <span style="color:#f92672">=</span> all(a<span style="color:#f92672">.</span>get(n, <span style="color:#ae81ff">0</span>) <span style="color:#f92672">&lt;=</span> b<span style="color:#f92672">.</span>get(n, <span style="color:#ae81ff">0</span>) <span style="color:#66d9ef">for</span> n <span style="color:#f92672">in</span> nodes)
+</span></span><span style="display:flex;"><span>    b_le <span style="color:#f92672">=</span> all(b<span style="color:#f92672">.</span>get(n, <span style="color:#ae81ff">0</span>) <span style="color:#f92672">&lt;=</span> a<span style="color:#f92672">.</span>get(n, <span style="color:#ae81ff">0</span>) <span style="color:#66d9ef">for</span> n <span style="color:#f92672">in</span> nodes)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> a_le <span style="color:#f92672">and</span> b_le:  <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;identical&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> a_le:           <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;a → b&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> b_le:           <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;b → a&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;concurrent&#34;</span>          <span style="color:#75715e"># ← the answer no wall clock can ever give</span>
+</span></span></code></pre></div><p>This is how Dynamo-lineage stores decide whether to merge silently or hand you both versions and make you choose. The price is in the first line: a timestamp is now O(N) in the number of nodes, it grows as the cluster grows, and it needs a story for nodes joining and leaving. Fine for a handful of replicas. Not fine for a thousand.</p>
+<h3 id="hybrid-logical-clocks-the-practical-compromise">Hybrid logical clocks: the practical compromise<a href="#hybrid-logical-clocks-the-practical-compromise" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>So: physical timestamps are readable and comparable across the whole system but can lie about order. Logical clocks never lie about order but are disconnected from real time — a Lamport counter of <code>4,182</code> tells you nothing about when, and you cannot query a range with it or hand it to an operator.</p>
+<p>A <strong>hybrid logical clock</strong> takes both. Each timestamp is a pair — a physical component and a logical counter:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>   ┌──────────────────────────┬─────────────┐
+</span></span><span style="display:flex;"><span>   │ physical part            │ counter     │
+</span></span><span style="display:flex;"><span>   │ tracks the wall clock,   │ breaks ties │
+</span></span><span style="display:flex;"><span>   │ never runs behind it     │ when the    │
+</span></span><span style="display:flex;"><span>   │ by more than the skew    │ physical    │
+</span></span><span style="display:flex;"><span>   │                          │ part stalls │
+</span></span><span style="display:flex;"><span>   └──────────────────────────┴─────────────┘
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>   on any event:   take max(my physical part, my wall clock, anything
+</span></span><span style="display:flex;"><span>                   arriving on a message);  if that value did not
+</span></span><span style="display:flex;"><span>                   advance, bump the counter instead
+</span></span></code></pre></div><p>What you get is a value that respects causality the way Lamport does, stays within known skew of real wall time so it is still meaningful to a human and still range-queryable, and — unlike a vector clock — never grows. Constant size, forever.</p>
+<p>That combination is why HLCs ended up under CockroachDB and MongoDB&rsquo;s causal consistency rather than either pure approach.</p>
+<h3 id="the-other-way-out-admit-the-uncertainty">The other way out: admit the uncertainty<a href="#the-other-way-out-admit-the-uncertainty" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>There is one more option, and it is the opposite philosophy. Instead of routing around bad clocks, buy good ones and be honest about the error bar.</p>
+<p>Google&rsquo;s Spanner does this. GPS receivers and atomic clocks in every datacentre get the skew down to a few milliseconds, and then — the actual clever part — the API refuses to return a single instant. It returns an <em>interval</em>: earliest and latest, guaranteed to contain the true time. If two intervals overlap, the system does not know the order, and it says so.</p>
+<p>Then it does the thing that sounds absurd and works: before committing, it <strong>waits</strong> for the uncertainty window to elapse. A few milliseconds of deliberate sleep, so that by the time the commit is visible, its timestamp is unambiguously in the past for every other node. Latency spent to buy a real ordering guarantee.</p>
+<p>Most of us do not have atomic clocks in the rack. But the design lesson transfers, and it is free: <strong>when you record a time you cannot fully trust, record what you know about the trust too.</strong></p>
+<h3 id="choosing-between-them">Choosing between them<a href="#choosing-between-them" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>                            size      spots        tracks
+</span></span><span style="display:flex;"><span>                                      concurrency?  real time?
+</span></span><span style="display:flex;"><span>   ─────────────────────────────────────────────────────────────
+</span></span><span style="display:flex;"><span>   physical timestamp       O(1)         ✗            ✓✓
+</span></span><span style="display:flex;"><span>   Lamport clock            O(1)         ✗            ✗
+</span></span><span style="display:flex;"><span>   vector clock             O(nodes)     ✓            ✗
+</span></span><span style="display:flex;"><span>   hybrid logical clock     O(1)         ✗            ✓
+</span></span><span style="display:flex;"><span>   TrueTime-style interval  O(1)         ✓ (explicit) ✓✓
+</span></span></code></pre></div><p>For most of what you will build, the honest answer is that you do not need any of this — one service, one database, and the database&rsquo;s own ordering is the source of truth. Reach for logical time when you have genuinely concurrent writers and need to know whether two versions conflict, and reach for it <em>knowing</em> that a physical timestamp was never going to tell you.</p>
+<aside class="pullquote">
+  
+In a distributed system, a timestamp is evidence, not a verdict. If your correctness depends on ordering two events on two machines, order them explicitly — do not sort by a column and hope.
+
+</aside>
+
 <h2 id="the-cheat-sheet">The Cheat Sheet<a href="#the-cheat-sheet" class="hanchor" ariaLabel="Anchor">#</a> </h2>
 <p>Before the table, the question that picks the row. Ask it <em>before</em> you declare the field, not after the bug:</p>
 <div class="mermaid">
@@ -661,9 +790,11 @@ flowchart TD
     Q -->|"a promise about<br/>a wall clock"| CIVIL(["CIVIL DATETIME + ZONE<br/>civil.DateTime · naive datetime"])
     Q -->|"a calendar day,<br/>no instant behind it"| DATE(["DATE<br/>civil.Date · datetime.date"])
     Q -->|"a gap between<br/>two instants"| DUR(["DURATION<br/>time.Duration · timedelta"])
+    Q -->|"which of two events<br/>on different machines<br/>came first"| LOG(["LOGICAL CLOCK<br/>Lamport · vector · HLC"])
 
     INST -.->|"never store<br/>a naive one"| WARN(["a wall clock with<br/>no zone is not<br/>a point in time"])
     CIVIL -.-> WARN
+    LOG -.-> WARN2(["a timestamp cannot<br/>answer this, no matter<br/>how precise"])
 
 </div>
 <style>
@@ -733,9 +864,15 @@ flowchart TD
           <td><code>time.Since</code></td>
           <td><code>time.monotonic()</code></td>
       </tr>
+      <tr>
+          <td>causal order</td>
+          <td>— no stdlib answer</td>
+          <td>— no stdlib answer</td>
+      </tr>
   </tbody>
 </table>
 <p>Go&rsquo;s <code>civil</code> package is <code>cloud.google.com/go/civil</code> — worth pulling in when you genuinely mean a date with no instant behind it, like a birthday or an invoice period.</p>
+<p>That last row is not an oversight. Neither language ships a logical clock, because there is nothing to ship: a Lamport counter is three lines and a mutex, and the hard parts — who the nodes are, how vectors get pruned, what a conflict means for <em>your</em> data — are all application decisions. If you need one, write it. It is small.</p>
 <h2 id="the-short-version">The Short Version<a href="#the-short-version" class="hanchor" ariaLabel="Anchor">#</a> </h2>
 <p>If you forget the rest of this, keep these:</p>
 <ul>
@@ -746,6 +883,7 @@ flowchart TD
 <li><strong>A time zone is a bridge, not a field.</strong> And it is a bridge with two holes in it every year.</li>
 <li><strong>Store the fact, not the rendering.</strong> Ask what should survive a change in the rules.</li>
 <li><strong>Never subtract two wall-clock readings</strong> to measure how long something took.</li>
+<li><strong>Across machines, a timestamp does not establish order.</strong> Clock skew is routinely larger than the gap you are trying to resolve. If correctness depends on the order, track causality instead.</li>
 </ul>
 <p>And write your dates as <code>2026-08-02</code>. It sorts correctly, it means the same thing in every country, and it has never once been mistaken for the 8th of February.</p>
 
